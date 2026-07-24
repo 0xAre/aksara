@@ -1,6 +1,6 @@
 [package]
 name = "aksara"
-version = "0.1.8"
+version = "0.1.0"
 edition = "2021"
 license = "UNLICENSED"
 # Dinaikkan dari 1.75 ke 1.89 di M2: arti-client 0.43.x (sesuai PRD) butuh rustc >= 1.89.

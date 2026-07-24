@@ -55,7 +55,7 @@ dependencies = [
 
 [[package]]
 name = "aksara"
-version = "0.1.8"
+version = "0.1.0"
 dependencies = [
  "arboard",
  "argon2",

@@ -1,6 +1,26 @@
-# AKSARA
+<div align="center">
 
-**Serverless encrypted P2P terminal chat.** Dua orang bisa chat end-to-end terenkripsi **tanpa server perantara** sama sekali — tidak ada perusahaan, tidak ada akun, tidak ada metadata percakapan yang tersimpan di pihak ketiga. Koneksi langsung antar perangkat lewat LAN, atau lintas internet via jaringan Tor.
+```
+  █████╗ ██╗  ██╗███████╗ █████╗ ██████╗   █████╗
+ ██╔══██╗██║ ██╔╝██╔════╝██╔══██╗██╔══██╗ ██╔══██╗
+ ███████║█████╔╝ ███████╗███████║██████╔╝ ███████║
+ ██╔══██║██╔═██╗ ╚════██║██╔══██║██╔══██╗ ██╔══██║
+ ██║  ██║██║  ██╗███████║██║  ██║██║  ██║ ██║  ██║
+ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═╝  ╚═╝
+```
+
+**Tanpa server. Tanpa jejak. Cuma kamu dan orang yang kamu percaya.**
+
+[![Release](https://img.shields.io/badge/release-v0.1.0-5dd4d4?style=flat-square)](https://github.com/0xAre/aksara/releases)
+[![Rust](https://img.shields.io/badge/Rust-1.89+-orange?style=flat-square&logo=rust)](https://www.rust-lang.org)
+[![License](https://img.shields.io/badge/License-Proprietary-lightgrey?style=flat-square)](LICENSE)
+[![Build](https://img.shields.io/github/actions/workflow/status/0xAre/aksara/release.yml?style=flat-square)](https://github.com/0xAre/aksara/actions)
+
+</div>
+
+---
+
+**Chat P2P terminal terenkripsi, serverless.** Dua orang chat end-to-end terenkripsi **tanpa server perantara** sama sekali — tidak ada perusahaan, tidak ada akun, tidak ada metadata percakapan yang tersimpan di pihak ketiga. Koneksi langsung antar perangkat lewat LAN, atau lintas internet via jaringan Tor.
 
 > Model **Room-Bound Sync**: kedua pihak harus hadir di "room" yang sama secara bersamaan. Begitu salah satu keluar, kunci sesi dibuang — pesan lama tidak bisa dibaca ulang oleh siapa pun, termasuk pengirimnya. *Ephemeral by design*, bukan by policy.
 
