@@ -24,12 +24,27 @@ pub enum SessionState {
     Closed,
 }
 
+/// Perintah dari UI ke session task.
+#[derive(Clone, Debug)]
+pub enum SessionCmd {
+    /// Pesan chat plaintext untuk dikirim ke peer.
+    Text(String),
+    /// UX: toggle Mode Light tersinkron ke peer (true = aktif kedua sisi).
+    Blur(bool),
+}
+
+// Byte pertama payload (sebelum dienkripsi) menandai jenis isi.
+const TYPE_TEXT: u8 = 0x00;
+const TYPE_BLUR: u8 = 0x01;
+
 /// Event dari session task ke UI.
 #[derive(Clone, Debug)]
 pub enum SessionEvent {
     StateChanged(SessionState),
     /// Pesan plaintext yang diterima dari peer.
     Message(String),
+    /// Peer mengubah Mode Light untuk kedua sisi (true = aktif).
+    PeerBlur(bool),
     /// Peer menutup koneksi (keluar dari room).
     PeerLeft,
     /// Error fatal — koneksi gagal atau handshake gagal.
@@ -48,7 +63,7 @@ pub async fn run_session<S>(
     role: Role,
     local_noise_sk: [u8; 32],
     peer_noise_pk: Option<[u8; 32]>,
-    mut outgoing: UnboundedReceiver<String>,
+    mut outgoing: UnboundedReceiver<SessionCmd>,
     events: UnboundedSender<SessionEvent>,
 ) -> Result<(), Error>
 where
@@ -116,11 +131,20 @@ where
 
     loop {
         tokio::select! {
-            maybe_text = outgoing.recv() => {
-                match maybe_text {
-                    Some(text) => {
-                        let mut ct = vec![0u8; text.len() + 16];
-                        let n = session.encrypt(text.as_bytes(), &mut ct)?;
+            maybe_cmd = outgoing.recv() => {
+                match maybe_cmd {
+                    Some(cmd) => {
+                        let payload = match cmd {
+                            SessionCmd::Text(text) => {
+                                let mut p = Vec::with_capacity(text.len() + 1);
+                                p.push(TYPE_TEXT);
+                                p.extend_from_slice(text.as_bytes());
+                                p
+                            }
+                            SessionCmd::Blur(on) => vec![TYPE_BLUR, on as u8],
+                        };
+                        let mut ct = vec![0u8; payload.len() + 16];
+                        let n = session.encrypt(&payload, &mut ct)?;
                         if write_frame(&mut wr, &ct[..n]).await.is_err() {
                             break;
                         }
@@ -139,10 +163,17 @@ where
                 }
                 let mut pt = vec![0u8; n];
                 match session.decrypt(&buf[..n], &mut pt) {
-                    Ok(m) => {
-                        let text = String::from_utf8_lossy(&pt[..m]).to_string();
-                        let _ = events.send(SessionEvent::Message(text));
-                    }
+                    Ok(m) if m == 0 => {} // payload kosong, abaikan
+                    Ok(m) => match pt[0] {
+                        TYPE_TEXT => {
+                            let text = String::from_utf8_lossy(&pt[1..m]).to_string();
+                            let _ = events.send(SessionEvent::Message(text));
+                        }
+                        TYPE_BLUR if m >= 2 => {
+                            let _ = events.send(SessionEvent::PeerBlur(pt[1] == 0x01));
+                        }
+                        _ => {} // byte tipe tak dikenal — diabaikan, bukan fatal
+                    },
                     Err(_) => break, // dekripsi gagal → putus (fail closed)
                 }
             }
@@ -186,7 +217,7 @@ mod tests {
         let addr = listener.local_addr().unwrap();
 
         // Responder
-        let (resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<String>();
+        let (resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
         let (resp_ev_tx, mut resp_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
         let resp = tokio::spawn(async move {
             let (stream, _) = listener.accept().await.unwrap();
@@ -202,7 +233,7 @@ mod tests {
         });
 
         // Initiator
-        let (init_out_tx, init_out_rx) = mpsc::unbounded_channel::<String>();
+        let (init_out_tx, init_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
         let (init_ev_tx, mut init_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
         let init = tokio::spawn(async move {
             let stream = TcpStream::connect(addr).await.unwrap();
@@ -218,14 +249,60 @@ mod tests {
         });
 
         // Initiator → Responder
-        init_out_tx.send("halo dari client".to_string()).unwrap();
+        init_out_tx.send(SessionCmd::Text("halo dari client".to_string())).unwrap();
         assert_eq!(wait_for_message(&mut resp_ev_rx).await, "halo dari client");
 
         // Responder → Initiator
-        resp_out_tx.send("balasan server".to_string()).unwrap();
+        resp_out_tx.send(SessionCmd::Text("balasan server".to_string())).unwrap();
         assert_eq!(wait_for_message(&mut init_ev_rx).await, "balasan server");
 
         // Tutup kedua sisi
+        drop(init_out_tx);
+        drop(resp_out_tx);
+        let _ = resp.await;
+        let _ = init.await;
+    }
+
+    /// UX-05: toggle Mode Light tersinkron dari initiator sampai diterima
+    /// responder sebagai `SessionEvent::PeerBlur` — membuktikan encoding byte
+    /// tipe (TYPE_BLUR) roundtrip lewat enkripsi/dekripsi dengan benar.
+    #[tokio::test]
+    async fn blur_toggle_roundtrip() {
+        let server = NoiseKey::generate();
+        let client = NoiseKey::generate();
+        let server_sk = server.secret_bytes();
+        let server_pk = server.public_bytes();
+        let client_sk = client.secret_bytes();
+
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+
+        let (resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
+        let (resp_ev_tx, mut resp_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
+        let resp = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            run_session(stream, Role::Responder, server_sk, None, resp_out_rx, resp_ev_tx).await
+        });
+
+        let (init_out_tx, init_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
+        let (init_ev_tx, _init_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
+        let init = tokio::spawn(async move {
+            let stream = TcpStream::connect(addr).await.unwrap();
+            run_session(stream, Role::Initiator, client_sk, Some(server_pk), init_out_rx, init_ev_tx).await
+        });
+
+        init_out_tx.send(SessionCmd::Blur(true)).unwrap();
+        loop {
+            match resp_ev_rx.recv().await {
+                Some(SessionEvent::PeerBlur(on)) => {
+                    assert!(on);
+                    break;
+                }
+                Some(_) => continue,
+                None => panic!("kanal tertutup sebelum PeerBlur diterima"),
+            }
+        }
+
         drop(init_out_tx);
         drop(resp_out_tx);
         let _ = resp.await;
@@ -248,7 +325,7 @@ mod tests {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let addr = listener.local_addr().unwrap();
 
-        let (_resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<String>();
+        let (_resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
         let (resp_ev_tx, _resp_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
         let resp = tokio::spawn(async move {
             let (stream, _) = listener.accept().await.unwrap();
@@ -264,7 +341,7 @@ mod tests {
             .await
         });
 
-        let (_init_out_tx, init_out_rx) = mpsc::unbounded_channel::<String>();
+        let (_init_out_tx, init_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
         let (init_ev_tx, _init_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
         let init = tokio::spawn(async move {
             let stream = TcpStream::connect(addr).await.unwrap();

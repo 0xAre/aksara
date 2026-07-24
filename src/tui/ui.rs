@@ -6,7 +6,7 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap};
 use ratatui::Frame;
 
-use super::{App, Mode, NotifLevel, RoomState, Screen, Who};
+use super::{App, ChatLine, Mode, NotifLevel, RoomState, Screen, Who, BLUR_KEEP_RECENT};
 
 // ─── ASCII logo ───────────────────────────────────────────────────────────────
 const LOGO: &[&str] = &[
@@ -540,7 +540,7 @@ fn render_chat_panel(f: &mut Frame, app: &App, area: Rect) {
     } else {
         ("○", Style::default().fg(DIM))
     };
-    let title_spans: Vec<Span> = match app.room {
+    let mut title_spans: Vec<Span> = match app.room {
         RoomState::Open => vec![
             Span::styled("SESI", Style::default().fg(DIM)),
             Span::styled("  ·  ", Style::default().fg(DIM)),
@@ -568,16 +568,44 @@ fn render_chat_panel(f: &mut Frame, app: &App, area: Rect) {
             Span::styled("SESI", Style::default().fg(DIM)),
         ],
     };
+    if app.blur_enabled {
+        title_spans.push(Span::styled("  ◐ Mode Light", Style::default().fg(ACCENT)));
+    }
     f.render_widget(Paragraph::new(Line::from(title_spans)), rows[0]);
 
-    // Chat messages
+    // Chat messages — wrap-aware: pilih pesan dari akhir sampai estimasi baris
+    // (setelah word-wrap) memenuhi tinggi panel, lalu geser mundur scroll_offset.
     let inner_h = rows[1].height as usize;
-    let start = app.messages.len().saturating_sub(inner_h.max(1));
-    let mut lines: Vec<Line> = Vec::new();
+    let inner_w = (rows[1].width as usize).max(1);
+    let total = app.messages.len();
+    let keep_clear_from = total.saturating_sub(BLUR_KEEP_RECENT);
 
-    // Messages
-    for msg in &app.messages[start..] {
-        lines.push(render_chat_line(msg));
+    let mut visible_idx: Vec<usize> = Vec::new();
+    let mut used = 0usize;
+    let mut skip = app.scroll_offset;
+    for i in (0..total).rev() {
+        let est = estimate_wrapped_lines(&app.messages[i].text, inner_w);
+        if skip >= est {
+            skip -= est;
+            continue;
+        }
+        if used >= inner_h {
+            break;
+        }
+        used += est;
+        visible_idx.push(i);
+    }
+    visible_idx.reverse();
+
+    let mut lines: Vec<Line> = Vec::new();
+    for i in visible_idx {
+        let msg = &app.messages[i];
+        let current_match = app.search_active
+            && app.search_matches.get(app.search_cursor) == Some(&i);
+        let selected_for_reply = app.select_reply_idx == Some(i);
+        let highlight = current_match || selected_for_reply;
+        let dim = app.blur_enabled && i < keep_clear_from && !highlight;
+        lines.push(render_chat_line(msg, dim, highlight));
     }
 
     // Connecting/Handshaking spinner
@@ -601,13 +629,47 @@ fn render_chat_panel(f: &mut Frame, app: &App, area: Rect) {
     // Input separator
     render_separator(f, rows[2]);
 
-    // Input line — hanya visible saat room Open
-    let input_line = if app.room == RoomState::Open {
+    // Input line — overlay (cari / prompt Mode Light / pilih reply) menang atas input biasa.
+    let input_line = if app.search_active {
+        let count = app.search_matches.len();
         Line::from(vec![
-            Span::styled("› ", Style::default().fg(ACCENT)),
-            Span::styled(app.input.clone(), Style::default().fg(TEXT)),
-            Span::styled("▏", Style::default().fg(ACCENT)),
+            Span::styled("/ ", Style::default().fg(ACCENT)),
+            Span::styled(app.search_query.clone(), Style::default().fg(TEXT)),
+            Span::styled(format!("  [{count} cocok]  "), Style::default().fg(DIM)),
+            Span::styled("[Enter]", Style::default().fg(ACCENT)),
+            Span::styled(" berikutnya  ", Style::default().fg(DIM)),
+            Span::styled("[Esc]", Style::default().fg(ACCENT)),
+            Span::styled(" tutup", Style::default().fg(DIM)),
         ])
+    } else if app.blur_prompt_open {
+        Line::from(vec![
+            Span::styled("Mode Light: ", Style::default().fg(ACCENT).add_modifier(Modifier::BOLD)),
+            Span::styled("[L]", Style::default().fg(ACCENT)),
+            Span::styled(" lokal   ", Style::default().fg(DIM)),
+            Span::styled("[B]", Style::default().fg(ACCENT)),
+            Span::styled(" berdua   ", Style::default().fg(DIM)),
+            Span::styled("[Esc]", Style::default().fg(ACCENT)),
+            Span::styled(" batal", Style::default().fg(DIM)),
+        ])
+    } else if app.select_reply_idx.is_some() {
+        Line::from(vec![
+            Span::styled("Pilih pesan: ", Style::default().fg(ACCENT).add_modifier(Modifier::BOLD)),
+            Span::styled("[↑↓]", Style::default().fg(ACCENT)),
+            Span::styled(" pilih   ", Style::default().fg(DIM)),
+            Span::styled("[Enter]", Style::default().fg(ACCENT)),
+            Span::styled(" balas   ", Style::default().fg(DIM)),
+            Span::styled("[Esc]", Style::default().fg(ACCENT)),
+            Span::styled(" batal", Style::default().fg(DIM)),
+        ])
+    } else if app.room == RoomState::Open {
+        let mut spans = Vec::new();
+        if app.replying_to.is_some() {
+            spans.push(Span::styled("\u{21a9} ", Style::default().fg(ACCENT)));
+        }
+        spans.push(Span::styled("› ", Style::default().fg(ACCENT)));
+        spans.push(Span::styled(app.input.clone(), Style::default().fg(TEXT)));
+        spans.push(Span::styled("▏", Style::default().fg(ACCENT)));
+        Line::from(spans)
     } else {
         Line::from(Span::styled(
             "  [Esc] keluar sesi",
@@ -617,7 +679,19 @@ fn render_chat_panel(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(Paragraph::new(input_line), rows[3]);
 }
 
-fn render_chat_line(line: &super::ChatLine) -> Line<'_> {
+fn render_chat_line(line: &ChatLine, dim: bool, highlight: bool) -> Line<'_> {
+    if highlight {
+        return Line::from(vec![
+            Span::styled("▶ ", Style::default().fg(WARNING).add_modifier(Modifier::BOLD)),
+            Span::styled(line.text.clone(), Style::default().fg(WARNING).add_modifier(Modifier::BOLD)),
+        ]);
+    }
+    if dim {
+        return Line::from(Span::styled(
+            format!("  {}", line.text),
+            Style::default().fg(DIM),
+        ));
+    }
     match line.who {
         Who::Me => Line::from(vec![
             Span::styled("  → ", Style::default().fg(SUCCESS).add_modifier(Modifier::BOLD)),
@@ -632,6 +706,19 @@ fn render_chat_line(line: &super::ChatLine) -> Line<'_> {
             Style::default().fg(DIM).add_modifier(Modifier::ITALIC),
         )),
     }
+}
+
+/// Perkiraan jumlah baris terminal yang dipakai `text` setelah word-wrap pada
+/// `width`.
+/// ponytail: pendekatan char-count/width, bukan replikasi word-wrap ratatui
+/// yang sebenarnya (yang memecah di batas kata, bukan karakter) — cukup untuk
+/// estimasi scroll. Upgrade ke pengukuran `ratatui::text::Line` langsung kalau
+/// presisi exact jadi masalah nyata (mis. banyak kata sangat panjang).
+fn estimate_wrapped_lines(text: &str, width: usize) -> usize {
+    const PREFIX_WIDTH: usize = 4; // perkiraan lebar prefix "  → "/"  ← "/"  ·  "
+    let w = width.saturating_sub(PREFIX_WIDTH).max(1);
+    let len = text.chars().count().max(1);
+    len.div_ceil(w)
 }
 
 // ─────────────────────────────── Add Contact Modal ────────────────────────────
@@ -737,6 +824,9 @@ fn footer_hint(app: &App) -> Line<'static> {
         Mode::InRoom => Line::from(vec![
             d(" "),
             k("[Enter]"), d(" kirim   "),
+            k("[Ctrl+B]"), d(" mode light   "),
+            k("[Ctrl+S]"), d(" cari   "),
+            k("[Ctrl+R]"), d(" balas   "),
             k("[Esc]"), d(" keluar sesi"),
         ]),
     }
@@ -854,4 +944,26 @@ fn format_fingerprint(fp: &str) -> String {
 
 fn format_fingerprint_short(fp: &str) -> String {
     fp.get(..6).unwrap_or(fp).to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn estimate_wrapped_lines_short_text_is_one_line() {
+        assert_eq!(estimate_wrapped_lines("halo", 80), 1);
+    }
+
+    #[test]
+    fn estimate_wrapped_lines_long_text_spans_multiple_lines() {
+        let text = "a".repeat(200);
+        // width 80, prefix 4 -> lebar efektif 76 -> ceil(200/76) = 3
+        assert_eq!(estimate_wrapped_lines(&text, 80), 3);
+    }
+
+    #[test]
+    fn estimate_wrapped_lines_zero_width_does_not_panic() {
+        assert_eq!(estimate_wrapped_lines("halo", 0), 4);
+    }
 }

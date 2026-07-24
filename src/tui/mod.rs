@@ -24,7 +24,7 @@ use crate::contacts::{self, Contact};
 use crate::error::Error;
 use crate::identity::keypair::KeyBundle;
 use crate::identity::vault;
-use crate::session::{self, SessionEvent, SessionState};
+use crate::session::{self, SessionCmd, SessionEvent, SessionState};
 use crate::transport::tor::TorContext;
 use crate::transport::{self, LanMode};
 
@@ -179,7 +179,35 @@ pub(crate) struct App {
     pub conn_task: Option<tokio::task::JoinHandle<()>>,
     pub contacts_key: Option<[u8; 32]>,
     pub pending_delete: Option<usize>,
+
+    // --- UX: Mode Light (blur pesan lama) ---
+    pub blur_enabled: bool,
+    /// True bila Mode Light disinkronkan ke peer (berlaku kedua sisi).
+    pub blur_synced: bool,
+    /// True saat prompt cakupan ([L] lokal / [B] berdua) sedang terbuka.
+    pub blur_prompt_open: bool,
+
+    // --- UX: Scroll chat (wrap-aware) ---
+    /// Jumlah baris (estimasi, setelah wrap) yang di-scroll dari posisi
+    /// bawah. 0 = di posisi terbaru.
+    pub scroll_offset: usize,
+
+    // --- UX: Cari pesan ---
+    pub search_active: bool,
+    pub search_query: String,
+    /// Indeks ke `messages` yang cocok dengan `search_query`.
+    pub search_matches: Vec<usize>,
+    pub search_cursor: usize,
+
+    // --- UX: Reply ---
+    /// Kutipan pesan yang sedang dibalas; None = tidak dalam mode reply.
+    pub replying_to: Option<String>,
+    /// Indeks pesan yang disorot dalam mode "pilih pesan untuk dibalas".
+    pub select_reply_idx: Option<usize>,
 }
+
+/// Jumlah pesan terbaru yang tetap jelas (tidak diredupkan) saat Mode Light aktif.
+pub(crate) const BLUR_KEEP_RECENT: usize = 3;
 
 impl App {
     fn new(
@@ -217,6 +245,16 @@ impl App {
             conn_task: None,
             contacts_key: None,
             pending_delete: None,
+            blur_enabled: false,
+            blur_synced: false,
+            blur_prompt_open: false,
+            scroll_offset: 0,
+            search_active: false,
+            search_query: String::new(),
+            search_matches: Vec::new(),
+            search_cursor: 0,
+            replying_to: None,
+            select_reply_idx: None,
         }
     }
 
@@ -288,7 +326,7 @@ pub async fn run(
     let (input_tx, mut input_rx) = mpsc::unbounded_channel::<KeyEvent>();
     spawn_input_thread(input_tx);
 
-    let mut out_tx: Option<mpsc::UnboundedSender<String>> = None;
+    let mut out_tx: Option<mpsc::UnboundedSender<SessionCmd>> = None;
     let mut ev_rx: Option<mpsc::UnboundedReceiver<SessionEvent>> = None;
 
     let mut tick = tokio::time::interval(Duration::from_millis(100));
@@ -412,7 +450,7 @@ fn spawn_input_thread(tx: mpsc::UnboundedSender<KeyEvent>) {
 
 fn handle_key(
     app: &mut App,
-    out_tx: &mut Option<mpsc::UnboundedSender<String>>,
+    out_tx: &mut Option<mpsc::UnboundedSender<SessionCmd>>,
     ev_rx: &mut Option<mpsc::UnboundedReceiver<SessionEvent>>,
     key: KeyEvent,
 ) -> bool {
@@ -595,7 +633,7 @@ fn copy_invite(app: &mut App) {
 
 fn handle_main_key(
     app: &mut App,
-    out_tx: &mut Option<mpsc::UnboundedSender<String>>,
+    out_tx: &mut Option<mpsc::UnboundedSender<SessionCmd>>,
     ev_rx: &mut Option<mpsc::UnboundedReceiver<SessionEvent>>,
     key: KeyEvent,
 ) -> bool {
@@ -653,20 +691,181 @@ fn handle_main_key(
             _ => {}
         },
 
-        Mode::InRoom => match key.code {
-            KeyCode::Esc => leave_room(app, out_tx, ev_rx),
-            KeyCode::Backspace => { app.input.pop(); }
-            KeyCode::Enter => send_message(app, out_tx),
-            KeyCode::Char(c) => app.input.push(c),
-            _ => {}
-        },
+        Mode::InRoom => {
+            if app.blur_prompt_open {
+                handle_blur_prompt_key(app, out_tx, key);
+            } else if let Some(idx) = app.select_reply_idx {
+                handle_select_reply_key(app, idx, key);
+            } else if app.search_active {
+                handle_search_key(app, key);
+            } else {
+                match key.code {
+                    KeyCode::Esc => leave_room(app, out_tx, ev_rx),
+                    KeyCode::Backspace => { app.input.pop(); }
+                    KeyCode::Enter => send_message(app, out_tx),
+                    KeyCode::PageUp => scroll_chat(app, true),
+                    KeyCode::PageDown => scroll_chat(app, false),
+                    KeyCode::Char('b') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        toggle_blur(app, out_tx);
+                    }
+                    KeyCode::Char('s') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        start_search(app);
+                    }
+                    KeyCode::Char('r') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        start_reply_select(app);
+                    }
+                    KeyCode::Char(c) => app.input.push(c),
+                    _ => {}
+                }
+            }
+        }
     }
     false
 }
 
+/// Prompt cakupan Mode Light (Ctrl+B saat nonaktif): [L] hanya perangkat ini,
+/// [B] kedua sisi (kirim `SessionCmd::Blur` ke peer), [Esc] batal.
+fn handle_blur_prompt_key(
+    app: &mut App,
+    out_tx: &Option<mpsc::UnboundedSender<SessionCmd>>,
+    key: KeyEvent,
+) {
+    match key.code {
+        KeyCode::Char('l') | KeyCode::Char('L') => {
+            app.blur_prompt_open = false;
+            app.blur_enabled = true;
+            app.blur_synced = false;
+            app.messages.push(ChatLine::system("Mode Light aktif (hanya perangkat ini).".into()));
+        }
+        KeyCode::Char('b') | KeyCode::Char('B') => {
+            app.blur_prompt_open = false;
+            app.blur_enabled = true;
+            if let Some(tx) = out_tx {
+                let _ = tx.send(SessionCmd::Blur(true));
+                app.blur_synced = true;
+                app.messages.push(ChatLine::system("Mode Light aktif untuk kalian berdua.".into()));
+            } else {
+                app.blur_synced = false;
+                app.messages.push(ChatLine::system("Mode Light aktif (hanya perangkat ini).".into()));
+            }
+        }
+        KeyCode::Esc => {
+            app.blur_prompt_open = false;
+        }
+        _ => {}
+    }
+}
+
+fn toggle_blur(app: &mut App, out_tx: &Option<mpsc::UnboundedSender<SessionCmd>>) {
+    if app.blur_enabled {
+        if app.blur_synced {
+            if let Some(tx) = out_tx {
+                let _ = tx.send(SessionCmd::Blur(false));
+            }
+        }
+        app.blur_enabled = false;
+        app.blur_synced = false;
+        app.messages.push(ChatLine::system("Mode Light dimatikan.".into()));
+    } else {
+        app.blur_prompt_open = true;
+    }
+}
+
+fn start_search(app: &mut App) {
+    app.search_active = true;
+    app.search_query.clear();
+    app.search_matches.clear();
+    app.search_cursor = 0;
+}
+
+fn handle_search_key(app: &mut App, key: KeyEvent) {
+    match key.code {
+        KeyCode::Esc => {
+            app.search_active = false;
+            app.search_query.clear();
+            app.search_matches.clear();
+        }
+        KeyCode::Backspace => {
+            app.search_query.pop();
+            run_search(app);
+        }
+        KeyCode::Enter => {
+            if !app.search_matches.is_empty() {
+                app.search_cursor = (app.search_cursor + 1) % app.search_matches.len();
+            }
+        }
+        KeyCode::Char(c) => {
+            app.search_query.push(c);
+            run_search(app);
+        }
+        _ => {}
+    }
+}
+
+fn run_search(app: &mut App) {
+    app.search_matches = search_messages(&app.messages, &app.search_query);
+    app.search_cursor = 0;
+}
+
+/// Cari indeks pesan yang mengandung `query` (case-insensitive). Query kosong = tanpa match.
+pub(crate) fn search_messages(messages: &[ChatLine], query: &str) -> Vec<usize> {
+    if query.is_empty() {
+        return Vec::new();
+    }
+    let q = query.to_lowercase();
+    messages.iter()
+        .enumerate()
+        .filter(|(_, m)| m.text.to_lowercase().contains(&q))
+        .map(|(i, _)| i)
+        .collect()
+}
+
+fn start_reply_select(app: &mut App) {
+    if app.messages.is_empty() {
+        app.set_notif_info("Belum ada pesan untuk dibalas.");
+        return;
+    }
+    app.select_reply_idx = Some(app.messages.len() - 1);
+}
+
+fn handle_select_reply_key(app: &mut App, idx: usize, key: KeyEvent) {
+    match key.code {
+        KeyCode::Up => app.select_reply_idx = Some(idx.saturating_sub(1)),
+        KeyCode::Down => {
+            app.select_reply_idx = Some((idx + 1).min(app.messages.len().saturating_sub(1)));
+        }
+        KeyCode::Enter => {
+            app.replying_to = app.messages.get(idx).map(|m| m.text.clone());
+            app.select_reply_idx = None;
+        }
+        KeyCode::Esc => app.select_reply_idx = None,
+        _ => {}
+    }
+}
+
+/// Scroll chat mundur (`up`) atau maju sejumlah `SCROLL_PAGE` baris (estimasi wrap).
+const SCROLL_PAGE: usize = 5;
+
+fn scroll_chat(app: &mut App, up: bool) {
+    if up {
+        app.scroll_offset = app.scroll_offset.saturating_add(SCROLL_PAGE);
+    } else {
+        app.scroll_offset = app.scroll_offset.saturating_sub(SCROLL_PAGE);
+    }
+}
+
+/// Format pesan balasan: baris kutipan lalu isi balasan.
+/// ponytail: kutipan dipotong 40 char biar tidak dominan di layar.
+pub(crate) fn format_reply(quote: &str, reply: &str) -> String {
+    const QUOTE_MAX: usize = 40;
+    let clipped: String = quote.chars().take(QUOTE_MAX).collect();
+    let ellipsis = if quote.chars().count() > QUOTE_MAX { "..." } else { "" };
+    format!("\u{21a9} \"{clipped}{ellipsis}\"\n{reply}")
+}
+
 fn start_connection(
     app: &mut App,
-    out_tx: &mut Option<mpsc::UnboundedSender<String>>,
+    out_tx: &mut Option<mpsc::UnboundedSender<SessionCmd>>,
     ev_rx: &mut Option<mpsc::UnboundedReceiver<SessionEvent>>,
 ) {
     if app.contacts.is_empty() {
@@ -683,7 +882,7 @@ fn start_connection(
         h.abort();
     }
 
-    let (o_tx, o_rx) = mpsc::unbounded_channel::<String>();
+    let (o_tx, o_rx) = mpsc::unbounded_channel::<SessionCmd>();
     let (e_tx, e_rx) = mpsc::unbounded_channel::<SessionEvent>();
     *out_tx = Some(o_tx);
     *ev_rx = Some(e_rx);
@@ -692,6 +891,15 @@ fn start_connection(
     app.room = RoomState::Connecting;
     app.peer_name = Some(contact.nickname.clone());
     app.messages.clear();
+    app.scroll_offset = 0;
+    app.blur_enabled = false;
+    app.blur_synced = false;
+    app.blur_prompt_open = false;
+    app.search_active = false;
+    app.search_query.clear();
+    app.search_matches.clear();
+    app.replying_to = None;
+    app.select_reply_idx = None;
 
     let my_fp = keys.fingerprint.clone();
     let target_fp = contacts::fingerprint(&contact.ed25519_pub);
@@ -763,24 +971,28 @@ fn delete_contact(app: &mut App, idx: usize) {
     app.set_notif_info(format!("Kontak '{}' dihapus.", removed.nickname));
 }
 
-fn send_message(app: &mut App, out_tx: &Option<mpsc::UnboundedSender<String>>) {
+fn send_message(app: &mut App, out_tx: &Option<mpsc::UnboundedSender<SessionCmd>>) {
     if app.room != RoomState::Open {
         return;
     }
-    let text = std::mem::take(&mut app.input);
+    let mut text = std::mem::take(&mut app.input);
     if text.is_empty() {
         return;
     }
+    if let Some(quote) = app.replying_to.take() {
+        text = format_reply(&quote, &text);
+    }
     if let Some(tx) = out_tx {
-        if tx.send(text.clone()).is_ok() {
+        if tx.send(SessionCmd::Text(text.clone())).is_ok() {
             app.messages.push(ChatLine::me(text));
+            app.scroll_offset = 0;
         }
     }
 }
 
 fn leave_room(
     app: &mut App,
-    out_tx: &mut Option<mpsc::UnboundedSender<String>>,
+    out_tx: &mut Option<mpsc::UnboundedSender<SessionCmd>>,
     ev_rx: &mut Option<mpsc::UnboundedReceiver<SessionEvent>>,
 ) {
     if let Some(h) = app.conn_task.take() {
@@ -816,6 +1028,17 @@ fn handle_session_event(app: &mut App, se: SessionEvent) {
             }
         },
         SessionEvent::Message(text) => app.messages.push(ChatLine::peer(text)),
+        SessionEvent::PeerBlur(on) => {
+            app.blur_enabled = on;
+            app.blur_synced = on;
+            if on {
+                app.messages.push(ChatLine::system(
+                    "Peer mengaktifkan Mode Light untuk kalian berdua.".into(),
+                ));
+            } else {
+                app.messages.push(ChatLine::system("Peer mematikan Mode Light.".into()));
+            }
+        }
         SessionEvent::PeerLeft => {
             app.room = RoomState::PeerLeft;
             app.messages.push(ChatLine::system("Peer keluar dari sesi.".into()));
@@ -825,5 +1048,93 @@ fn handle_session_event(app: &mut App, se: SessionEvent) {
             app.set_notif_error(format!("Koneksi gagal: {e}"));
             app.messages.push(ChatLine::system(format!("Error: {e}")));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_app() -> App {
+        App::new(PathBuf::new(), false, ConnectKind::Auto, Vec::new())
+    }
+
+    fn key(code: KeyCode) -> KeyEvent {
+        KeyEvent::new(code, KeyModifiers::NONE)
+    }
+
+    /// [L] pada prompt Mode Light: aktif lokal saja, tidak kirim apa pun ke peer.
+    #[test]
+    fn blur_prompt_local_activates_without_sending() {
+        let mut app = test_app();
+        app.blur_prompt_open = true;
+        let (tx, mut rx) = mpsc::unbounded_channel::<SessionCmd>();
+        handle_blur_prompt_key(&mut app, &Some(tx), key(KeyCode::Char('l')));
+        assert!(app.blur_enabled);
+        assert!(!app.blur_synced);
+        assert!(!app.blur_prompt_open);
+        assert!(rx.try_recv().is_err());
+    }
+
+    /// [B] pada prompt Mode Light: aktif tersinkron, kirim `SessionCmd::Blur(true)`.
+    #[test]
+    fn blur_prompt_both_sends_command() {
+        let mut app = test_app();
+        app.blur_prompt_open = true;
+        let (tx, mut rx) = mpsc::unbounded_channel::<SessionCmd>();
+        handle_blur_prompt_key(&mut app, &Some(tx), key(KeyCode::Char('b')));
+        assert!(app.blur_enabled);
+        assert!(app.blur_synced);
+        assert!(matches!(rx.try_recv(), Ok(SessionCmd::Blur(true))));
+    }
+
+    /// Esc pada prompt Mode Light: batal, tidak ada yang aktif.
+    #[test]
+    fn blur_prompt_esc_cancels() {
+        let mut app = test_app();
+        app.blur_prompt_open = true;
+        handle_blur_prompt_key(&mut app, &None, key(KeyCode::Esc));
+        assert!(!app.blur_prompt_open);
+        assert!(!app.blur_enabled);
+    }
+
+    /// Ctrl+B saat aktif & tersinkron: mematikan + mengirim `Blur(false)` ke peer.
+    #[test]
+    fn toggle_blur_off_sends_command_when_synced() {
+        let mut app = test_app();
+        app.blur_enabled = true;
+        app.blur_synced = true;
+        let (tx, mut rx) = mpsc::unbounded_channel::<SessionCmd>();
+        toggle_blur(&mut app, &Some(tx));
+        assert!(!app.blur_enabled);
+        assert!(!app.blur_synced);
+        assert!(matches!(rx.try_recv(), Ok(SessionCmd::Blur(false))));
+    }
+
+    #[test]
+    fn format_reply_clips_long_quote() {
+        let long_quote = "a".repeat(50);
+        let out = format_reply(&long_quote, "balasan");
+        assert!(out.contains("..."));
+        assert!(out.ends_with("\nbalasan"));
+    }
+
+    #[test]
+    fn format_reply_keeps_short_quote_intact() {
+        let out = format_reply("halo", "balasan");
+        assert!(out.contains("\"halo\""));
+        assert!(!out.contains("..."));
+    }
+
+    #[test]
+    fn search_messages_case_insensitive() {
+        let messages = vec![
+            ChatLine::me("Halo Dunia".into()),
+            ChatLine::peer("selamat pagi".into()),
+            ChatLine::system("info".into()),
+        ];
+        assert_eq!(search_messages(&messages, "dunia"), vec![0]);
+        assert!(search_messages(&messages, "").is_empty());
+        assert!(search_messages(&messages, "xyz").is_empty());
     }
 }

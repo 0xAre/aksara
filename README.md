@@ -93,6 +93,15 @@ Identitas (vault terenkripsi) disimpan di `~/.aksara/id.key` secara default, jad
 | `Esc` | Keluar room |
 | `q` | Keluar aplikasi |
 
+**Di dalam room:**
+
+| Tombol | Aksi |
+|---|---|
+| `Ctrl+B` | Mode Light — redupkan pesan lama di layar (anti-lihat-dari-belakang), pilih lokal saja atau tersinkron ke peer |
+| `Ctrl+S` | Cari pesan dalam room |
+| `Ctrl+R` | Balas (kutip) pesan tertentu |
+| `PageUp` / `PageDown` | Scroll riwayat chat |
+
 ### Opsi CLI
 ```
 aksara [opsi]            Jalankan TUI
