@@ -92,17 +92,19 @@ pub(crate) enum Who {
 pub(crate) struct ChatLine {
     pub who: Who,
     pub text: String,
+    /// Waktu lokal saat pesan di-push ke `messages` — BUKAN dari peer/wire.
+    pub time: chrono::DateTime<chrono::Local>,
 }
 
 impl ChatLine {
     fn me(text: String) -> Self {
-        Self { who: Who::Me, text }
+        Self { who: Who::Me, text, time: chrono::Local::now() }
     }
     fn peer(text: String) -> Self {
-        Self { who: Who::Peer, text }
+        Self { who: Who::Peer, text, time: chrono::Local::now() }
     }
     fn system(text: String) -> Self {
-        Self { who: Who::System, text }
+        Self { who: Who::System, text, time: chrono::Local::now() }
     }
 }
 

@@ -605,7 +605,7 @@ fn render_chat_panel(f: &mut Frame, app: &App, area: Rect) {
         let selected_for_reply = app.select_reply_idx == Some(i);
         let highlight = current_match || selected_for_reply;
         let dim = app.blur_enabled && i < keep_clear_from && !highlight;
-        lines.push(render_chat_line(msg, dim, highlight));
+        lines.push(render_chat_line(msg, dim, highlight, inner_w));
     }
 
     // Connecting/Handshaking spinner
@@ -679,32 +679,75 @@ fn render_chat_panel(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(Paragraph::new(input_line), rows[3]);
 }
 
-fn render_chat_line(line: &ChatLine, dim: bool, highlight: bool) -> Line<'_> {
+fn render_chat_line(line: &ChatLine, dim: bool, highlight: bool, width: usize) -> Line<'_> {
+    let time_str = line.time.format("%H:%M").to_string();
+    let time_len = time_str.chars().count();
+
     if highlight {
+        // Prefix "▶ " = 2 char, lebar teks pesan
+        let prefix_len = 2;
+        let text_len = line.text.chars().count();
+        // Kalau teks lebih panjang dari width (akan wrap), jam nempel setelah teks
+        // dengan spasi minimal 1 — posisi kanan eksak tidak bisa dikontrol dari
+        // sini karena wrap terjadi di layer render ratatui, bukan di sini.
+        let pad = width.saturating_sub(prefix_len + text_len + time_len).max(1);
         return Line::from(vec![
             Span::styled("▶ ", Style::default().fg(WARNING).add_modifier(Modifier::BOLD)),
             Span::styled(line.text.clone(), Style::default().fg(WARNING).add_modifier(Modifier::BOLD)),
+            Span::raw(" ".repeat(pad)),
+            Span::styled(time_str, Style::default().fg(DIM)),
         ]);
     }
     if dim {
-        return Line::from(Span::styled(
-            format!("  {}", line.text),
-            Style::default().fg(DIM),
-        ));
+        // Prefix "  " = 2 char
+        let prefix_len = 2;
+        let text_len = line.text.chars().count();
+        let pad = width.saturating_sub(prefix_len + text_len + time_len).max(1);
+        return Line::from(vec![
+            Span::styled(format!("  {}", line.text), Style::default().fg(DIM)),
+            Span::raw(" ".repeat(pad)),
+            Span::styled(time_str, Style::default().fg(DIM)),
+        ]);
     }
     match line.who {
-        Who::Me => Line::from(vec![
-            Span::styled("  → ", Style::default().fg(SUCCESS).add_modifier(Modifier::BOLD)),
-            Span::styled(line.text.clone(), Style::default().fg(SUCCESS)),
-        ]),
-        Who::Peer => Line::from(vec![
-            Span::styled("  ← ", Style::default().fg(ACCENT).add_modifier(Modifier::BOLD)),
-            Span::raw(line.text.clone()),
-        ]),
-        Who::System => Line::from(Span::styled(
-            format!("  ·  {}", line.text),
-            Style::default().fg(DIM).add_modifier(Modifier::ITALIC),
-        )),
+        Who::Me => {
+            // Prefix "  → " = 4 char
+            let prefix_len = 4;
+            let text_len = line.text.chars().count();
+            let pad = width.saturating_sub(prefix_len + text_len + time_len).max(1);
+            Line::from(vec![
+                Span::styled("  → ", Style::default().fg(SUCCESS).add_modifier(Modifier::BOLD)),
+                Span::styled(line.text.clone(), Style::default().fg(SUCCESS)),
+                Span::raw(" ".repeat(pad)),
+                Span::styled(time_str, Style::default().fg(DIM)),
+            ])
+        }
+        Who::Peer => {
+            // Prefix "  ← " = 4 char
+            let prefix_len = 4;
+            let text_len = line.text.chars().count();
+            let pad = width.saturating_sub(prefix_len + text_len + time_len).max(1);
+            Line::from(vec![
+                Span::styled("  ← ", Style::default().fg(ACCENT).add_modifier(Modifier::BOLD)),
+                Span::raw(line.text.clone()),
+                Span::raw(" ".repeat(pad)),
+                Span::styled(time_str, Style::default().fg(DIM)),
+            ])
+        }
+        Who::System => {
+            // Prefix "  ·  " = 5 char
+            let prefix_len = 5;
+            let text_len = line.text.chars().count();
+            let pad = width.saturating_sub(prefix_len + text_len + time_len).max(1);
+            Line::from(vec![
+                Span::styled(
+                    format!("  ·  {}", line.text),
+                    Style::default().fg(DIM).add_modifier(Modifier::ITALIC),
+                ),
+                Span::raw(" ".repeat(pad)),
+                Span::styled(time_str, Style::default().fg(DIM).add_modifier(Modifier::ITALIC)),
+            ])
+        }
     }
 }
 

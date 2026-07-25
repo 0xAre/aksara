@@ -59,6 +59,9 @@ base64 = "0.22.1"
 # KDF untuk enkripsi file kontak (key diturunkan dari identity)
 blake2 = "0.10"
 
+# Format jam lokal (HH:MM) untuk timestamp tampilan pesan chat
+chrono = "0.4"
+
 # Clipboard lintas platform (salin invite dengan tombol 'c')
 arboard = "3"
 # Tor (M2). default-features=false untuk drop native-tls/openssl (pakai rustls saja,
