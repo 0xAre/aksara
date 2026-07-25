@@ -492,7 +492,9 @@ fn render_idle_panel(f: &mut Frame, app: &App, area: Rect) {
         } else {
             Line::from(Span::styled("  ○  LAN", Style::default().fg(DIM)))
         };
-        let fp = format_fingerprint(&hex::encode(c.ed25519_pub));
+        // Fingerprint yang ditampilkan HARUS yang mengikat kedua key — ini yang
+        // dicocokkan user out-of-band (lihat contacts::fingerprint).
+        let fp = format_fingerprint(&crate::contacts::fingerprint(&c.ed25519_pub, &c.noise_pub));
         let lines = vec![
             Line::from(""),
             Line::from(Span::styled(

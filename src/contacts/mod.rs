@@ -36,10 +36,21 @@ pub struct Contact {
     pub onion: Option<String>,
 }
 
-/// Fingerprint identitas = hex dari Ed25519 public key.
+/// Fingerprint identitas = `BLAKE2s(ed25519_pub || noise_pub)`, hex 64 char.
 /// Dipakai untuk matching saat discovery dan untuk menentukan role handshake.
-pub fn fingerprint(ed25519_pub: &[u8; 32]) -> String {
-    hex::encode(ed25519_pub)
+///
+/// Kedua key WAJIB ikut diserap. Invite code tidak ditandatangani, jadi kalau
+/// fingerprint hanya berasal dari `ed25519_pub`, penyerang yang memegang invite
+/// korban bisa menyusun ulang `(ed_korban, noise_penyerang)` dan mengirimkannya
+/// sebagai invite korban: fingerprint yang ditampilkan tetap milik korban dan
+/// lolos pencocokan out-of-band, padahal Noise_IK berjalan ke penyerang.
+/// Dengan binding ini, mengganti `noise_pub` mengubah fingerprint.
+pub fn fingerprint(ed25519_pub: &[u8; 32], noise_pub: &[u8; 32]) -> String {
+    let mut h = Blake2s256::new();
+    h.update(ed25519_pub);
+    h.update(noise_pub);
+    h.update(b"aksara-fingerprint-v1");
+    hex::encode(h.finalize())
 }
 
 /// Encode invite code: `base64(ed25519_pub || noise_pub)` dengan onion address
@@ -282,9 +293,24 @@ mod tests {
 
     #[test]
     fn fingerprint_is_64_hex_chars() {
-        let fp = fingerprint(&[0xAB; 32]);
+        let fp = fingerprint(&[0xAB; 32], &[0xCD; 32]);
         assert_eq!(fp.len(), 64);
         assert!(fp.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    /// Binding ed25519↔noise: menukar HANYA noise key harus mengubah fingerprint.
+    /// Ini yang menggagalkan invite hasil susun ulang `(ed_korban, noise_penyerang)`.
+    #[test]
+    fn fingerprint_binds_both_keys() {
+        let ed = [7u8; 32];
+        let asli = fingerprint(&ed, &[1u8; 32]);
+        let disusupi = fingerprint(&ed, &[2u8; 32]);
+        assert_ne!(
+            asli, disusupi,
+            "noise key berbeda WAJIB menghasilkan fingerprint berbeda"
+        );
+        // Sebaliknya juga: ed berbeda dengan noise sama tetap berbeda.
+        assert_ne!(asli, fingerprint(&[8u8; 32], &[1u8; 32]));
     }
 
     #[test]

@@ -188,7 +188,7 @@ fn build_self_keys(bundle: &KeyBundle, onion: Option<&str>) -> SelfKeys {
     let ed_pub = bundle.identity.public_key().to_bytes();
     let noise_pub = bundle.noise.public_bytes();
     let noise_sk = bundle.noise.secret_bytes();
-    let fingerprint = contacts::fingerprint(&ed_pub);
+    let fingerprint = contacts::fingerprint(&ed_pub, &noise_pub);
     let invite = contacts::encode_invite(&ed_pub, &noise_pub, onion);
     SelfKeys {
         fingerprint,
@@ -270,7 +270,7 @@ async fn real_main(args: Args) -> Result<(), Error> {
                 let nickname = args
                     .add_name
                     .clone()
-                    .unwrap_or_else(|| format!("peer-{}", &contacts::fingerprint(&ed)[..8]));
+                    .unwrap_or_else(|| format!("peer-{}", &contacts::fingerprint(&ed, &noise)[..8]));
                 contact_list.push(Contact {
                     nickname,
                     ed25519_pub: ed,

@@ -283,7 +283,7 @@ fn build_self_keys(bundle: &KeyBundle, onion: Option<&str>) -> SelfKeys {
     let noise_pub = bundle.noise.public_bytes();
     let noise_sk = bundle.noise.secret_bytes();
     SelfKeys {
-        fingerprint: contacts::fingerprint(&ed_pub),
+        fingerprint: contacts::fingerprint(&ed_pub, &noise_pub),
         noise_sk,
         noise_pub,
         ed25519_pub: ed_pub,
@@ -904,7 +904,7 @@ fn start_connection(
     app.select_reply_idx = None;
 
     let my_fp = keys.fingerprint.clone();
-    let target_fp = contacts::fingerprint(&contact.ed25519_pub);
+    let target_fp = contacts::fingerprint(&contact.ed25519_pub, &contact.noise_pub);
     let local_sk = keys.noise_sk;
     let peer_pk = contact.noise_pub;
     let onion = contact.onion.clone();
@@ -934,7 +934,7 @@ fn add_contact_from_buffer(app: &mut App) {
     match contacts::decode_invite(code) {
         Ok((ed, noise, onion)) => {
             let nickname = if nick.is_empty() {
-                format!("peer-{}", &contacts::fingerprint(&ed)[..8])
+                format!("peer-{}", &contacts::fingerprint(&ed, &noise)[..8])
             } else {
                 nick.to_string()
             };
