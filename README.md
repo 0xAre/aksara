@@ -11,7 +11,7 @@
 
 **Tanpa server. Tanpa perantara. Cuma kamu dan orang yang kamu ajak bicara.**
 
-[![Release](https://img.shields.io/badge/release-v0.1.0-5dd4d4?style=flat-square)](https://github.com/0xAre/aksara/releases)
+[![Release](https://img.shields.io/badge/release-v0.2.0-5dd4d4?style=flat-square)](https://github.com/0xAre/aksara/releases)
 [![Rust](https://img.shields.io/badge/Rust-1.89+-orange?style=flat-square&logo=rust)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey?style=flat-square)](LICENSE)
 [![Build](https://img.shields.io/github/actions/workflow/status/0xAre/aksara/release.yml?style=flat-square)](https://github.com/0xAre/aksara/actions)
