@@ -36,6 +36,17 @@ pub enum SessionCmd {
 // Byte pertama payload (sebelum dienkripsi) menandai jenis isi.
 const TYPE_TEXT: u8 = 0x00;
 const TYPE_BLUR: u8 = 0x01;
+/// Keepalive: tidak membawa isi, hanya memaksa trafik supaya koneksi yang sudah
+/// mati (umum di Tor: circuit putus tanpa FIN) ketahuan sebelum user mengetik.
+const TYPE_PING: u8 = 0x02;
+
+/// Selang kirim keepalive saat sesi aktif.
+///
+/// ponytail: deteksi bergantung pada write yang gagal, bukan pada ping yang tak
+/// terbalas — cukup untuk menangkap circuit/TCP mati. Kalau nanti butuh deteksi
+/// peer yang diam tapi socket-nya masih hidup, tambahkan batas "tak ada frame
+/// masuk selama N detik" di sisi reader.
+const KEEPALIVE_INTERVAL: std::time::Duration = std::time::Duration::from_secs(30);
 
 /// Event dari session task ke UI.
 #[derive(Clone, Debug)]
@@ -47,6 +58,8 @@ pub enum SessionEvent {
     PeerBlur(bool),
     /// Peer menutup koneksi (keluar dari room).
     PeerLeft,
+    /// Gangguan non-fatal — sesi tetap hidup (mis. satu pesan gagal dikirim).
+    Notice(String),
     /// Error fatal — koneksi gagal atau handshake gagal.
     Error(String),
 }
@@ -129,6 +142,12 @@ where
     // `session` adalah EncryptedSession; di-drop di akhir fungsi (SEC-03a).
     let mut session = session;
 
+    // Tick pertama `interval` selesai seketika — habiskan di sini supaya sesi
+    // tidak mengirim ping tepat saat baru aktif.
+    let mut keepalive = tokio::time::interval(KEEPALIVE_INTERVAL);
+    keepalive.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+    keepalive.tick().await;
+
     loop {
         tokio::select! {
             maybe_cmd = outgoing.recv() => {
@@ -144,12 +163,34 @@ where
                             SessionCmd::Blur(on) => vec![TYPE_BLUR, on as u8],
                         };
                         let mut ct = vec![0u8; payload.len() + 16];
-                        let n = session.encrypt(&payload, &mut ct)?;
+                        // Enkripsi yang gagal (mis. payload melebihi batas Noise
+                        // 65535) TIDAK boleh mematikan room — satu pesan raksasa
+                        // bukan alasan memutus sesi yang sehat.
+                        let n = match session.encrypt(&payload, &mut ct) {
+                            Ok(n) => n,
+                            Err(_) => {
+                                let _ = events.send(SessionEvent::Notice(
+                                    "Pesan terlalu besar untuk dikirim.".to_string(),
+                                ));
+                                continue;
+                            }
+                        };
                         if write_frame(&mut wr, &ct[..n]).await.is_err() {
                             break;
                         }
                     }
                     None => break, // UI menutup room
+                }
+            }
+            _ = keepalive.tick() => {
+                let mut ct = [0u8; 1 + 16];
+                match session.encrypt(&[TYPE_PING], &mut ct) {
+                    Ok(n) => {
+                        if write_frame(&mut wr, &ct[..n]).await.is_err() {
+                            break; // koneksi sudah mati — ketahuan tanpa user mengetik
+                        }
+                    }
+                    Err(_) => break,
                 }
             }
             res = read_frame(&mut rd, &mut buf) => {
@@ -172,6 +213,7 @@ where
                         TYPE_BLUR if m >= 2 => {
                             let _ = events.send(SessionEvent::PeerBlur(pt[1] == 0x01));
                         }
+                        TYPE_PING => {} // keepalive — cukup dibaca, tidak perlu dibalas
                         _ => {} // byte tipe tak dikenal — diabaikan, bukan fatal
                     },
                     Err(_) => break, // dekripsi gagal → putus (fail closed)
@@ -302,6 +344,99 @@ mod tests {
                 None => panic!("kanal tertutup sebelum PeerBlur diterima"),
             }
         }
+
+        drop(init_out_tx);
+        drop(resp_out_tx);
+        let _ = resp.await;
+        let _ = init.await;
+    }
+
+    /// Pesan yang terlalu besar untuk satu Noise message harus dilaporkan
+    /// sebagai `Notice` dan sesi TETAP hidup — pesan berikutnya masih sampai.
+    /// Sebelumnya `?` pada encrypt langsung mematikan room.
+    #[tokio::test]
+    async fn oversized_message_does_not_kill_session() {
+        let server = NoiseKey::generate();
+        let client = NoiseKey::generate();
+        let server_sk = server.secret_bytes();
+        let server_pk = server.public_bytes();
+        let client_sk = client.secret_bytes();
+
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+
+        let (resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
+        let (resp_ev_tx, mut resp_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
+        let resp = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            run_session(stream, Role::Responder, server_sk, None, resp_out_rx, resp_ev_tx).await
+        });
+
+        let (init_out_tx, init_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
+        let (init_ev_tx, mut init_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
+        let init = tokio::spawn(async move {
+            let stream = TcpStream::connect(addr).await.unwrap();
+            run_session(stream, Role::Initiator, client_sk, Some(server_pk), init_out_rx, init_ev_tx).await
+        });
+
+        // Melebihi batas Noise message (65535) → encrypt gagal.
+        init_out_tx
+            .send(SessionCmd::Text("A".repeat(70_000)))
+            .unwrap();
+
+        let notice = loop {
+            match init_ev_rx.recv().await {
+                Some(SessionEvent::Notice(m)) => break m,
+                Some(SessionEvent::Error(e)) => panic!("harus non-fatal, dapat Error: {e}"),
+                Some(_) => continue,
+                None => panic!("sesi mati — pesan besar tidak boleh menutup room"),
+            }
+        };
+        assert!(notice.contains("terlalu besar"), "notice tak terduga: {notice}");
+
+        // Bukti sesi masih sehat: pesan normal setelahnya tetap sampai.
+        init_out_tx.send(SessionCmd::Text("masih hidup".into())).unwrap();
+        assert_eq!(wait_for_message(&mut resp_ev_rx).await, "masih hidup");
+
+        drop(init_out_tx);
+        drop(resp_out_tx);
+        let _ = resp.await;
+        let _ = init.await;
+    }
+
+    /// Keepalive tidak boleh bocor ke UI sebagai pesan chat kosong. Waktu
+    /// dipercepat (`start_paused`) supaya tidak perlu menunggu 30 detik nyata.
+    #[tokio::test(start_paused = true)]
+    async fn keepalive_ping_is_not_delivered_as_message() {
+        let server = NoiseKey::generate();
+        let client = NoiseKey::generate();
+        let server_sk = server.secret_bytes();
+        let server_pk = server.public_bytes();
+        let client_sk = client.secret_bytes();
+
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+
+        let (resp_out_tx, resp_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
+        let (resp_ev_tx, mut resp_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
+        let resp = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            run_session(stream, Role::Responder, server_sk, None, resp_out_rx, resp_ev_tx).await
+        });
+
+        let (init_out_tx, init_out_rx) = mpsc::unbounded_channel::<SessionCmd>();
+        let (init_ev_tx, _init_ev_rx) = mpsc::unbounded_channel::<SessionEvent>();
+        let init = tokio::spawn(async move {
+            let stream = TcpStream::connect(addr).await.unwrap();
+            run_session(stream, Role::Initiator, client_sk, Some(server_pk), init_out_rx, init_ev_tx).await
+        });
+
+        // Lewati beberapa siklus keepalive tanpa trafik chat sama sekali.
+        tokio::time::sleep(KEEPALIVE_INTERVAL * 3).await;
+
+        // Pesan pertama yang sampai ke UI harus pesan asli, bukan sisa ping.
+        init_out_tx.send(SessionCmd::Text("setelah ping".into())).unwrap();
+        assert_eq!(wait_for_message(&mut resp_ev_rx).await, "setelah ping");
 
         drop(init_out_tx);
         drop(resp_out_tx);

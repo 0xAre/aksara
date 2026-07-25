@@ -1045,6 +1045,11 @@ fn handle_session_event(app: &mut App, se: SessionEvent) {
             app.room = RoomState::PeerLeft;
             app.messages.push(ChatLine::system("Peer keluar dari sesi.".into()));
         }
+        // Non-fatal: sesi masih hidup, jadi `app.room` sengaja tidak disentuh.
+        SessionEvent::Notice(msg) => {
+            app.set_notif_warn(msg.clone());
+            app.messages.push(ChatLine::system(msg));
+        }
         SessionEvent::Error(e) => {
             app.room = RoomState::Closed;
             app.set_notif_error(format!("Koneksi gagal: {e}"));

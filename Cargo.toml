@@ -88,6 +88,8 @@ rustls = { version = "0.23", features = ["ring"] }
 
 [dev-dependencies]
 hex = "0.4"
+# `start_paused` untuk test keepalive: percepat waktu, tanpa menunggu 30 detik nyata.
+tokio = { version = "1.52.3", features = ["test-util"] }
 
 [profile.release]
 # Strip debug info for smaller binary; symbols not needed in production
