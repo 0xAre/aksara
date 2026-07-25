@@ -4,7 +4,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 Versi mengikuti [SemVer](https://semver.org/lang/id/) — selama masih `0.x`,
 perubahan yang memutus kompatibilitas menaikkan angka minor.
 
-## [0.2.0] — belum dirilis
+## [0.2.0] — 2026-07-25
 
 ### ⚠ Wajib dibaca sebelum update
 
