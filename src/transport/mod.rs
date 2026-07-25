@@ -49,6 +49,10 @@ pub enum LanMode {
 
 /// Koneksi transport: TCP (LAN) atau DataStream (Tor). Keduanya
 /// mengimplementasikan tokio AsyncRead/AsyncWrite, didelegasikan di bawah.
+// DataStream memang jauh lebih besar dari TcpStream, tapi `Conn` dibuat sekali
+// per sesi dan hidup di stack satu task — boxing hanya menambah alokasi tanpa
+// menghemat apa pun yang terasa.
+#[allow(clippy::large_enum_variant)]
 pub enum Conn {
     Tcp(TcpStream),
     Tor(DataStream),
@@ -178,22 +182,18 @@ async fn tor_dial_with_retry(
     host: &str,
 ) -> Result<DataStream, Error> {
     let deadline = tokio::time::Instant::now() + TOR_DIAL_TOTAL_TIMEOUT;
-    let mut last_err = Error::ConnectionClosed;
 
     loop {
         match tor.connect(host, tor::TOR_VIRTUAL_PORT).await {
             Ok(ds) => return Ok(ds),
             Err(e) => {
-                last_err = e;
                 if tokio::time::Instant::now() + TOR_DIAL_RETRY_DELAY > deadline {
-                    break; // tidak cukup waktu untuk retry lagi
+                    return Err(e); // tidak cukup waktu untuk retry lagi
                 }
                 tokio::time::sleep(TOR_DIAL_RETRY_DELAY).await;
             }
         }
     }
-
-    Err(last_err)
 }
 
 

@@ -20,9 +20,6 @@ use crate::error::Error;
 
 const NOISE_PATTERN: &str = "Noise_IK_25519_ChaChaPoly_BLAKE2s";
 
-/// Max message size untuk buffer handshake
-const MAX_MSG_LEN: usize = 65535;
-
 /// State machine handshake — wrapper tipis di atas snow::HandshakeState.
 pub struct HandshakeSession {
     state: HandshakeState,
@@ -62,6 +59,8 @@ impl HandshakeSession {
         self.state.read_message(input, buf).map_err(Error::Noise)
     }
 
+    /// Hanya dipakai test — runtime menyimpulkan selesai dari `into_transport()`.
+    #[cfg(test)]
     pub fn is_finished(&self) -> bool {
         self.state.is_handshake_finished()
     }
@@ -103,6 +102,9 @@ impl EncryptedSession {
 mod tests {
     use super::*;
     use crate::identity::keypair::NoiseKey;
+
+    /// Buffer seukuran batas Noise message untuk pertukaran handshake di test.
+    const MAX_MSG_LEN: usize = 65535;
 
     fn do_handshake(
         initiator: &mut HandshakeSession,

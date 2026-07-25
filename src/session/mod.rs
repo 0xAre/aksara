@@ -163,7 +163,7 @@ where
                 }
                 let mut pt = vec![0u8; n];
                 match session.decrypt(&buf[..n], &mut pt) {
-                    Ok(m) if m == 0 => {} // payload kosong, abaikan
+                    Ok(0) => {} // payload kosong, abaikan
                     Ok(m) => match pt[0] {
                         TYPE_TEXT => {
                             let text = String::from_utf8_lossy(&pt[1..m]).to_string();

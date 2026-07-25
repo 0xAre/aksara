@@ -1,0 +1,28 @@
+name: ci
+
+# Jaga agar test & lint tetap hijau di setiap push/PR. `release.yml` hanya jalan
+# saat tag — tanpa workflow ini, 42 test hanya dijaga di mesin lokal.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    name: test + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - run: cargo test --locked
+
+      - run: cargo clippy --all-targets --locked -- -D warnings

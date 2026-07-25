@@ -57,6 +57,9 @@ pub fn encode_invite(ed25519_pub: &[u8; 32], noise_pub: &[u8; 32], onion: Option
 }
 
 /// Decode invite code menjadi (ed25519_pub, noise_pub, onion_opsional).
+// Tuple bertiga sudah pas dibaca di sisi caller (semuanya langsung destructure);
+// membungkusnya jadi struct hanya menambah tipe tanpa memperjelas apa pun.
+#[allow(clippy::type_complexity)]
 pub fn decode_invite(code: &str) -> Result<([u8; 32], [u8; 32], Option<String>), Error> {
     let code = code.trim();
     let (keys_part, onion) = match code.split_once('@') {
