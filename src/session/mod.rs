@@ -46,7 +46,16 @@ const TYPE_PING: u8 = 0x02;
 /// terbalas — cukup untuk menangkap circuit/TCP mati. Kalau nanti butuh deteksi
 /// peer yang diam tapi socket-nya masih hidup, tambahkan batas "tak ada frame
 /// masuk selama N detik" di sisi reader.
+#[cfg(not(test))]
 const KEEPALIVE_INTERVAL: std::time::Duration = std::time::Duration::from_secs(30);
+
+/// Di test dipersingkat supaya beberapa siklus ping terjadi dalam waktu nyata
+/// yang singkat. Sengaja TIDAK memakai `start_paused`: sesi ini berjalan di atas
+/// socket sungguhan, dan clock palsu memajukan waktu setiap kali runtime dianggap
+/// idle — termasuk saat masih menunggu handshake TCP — sehingga urutannya jadi
+/// tidak deterministik antar platform.
+#[cfg(test)]
+const KEEPALIVE_INTERVAL: std::time::Duration = std::time::Duration::from_millis(50);
 
 /// Event dari session task ke UI.
 #[derive(Clone, Debug)]
@@ -404,9 +413,10 @@ mod tests {
         let _ = init.await;
     }
 
-    /// Keepalive tidak boleh bocor ke UI sebagai pesan chat kosong. Waktu
-    /// dipercepat (`start_paused`) supaya tidak perlu menunggu 30 detik nyata.
-    #[tokio::test(start_paused = true)]
+    /// Keepalive tidak boleh bocor ke UI sebagai pesan chat kosong.
+    /// `KEEPALIVE_INTERVAL` sudah 50 ms di build test, jadi ini tetap cepat
+    /// tanpa perlu memalsukan waktu.
+    #[tokio::test]
     async fn keepalive_ping_is_not_delivered_as_message() {
         let server = NoiseKey::generate();
         let client = NoiseKey::generate();
