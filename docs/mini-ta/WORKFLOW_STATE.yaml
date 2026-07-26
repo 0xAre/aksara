@@ -6,15 +6,25 @@ project:
 
 workflow:
   active_sprint: mini_ta_preparation
-  total_sessions_remaining: 2
-  current_session: 5a
-  latest_completed_stage: 12
-  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
-  next_action: test_plan_and_tables
+  sprint_status: PREPARATION_COMPLETE
+  total_sessions_remaining: 0
+  current_session: 5b
+  latest_completed_stage: 17
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_5B_HANDOFF.md
+  next_action: run_experiments_or_codex_drafting
+  ready_for_codex: YES_PARTIAL
   note: >
-    SESSION 5 dipecah jadi 5A dan 5B atas permintaan user (kuota sesi 5-jam
-    tersisa ~50% saat SESSION 4 selesai) - TAHAP 15 (content pack 6 BAB)
-    terlalu berat digabung dengan 13/14/16/17 dalam satu sesi.
+    Sprint persiapan mini-TA (TAHAP 1-17) SELESAI. SESSION 5A dan 5B
+    dijalankan dalam satu rangkaian percakapan (user memilih lanjut hati-hati
+    alih-alih menunggu sesi baru penuh setelah SESSION 5A checkpoint). TAHAP
+    15 berstatus PARTIAL by design: BAB I-IV selesai penuh (Quality Gate #15
+    brief), BAB V dan BAB VI (6.1) sengaja distub menunggu eksekusi
+    12_TEST_PLAN.md (diizinkan eksplisit brief). TAHAP 16 (peta klaim, 81
+    Claim ID) dan TAHAP 17 (HANDOFF_TO_CODEX.yaml, ready_for_codex:
+    YES_PARTIAL) SELESAI. Langkah berikutnya BUKAN TAHAP baru dalam skema
+    17-tahap ini, melainkan: (a) menjalankan eksperimen untuk melengkapi
+    BAB V/VI, atau (b) Codex mulai menyusun DOCX dari BAB I-IV yang sudah
+    siap. Lihat SESSION_5B_HANDOFF.md untuk detail dua jalur ini.
 
 sessions:
   session_3:
@@ -42,7 +52,7 @@ sessions:
   session_5a:
     name: Testing Plan and Tables
     stages: [13, 14]
-    status: READY
+    status: DONE
     expected_outputs:
       - docs/mini-ta/01-claude-preparation/12_TEST_PLAN.md
       - docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv
@@ -53,8 +63,13 @@ sessions:
   session_5b:
     name: Chapter Content Pack and Codex Handoff
     stages: [15, 16, 17]
-    status: BLOCKED_BY_SESSION_5A
-    note: Tahap terberat sprint ini (content pack 6 BAB) - sengaja diberi sesi tersendiri dengan kuota penuh.
+    status: DONE
+    note: >
+      TAHAP 15 PARTIAL (by design) - BAB I-IV DONE (14_CHAPTER_CONTENT_PACK.md,
+      28 subbab), BAB V/VI sengaja distub (WAITING_FOR_EXPERIMENT / 6.2-6.3
+      READY_FOR_DRAFTING). TAHAP 16 DONE - 15_CLAIM_EVIDENCE_CITATION_MAP.md,
+      81 Claim ID (CM-001..154). TAHAP 17 DONE - HANDOFF_TO_CODEX.yaml,
+      ready_for_codex: YES_PARTIAL, 17/17 quality gate items met=true.
     expected_outputs:
       - docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md
       - docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
@@ -76,5 +91,5 @@ blockers:
 memory:
   project_memory: docs/mini-ta/PROJECT_MEMORY.md
   progress: docs/mini-ta/01-claude-preparation/PROGRESS.md
-  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_5B_HANDOFF.md
   source_of_truth: AGENTS.md

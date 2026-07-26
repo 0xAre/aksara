@@ -2,7 +2,7 @@
 
 Baca file ini DULU sebelum melanjutkan sesi. Sumber instruksi lengkap:
 `docs/mini-ta/CLAUDE_PREPARATION_BRIEF.md` (17 TAHAP, aturan anti-fabrikasi, quality gate).
-Update terakhir: TAHAP 8, 10, 11, 12 (SESSION 4 — Scope, Related Work, and Figures) selesai (TAHAP 12 partial — lihat baris tabel). SESSION 5 dipecah jadi 5A (TAHAP 13-14) dan 5B (TAHAP 15-17) — lihat catatan di tabel Sprint. Sesi berikutnya (SESSION 5A) mulai TAHAP 13 (rencana pengujian).
+Update terakhir: TAHAP 15 (partial, BAB I-IV), 16, 17 (SESSION 5B, menyambung SESSION 5A dalam sesi yang sama) selesai. Seluruh sprint persiapan mini-TA (TAHAP 1-17) kini selesai kecuali BAB V/VI content pack yang sengaja menunggu eksekusi eksperimen — lihat `SESSION_5B_HANDOFF.md` dan `HANDOFF_TO_CODEX.yaml`.
 
 ## Status per TAHAP
 
@@ -20,11 +20,11 @@ Update terakhir: TAHAP 8, 10, 11, 12 (SESSION 4 — Scope, Related Work, and Fig
 | 10 | Related work & gap | ✅ DONE | `10_RELATED_WORK_AND_GAP.md` selesai — 7 referensi related work baru terverifikasi via `you-search` (Noise Explorer, Signal formal analysis, WireGuard, OTR, Matrix formal analysis, Briar spec, Tox spec), ditambahkan ke `references/REFERENCES.bib` (total 40), `REFERENCE_MATRIX.md`, `ANNOTATED_BIBLIOGRAPHY.md`, `MCP_RESEARCH_LOG.md`. 5 gap (G1-G5) diidentifikasi berbasis perbandingan langsung, dibingkai "belum ditemukan pada sumber ditinjau" (bukan "belum pernah diteliti"). |
 | 11 | Diagram Mermaid | ✅ DONE | `11_FIGURE_MANIFEST.md` selesai — 7 diagram (`diagrams/src/*.mmd`, dirender ke `diagrams/rendered/{svg,png}/` via `mmdc -b white -s 2`): context, arsitektur komponen, arsitektur kriptografi (CORE-1..7), sequence proses utama, sequence handshake Noise_IK (basis §5.1 ASCII), state siklus hidup kunci (basis §8 ASCII), format paket/pesan. Diagram topologi pengujian sengaja tidak dibuat (menunggu `12_TEST_PLAN.md` SESSION 5). |
 | 12 | Screenshot aplikasi | 🟡 PARTIAL — build+fungsi ✅ DONE, capture gambar 🔴 BLOCKED | Output: `screenshots/STATUS.md`. `cargo build --release` sukses (0 warning/error, commit `450d484`, aksara v0.2.1, binary 8,77MB). Verifikasi fungsi non-interaktif via `aksara id --offline`: generate identitas, unseal deterministik (invite/fingerprint identik), reject passphrase salah ("vault could not be opened") — seluruhnya cocok dokumentasi TAHAP 6/7. Screenshot TUI aktual tetap perlu tindakan manual user (tidak ada tool capture OS/terminal di environment agent). TIDAK memblokir `ready_for_codex`. |
-| 13 | Rencana pengujian | ⬜ PENDING | Output: `12_TEST_PLAN.md` |
-| 14 | Tabel | ⬜ PENDING | Output: `13_TABLE_MANIFEST.md` |
-| 15 | Content pack per BAB | ⬜ PENDING | Output: `14_CHAPTER_CONTENT_PACK.md` |
-| 16 | Peta klaim | ⬜ PENDING | Output: `15_CLAIM_EVIDENCE_CITATION_MAP.md` |
-| 17 | Handoff Codex | ⬜ PENDING | Output: `HANDOFF_TO_CODEX.yaml` (tidak bernomor) |
+| 13 | Rencana pengujian | ✅ DONE | `12_TEST_PLAN.md` selesai — 5 kelompok eksperimen (EXP-01..05: vault correctness/rejection, handshake Noise_IK, transport sesi, invite/fingerprint/contact store, benchmark Argon2id+ciphertext expansion), memetakan 15 kandidat brief (2 ditandai N/A: KAT tidak ada test vector, modified-AD tidak berlaku karena AKSARA tidak memakai AAD). Seluruh 15 field wajib per eksperimen diisi. TIDAK ada hasil eksperimen dibuat — seluruh status `WAITING_FOR_EXPERIMENT`. Template: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`. |
+| 14 | Tabel | ✅ DONE | `13_TABLE_MANIFEST.md` selesai — 13 kategori tabel (fungsional, non-fungsional, stack teknologi, primitif kriptografi, justifikasi algoritma, perbandingan alternatif, format paket, lifecycle kunci, threat model, penelitian terkait, skenario pengujian, parameter evaluasi, pembagian tugas) di `tables/01`..`13_*.md`. Format Markdown (bukan CSV) karena isi sel didominasi kalimat panjang. Seluruh isi kompresi/reproduksi dari TAHAP 1-13 yang sudah diverifikasi, tidak ada klaim baru. |
+| 15 | Content pack per BAB | 🟡 PARTIAL — BAB I-IV ✅ DONE, BAB V-VI 🔵 BLOCKED (sengaja, sesuai izin brief) | `14_CHAPTER_CONTENT_PACK.md`. BAB I (6 subbab), II (10 subbab), III (5 subbab), IV (7 subbab) selesai penuh — 13 field wajib per subbab, memenuhi Quality Gate poin 15 brief. BAB V distub (struktur rencana 3 subbab, status `WAITING_FOR_EXPERIMENT`) menunggu `12_TEST_PLAN.md` dieksekusi. BAB VI distub — 6.1 (kesimpulan) `WAITING_FOR_EXPERIMENT`, TAPI 6.2 (keterbatasan) dan 6.3 (saran) ditandai `READY_FOR_DRAFTING` (tidak bergantung eksperimen, bisa disusun penuh sesi berikutnya). |
+| 16 | Peta klaim | ✅ DONE | `15_CLAIM_EVIDENCE_CITATION_MAP.md` — 81 Claim ID (CM-001..154) dikelompokkan 15 kategori (identitas/arsitektur, CORE-1..7, invite/discovery, transport sesi, key lifecycle, threat model T1-T7, related work gap G1-G5, FR/NFR, klaim performa). Format `Claim ID \| Klaim \| Evidence Code \| Referensi \| Data Eksperimen \| Bab \| Status` sesuai brief. Bagian "Klaim Kritis Anti-Overclaim" (5 item) ditambahkan sebagai pengingat prioritas untuk Codex. |
+| 17 | Handoff Codex | ✅ DONE | `HANDOFF_TO_CODEX.yaml` — `ready_for_codex: YES_PARTIAL` (BAB I-IV siap, BAB V/VI menunggu eksperimen sesuai izin eksplisit brief). 17 syarat quality gate seluruhnya `met: true` (termasuk poin 17 — tidak ada kontradiksi kritis algoritma/nonce/key-management/format-protokol). 5 blocking issue dicatat non-blocking (BAB V/VI, screenshot, nama anggota, tabel 13/12). |
 
 ## Sprint Sesi Lanjutan (semula 3 sesi, SESSION 5 dipecah jadi 5A/5B)
 
@@ -34,8 +34,8 @@ State mesin lintas-agen untuk sprint ini: `docs/mini-ta/WORKFLOW_STATE.yaml`. Ba
 |---------|-------|-------|--------|---------|
 | 3 | 5, 6, 7 | Protocol and Security Model (spesifikasi protokol, key lifecycle, threat model) | ✅ DONE | `SESSION_3_HANDOFF.md` |
 | 4 | 8, 10, 11, 12 | Scope, Related Work, and Figures (scope & tim, related work/gap, diagram, screenshot) | ✅ DONE (TAHAP 12 partial, tidak menghalangi lanjut) | `SESSION_4_HANDOFF.md` |
-| 5A | 13, 14 | Testing Plan and Tables (rencana pengujian, tabel) | READY | `SESSION_5A_HANDOFF.md` |
-| 5B | 15, 16, 17 | Chapter Content Pack and Codex Handoff (content pack per BAB, peta klaim, handoff Codex) | BLOCKED_BY_SESSION_5A | `SESSION_5B_HANDOFF.md` |
+| 5A | 13, 14 | Testing Plan and Tables (rencana pengujian, tabel) | ✅ DONE | `SESSION_5A_HANDOFF.md` |
+| 5B | 15, 16, 17 | Chapter Content Pack and Codex Handoff (content pack per BAB, peta klaim, handoff Codex) | ✅ DONE (TAHAP 15 partial — BAB I-IV, BAB V/VI sengaja diblokir, tidak menghalangi `ready_for_codex`) | `SESSION_5B_HANDOFF.md` |
 
 **Catatan pemecahan SESSION 5**: dipecah jadi 5A/5B atas permintaan user (kuota sesi 5-jam tersisa ~50% saat SESSION 4 selesai). TAHAP 15 (content pack 6 BAB) adalah tahap terberat di seluruh sprint — digabung dengan 13/14/16/17 berisiko kepotong di tengah kuota. 5A (ringan-menengah, mekanis) jadi sesi transisi; 5B (berat, sintesis lintas-dokumen) dapat sesi tersendiri dengan kuota penuh.
 
@@ -96,11 +96,27 @@ Transcript lengkap workflow (kalau perlu re-cek reasoning agent): `C:\Users\LENO
 
 ## Next action kalau lanjut sesi baru
 
-1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, lalu `SESSION_4_HANDOFF.md` (atau handoff sesi lebih baru), `09_SCOPE_AND_TEAM_PLAN.md`, `10_RELATED_WORK_AND_GAP.md`, `11_FIGURE_MANIFEST.md`, `screenshots/STATUS.md` sebagai ground truth SESSION 4.
-2. Jangan mengulang audit codebase/kripto/normalisasi/justifikasi/riset referensi/spesifikasi protokol/key lifecycle/threat model/scope-tim/related-work/diagram kecuali ada klaim yang secara eksplisit perlu dikonfirmasi ulang.
-3. **SESSION 5A** (sesi transisi, lebih ringan): TAHAP 13 (rencana pengujian, `12_TEST_PLAN.md` — 3-6 kelompok eksperimen, JANGAN membuat hasil, hanya rencana + template CSV `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`), lalu TAHAP 14 (`13_TABLE_MANIFEST.md` + `tables/`). Tutup dengan `SESSION_5A_HANDOFF.md`.
-4. **SESSION 5B** (sesi terpisah, kuota penuh — JANGAN digabung ke 5A): TAHAP 15 (`14_CHAPTER_CONTENT_PACK.md`, BAB I-VI — tahap terberat), TAHAP 16 (`15_CLAIM_EVIDENCE_CITATION_MAP.md`), TAHAP 17 (`HANDOFF_TO_CODEX.yaml`, tentukan `ready_for_codex` dari 17 syarat quality gate). Tutup dengan `SESSION_5B_HANDOFF.md`. Penomoran file SUDAH FINAL, lihat §0 Keputusan Penting.
-5. Subcommand `aksara id --vault <path> --offline` (binary hasil build SESSION 4 masih valid di `target/release/aksara.exe` bila belum dibersihkan) bisa dipakai lagi untuk verifikasi cepat tanpa build ulang, bila TAHAP 13 butuh contoh output nyata sebagai evidence tambahan (bukan pengganti eksperimen terencana).
-6. Jika TAHAP 13+ membutuhkan referensi eksternal baru, tambahkan ke `references/REFERENCES.bib` yang sudah ada (40 entry per akhir SESSION 4, JANGAN membuat ulang dari nol).
-7. `semantic-scholar` dan `tavily` bermasalah sejak sesi-sesi sebelumnya (rate-limit/kuota habis) — `ydc-server`(you-search) dengan `include_domains`/query spesifik terarah adalah fallback yang terbukti bekerja baik di SESSION 3 dan SESSION 4.
-8. Update file ini setiap TAHAP selesai — jangan tunggu sampai akhir sesi.
+**Sprint persiapan mini-TA (TAHAP 1-17) kini selesai** — `ready_for_codex: YES_PARTIAL` di `HANDOFF_TO_CODEX.yaml`. Sesi berikutnya BUKAN lagi "SESSION 6" dalam skema TAHAP baru, melainkan salah satu dari dua jalur berikut, tergantung permintaan pengguna:
+
+### Jalur A — Menjalankan eksperimen (melengkapi BAB V/VI)
+
+1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, `SESSION_5B_HANDOFF.md`, `12_TEST_PLAN.md` (5 kelompok EXP-01..05), `15_CLAIM_EVIDENCE_CITATION_MAP.md` §15 (klaim performa).
+2. Jalankan eksperimen sesuai prosedur `12_TEST_PLAN.md` (rebuild bila perlu, catat environment lengkap — CPU/RAM/OS/commit — WAJIB per setiap eksperimen).
+3. Isi `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv` dengan data nyata (JANGAN mengarang angka).
+4. Lengkapi BAB V dan BAB VI subbab 6.1 di `14_CHAPTER_CONTENT_PACK.md` berdasarkan hasil nyata.
+5. Update `HANDOFF_TO_CODEX.yaml`: `chapters.bab_5`/`bab_6` → READY, `experiments.result_status` → hasil aktual, `readiness.ready_for_codex` → `YES` penuh bila BAB V/VI selesai.
+
+### Jalur B — Codex menyusun DOCX dari bahan yang sudah `YES_PARTIAL`
+
+1. Codex membaca `HANDOFF_TO_CODEX.yaml` sebagai entry point, lalu `14_CHAPTER_CONTENT_PACK.md` (BAB I-IV siap), `15_CLAIM_EVIDENCE_CITATION_MAP.md` (verifikasi tiap klaim sebelum ditulis prosa), `13_TABLE_MANIFEST.md`+`tables/`, `11_FIGURE_MANIFEST.md`+`diagrams/`.
+2. BAB V/VI (6.1) disusun belakangan setelah Jalur A selesai; 6.2/6.3 boleh disusun sekarang (`READY_FOR_DRAFTING`, tidak bergantung eksperimen).
+3. WAJIB cek bagian "Klaim Kritis Anti-Overclaim" `15_CLAIM_EVIDENCE_CITATION_MAP.md` sebelum finalisasi prosa BAB manapun.
+
+### Catatan Umum (berlaku kedua jalur)
+
+- Jangan mengulang audit codebase/kripto/normalisasi/justifikasi/riset referensi/spesifikasi protokol/key lifecycle/threat model/scope-tim/related-work/diagram/rencana-pengujian/tabel/content-pack-BAB-I-IV/peta-klaim/handoff-Codex kecuali ada kontradiksi terdokumentasi.
+- Subcommand `aksara id --vault <path> --offline` (binary `target/release/aksara.exe`, build SESSION 4 commit `450d484`, bila belum dibersihkan) dapat dipakai untuk EXP-01/EXP-05.
+- Jika dibutuhkan referensi eksternal baru, tambahkan ke `references/REFERENCES.bib` yang sudah ada (40 entry).
+- `semantic-scholar` dan `tavily` bermasalah sejak sesi-sesi sebelumnya — `ydc-server` (you-search) adalah fallback terbukti bekerja.
+- Nama asli 3 anggota kelompok, `study_program`, dan `institution` tetap `NEEDS_CONFIRMATION` di `HANDOFF_TO_CODEX.yaml` — perlu diisi kelompok sebelum cetak final.
+- Update file ini setiap TAHAP/langkah besar selesai — jangan tunggu sampai akhir sesi.

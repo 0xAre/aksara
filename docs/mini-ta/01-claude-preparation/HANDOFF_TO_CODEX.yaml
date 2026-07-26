@@ -1,0 +1,233 @@
+# HANDOFF TO CODEX — AKSARA Mini-TA
+# Dihasilkan akhir TAHAP 17 (SESSION 5B). Sumber kebenaran: docs/mini-ta/01-claude-preparation/*.
+# Codex bertugas menyusun docs/mini-ta/00-template/Cetak_TA_rev3.docx dari bahan ini.
+# JANGAN mengarang fakta baru di luar file yang dirujuk di bawah — setiap klaim harus
+# tertelusur ke 15_CLAIM_EVIDENCE_CITATION_MAP.md.
+
+project:
+  name: AKSARA
+  document_type: Tugas Akhir Mata Kuliah Implementasi Kriptografi
+  work_type: Kelompok
+  member_count: 3
+  recommended_title: >
+    Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Manajemen Kunci, dan
+    Threat Model pada Aplikasi Chat Terminal P2P Serverless AKSARA
+  recommended_title_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §7 (alternatif #3)
+  members:
+    - name: "Anggota 1"
+      status: NEEDS_CONFIRMATION
+    - name: "Anggota 2"
+      status: NEEDS_CONFIRMATION
+    - name: "Anggota 3"
+      status: NEEDS_CONFIRMATION
+  members_note: >
+    Tidak ada nama asli yang dapat diverifikasi dari proposal CARAKA sebelumnya
+    (seluruhnya placeholder). Pengguna/kelompok WAJIB mengisi nama asli sebelum
+    dokumen final dicetak.
+  study_program: NEEDS_CONFIRMATION
+  institution: NEEDS_CONFIRMATION
+
+scope:
+  main_problem: >
+    Implementasi dan evaluasi protokol keamanan end-to-end AKSARA: pembentukan
+    kanal aman dua-pihak via handshake Noise_IK (Noise_IK_25519_ChaChaPoly_BLAKE2s),
+    bertumpu pada siklus hidup kunci kriptografi yang melindunginya, dievaluasi
+    terhadap threat model proporsional untuk tugas mata kuliah.
+  main_problem_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §1
+  research_questions:
+    - "Bagaimana AKSARA mengimplementasikan Noise_IK untuk autentikasi identitas dan kerahasiaan sesi, dan properti mana yang benar-benar dapat diverifikasi dari evidence source-level?"
+    - "Bagaimana siklus hidup kunci kriptografi AKSARA dikelola end-to-end, dan sejauh mana konsisten dengan standar terkait?"
+    - "Sejauh mana desain protokol dan manajemen kunci AKSARA memberikan ketahanan terhadap kelas ancaman yang relevan, dan apa batasan/celah residual yang teridentifikasi?"
+  research_questions_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §2
+  objectives_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §3
+  contribution_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §4
+  limitations_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §5
+  limitations_count: 9
+
+cryptography:
+  primitives:
+    inventory_raw: docs/mini-ta/01-claude-preparation/02_CRYPTO_IMPLEMENTATION_AUDIT.md
+    inventory_normalized: docs/mini-ta/01-claude-preparation/03_CRYPTO_INVENTORY_NORMALIZED.md
+    raw_entry_count: 36
+    core_component_count: 7
+    core_components: [CORE-1 Noise_IK, CORE-2 X25519, CORE-3 ChaCha20-Poly1305, CORE-4 BLAKE2s, CORE-5 Argon2id, CORE-6 Ed25519, CORE-7 OsRng]
+    critical_caveat_core6: >
+      Ed25519 di AKSARA HANYA berfungsi sebagai bahan fingerprint — TIDAK ADA
+      pemanggilan sign()/verify() aktif di source manapun (CB-084). JANGAN
+      menulis "AKSARA menggunakan tanda tangan digital Ed25519 secara aktif".
+  protocol_spec: docs/mini-ta/01-claude-preparation/06_PROTOCOL_SPECIFICATION.md
+  key_lifecycle: docs/mini-ta/01-claude-preparation/07_KEY_LIFECYCLE.md
+  threat_model: docs/mini-ta/01-claude-preparation/08_THREAT_MODEL.md
+  implementation_audit: docs/mini-ta/01-claude-preparation/01_CODEBASE_AUDIT.md
+  justification: docs/mini-ta/01-claude-preparation/04_CRYPTOGRAPHIC_JUSTIFICATION.md
+  alternative_comparison: docs/mini-ta/01-claude-preparation/05_CRYPTO_ALTERNATIVE_COMPARISON.md
+
+chapters:
+  bab_1:
+    title: PENDAHULUAN
+    status: READY
+    source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-I
+    subbab_count: 6
+  bab_2:
+    title: KAJIAN PUSTAKA
+    status: READY
+    source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-II
+    subbab_count: 10
+  bab_3:
+    title: METODOLOGI PENELITIAN
+    status: PARTIAL
+    status_note: "4 dari 5 subbab READY; subbab 3.4 (lingkungan) sebagian WAITING_FOR_EXPERIMENT untuk spesifikasi hardware eksekusi pengujian"
+    source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-III
+    subbab_count: 5
+  bab_4:
+    title: PERANCANGAN DAN IMPLEMENTASI
+    status: READY
+    status_note: "BAB inti, paling rinci — 7 subbab, memenuhi Quality Gate poin 15"
+    source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-IV
+    subbab_count: 7
+  bab_5:
+    title: PENGUJIAN DAN ANALISIS
+    status: WAITING_FOR_EXPERIMENT
+    status_note: >
+      Belum diisi sengaja (diizinkan eksplisit brief: "BAB V dan BAB VI boleh
+      menunggu data pengujian"). Struktur rencana 3 subbab tersedia di content
+      pack. Wajib EXP-01..05 (12_TEST_PLAN.md) dijalankan dan dicatat di
+      EXPERIMENT_RESULT_TEMPLATE.csv sebelum subbab ini ditulis penuh.
+    source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-V
+  bab_6:
+    title: PENUTUP
+    status: PARTIAL
+    status_note: >
+      6.1 (Kesimpulan) WAITING_FOR_EXPERIMENT — bergantung BAB V untuk rumusan
+      masalah #1 dan #3. 6.2 (Keterbatasan) dan 6.3 (Saran) READY_FOR_DRAFTING —
+      TIDAK bergantung eksperimen, dapat ditulis penuh dari 09_SCOPE_AND_TEAM_PLAN.md
+      §5 + 10_RELATED_WORK_AND_GAP.md gap G1-G5 + 08_THREAT_MODEL.md T1-T7.
+    source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-VI
+
+references:
+  bibtex: docs/mini-ta/01-claude-preparation/references/REFERENCES.bib
+  matrix: docs/mini-ta/01-claude-preparation/references/REFERENCE_MATRIX.md
+  annotated_bibliography: docs/mini-ta/01-claude-preparation/references/ANNOTATED_BIBLIOGRAPHY.md
+  total_entries: 40
+  primary_source_entries: 32
+  minimum_required: 5
+  research_log: docs/mini-ta/01-claude-preparation/references/MCP_RESEARCH_LOG.md
+
+figures:
+  manifest: docs/mini-ta/01-claude-preparation/11_FIGURE_MANIFEST.md
+  source_directory: docs/mini-ta/01-claude-preparation/diagrams/src/
+  svg_directory: docs/mini-ta/01-claude-preparation/diagrams/rendered/svg/
+  png_directory: docs/mini-ta/01-claude-preparation/diagrams/rendered/png/
+  total_count: 7
+  minimum_required: 5
+  maximum_allowed: 8
+  visually_verified_count: 4
+  visually_verified_note: "FIG-03, 05, 06, 07 diverifikasi visual penuh; FIG-01, 02, 04 hanya dicek dimensi piksel — cukup untuk dipakai, verifikasi visual tambahan opsional"
+  topology_diagram_note: "Diagram topologi pengujian (opsi ke-8) sengaja tidak dibuat — rentang 5-8 sudah terpenuhi dengan 7 diagram existing, tidak wajib"
+
+tables:
+  manifest: docs/mini-ta/01-claude-preparation/13_TABLE_MANIFEST.md
+  directory: docs/mini-ta/01-claude-preparation/tables/
+  total_count: 13
+  minimum_required: 6
+  maximum_allowed: 12
+  count_note: "13 tabel (1 melebihi batas atas 12 brief) — kelebihan 1 tabel dinilai dapat diterima karena seluruh 13 kategori memang diwajibkan eksplisit TAHAP 14 brief; tidak ada tabel redundan"
+
+experiments:
+  plan: docs/mini-ta/01-claude-preparation/12_TEST_PLAN.md
+  result_template: docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv
+  group_count: 5
+  groups: [EXP-01 vault correctness/rejection, EXP-02 handshake Noise_IK, EXP-03 transport sesi, EXP-04 invite/fingerprint/contact store, EXP-05 benchmark Argon2id]
+  result_status: WAITING_FOR_EXPERIMENT
+  result_status_note: >
+    TIDAK ADA eksperimen yang sudah dijalankan pada sprint persiapan ini (TAHAP
+    1-17). Seluruh 5 kelompok, 7 metrik unik, dan 22 baris template CSV masih
+    kosong. Eksekusi harus dilakukan sebagai langkah terpisah SEBELUM BAB V
+    dapat ditulis.
+
+team:
+  contribution_matrix: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §8
+  contribution_matrix_table: docs/mini-ta/01-claude-preparation/tables/13_team_assignment.md
+
+restrictions:
+  prohibited_claims:
+    - "AKSARA aman secara absolut / tidak dapat diretas"
+    - "AKSARA menggunakan tanda tangan digital Ed25519 secara aktif (TIDAK ADA sign/verify di source)"
+    - "Forward secrecy / identity-hiding penuh / mutual authentication Noise_IK terverifikasi penuh (properti ini DOCUMENTED_ONLY, bukan CONFIRMED oleh test AKSARA sendiri)"
+    - "Klaim timing Argon2id ~100ms sebagai fakta terukur (belum ada benchmark — DOCUMENTED_ONLY/LOW)"
+    - "ChaCha20-Poly1305 aman terhadap nonce reuse (algoritma TIDAK misuse-resistant)"
+    - "Replay protection tersedia (tidak ditemukan mekanisme replay-protection eksplisit)"
+    - "snow (crate Noise) sudah diaudit keamanan formal (self-declared belum diaudit)"
+    - "AKSARA selalu memverifikasi identitas peer tanpa kualifikasi (hanya berlaku untuk kontak yang sudah dikenal — trust-on-first-use pada kontak baru)"
+    - "Angka hasil eksperimen apa pun di BAB V/VI sebelum EXP-01..05 benar-benar dijalankan"
+  unresolved_information:
+    - "Nama asli 3 anggota kelompok (placeholder Anggota 1/2/3)"
+    - "study_program dan institution (belum diisi)"
+    - "Screenshot TUI aktual (build+fungsi terverifikasi SESSION 4, capture gambar tetap MANUAL_USER_ACTION_REQUIRED)"
+    - "Seluruh data hasil eksperimen EXP-01..05 (WAITING_FOR_EXPERIMENT)"
+    - "BAB V penuh dan BAB VI subbab 6.1 (bergantung eksperimen)"
+  claim_map: docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
+  claim_map_critical_section: "§Klaim Kritis Anti-Overclaim (5 item prioritas tertinggi)"
+
+readiness:
+  ready_for_codex: "YES_PARTIAL"
+  ready_for_codex_note: >
+    BAB I-IV siap disusun Codex menjadi prosa DOCX sekarang (Quality Gate poin
+    15 brief eksplisit hanya mensyaratkan BAB I-IV). BAB V dan BAB VI TIDAK
+    siap — brief mengizinkan keduanya menunggu data pengujian ("BAB V dan BAB
+    VI boleh menunggu data pengujian"), sehingga status ini bukan pelanggaran
+    quality gate, melainkan kondisi yang memang diantisipasi brief. Tidak
+    ditemukan kontradiksi KRITIS pada penggunaan algoritma, nonce, key
+    management, atau format protokol manapun di seluruh dokumen TAHAP 1-16 —
+    satu-satunya syarat yang secara eksplisit memaksa ready_for_codex: NO.
+  quality_gate_17_items:
+    - {id: 1, desc: "Scope kelompok jelas", met: true, source: "09_SCOPE_AND_TEAM_PLAN.md"}
+    - {id: 2, desc: "3 anggota teridentifikasi/placeholder", met: true, source: "placeholder Anggota 1/2/3"}
+    - {id: 3, desc: "Pembagian kontribusi tersedia", met: true, source: "tables/13_team_assignment.md"}
+    - {id: 4, desc: "Seluruh primitif kriptografi diinventarisasi", met: true, source: "02_CRYPTO_IMPLEMENTATION_AUDIT.md (36 entry)"}
+    - {id: 5, desc: "Justifikasi setiap primitif tersedia", met: true, source: "04_CRYPTOGRAPHIC_JUSTIFICATION.md (7 CORE)"}
+    - {id: 6, desc: "Parameter kriptografi diverifikasi", met: true, source: "verifikasi langsung dari source code, bukan dokumentasi"}
+    - {id: 7, desc: "Protocol specification tersedia", met: true, source: "06_PROTOCOL_SPECIFICATION.md"}
+    - {id: 8, desc: "Key lifecycle tersedia", met: true, source: "07_KEY_LIFECYCLE.md"}
+    - {id: 9, desc: "Threat model tersedia", met: true, source: "08_THREAT_MODEL.md"}
+    - {id: 10, desc: "Evidence code tersedia", met: true, source: "evidence/CODE_EVIDENCE_MATRIX.md, CR-xxx/CB-xxx"}
+    - {id: 11, desc: "Referensi utama tersedia", met: true, source: "references/REFERENCES.bib (40 entry, 32 primer)"}
+    - {id: 12, desc: "Diagram inti dirender", met: true, source: "diagrams/rendered/ (7 diagram, 4 diverifikasi visual)"}
+    - {id: 13, desc: "Figure manifest tersedia", met: true, source: "11_FIGURE_MANIFEST.md"}
+    - {id: 14, desc: "Table manifest tersedia", met: true, source: "13_TABLE_MANIFEST.md"}
+    - {id: 15, desc: "BAB I-IV memiliki content pack", met: true, source: "14_CHAPTER_CONTENT_PACK.md"}
+    - {id: 16, desc: "Rencana pengujian tersedia", met: true, source: "12_TEST_PLAN.md"}
+    - {id: 17, desc: "Tidak ada kontradiksi kritis (algoritma/nonce/key management/format protokol)", met: true, source: "tidak ditemukan sepanjang TAHAP 1-16; INCONSISTENT yang ada (CB-008/009/145) bersifat komentar-usang vs kode, bukan kontradiksi algoritma/kripto"}
+  blocking_issues:
+    - id: BI-01
+      desc: "BAB V (Pengujian dan Analisis) belum diisi — menunggu eksekusi EXP-01..05"
+      severity: non_blocking_per_brief
+      action_required: "Jalankan 12_TEST_PLAN.md, isi EXPERIMENT_RESULT_TEMPLATE.csv, lalu lengkapi BAB V di 14_CHAPTER_CONTENT_PACK.md"
+    - id: BI-02
+      desc: "BAB VI subbab 6.1 (Kesimpulan) belum diisi — bergantung BAB V"
+      severity: non_blocking_per_brief
+      action_required: "Selesaikan setelah BI-01"
+    - id: BI-03
+      desc: "Screenshot TUI aktual belum ada (capture gambar, bukan build/fungsi)"
+      severity: non_blocking
+      action_required: "Tindakan manual pengguna — instruksi lengkap di screenshots/STATUS.md"
+    - id: BI-04
+      desc: "Nama asli 3 anggota kelompok, study_program, institution belum dikonfirmasi"
+      severity: non_blocking
+      action_required: "Konfirmasi dari kelompok/dosen pembimbing sebelum cetak final"
+    - id: BI-05
+      desc: "16_TABLE_MANIFEST.md mendaftar 13 tabel, 1 di atas batas maksimum 12 brief"
+      severity: cosmetic
+      action_required: "Tidak perlu tindakan — seluruh 13 kategori memang wajib eksplisit TAHAP 14 brief, bukan tabel berlebih yang perlu dipangkas"
+
+session_provenance:
+  sprint: mini_ta_preparation
+  sessions_completed: [1, 2, 3, "4", "5A", "5B"]
+  workflow_state_file: docs/mini-ta/WORKFLOW_STATE.yaml
+  progress_file: docs/mini-ta/01-claude-preparation/PROGRESS.md
+  project_memory_file: docs/mini-ta/PROJECT_MEMORY.md
+  note: >
+    SESSION 5B dijalankan menyambung SESSION 5A dalam percakapan yang sama atas
+    keputusan pengguna (bukan sesi baru terpisah) — TAHAP 15 (BAB I-IV), 16, dan
+    17 seluruhnya selesai dalam satu rangkaian sesi lanjutan setelah checkpoint
+    aman TAHAP 13-14.

@@ -14,12 +14,15 @@ Dokumen ini memuat fakta stabil lintas-agen, bukan log sesi.
 ## Status Stabil
 
 - TAHAP 1 s.d. 11 berstatus `DONE`; TAHAP 12 berstatus `DONE` partial (build+verifikasi fungsi selesai, capture screenshot TUI aktual `MANUAL_USER_ACTION_REQUIRED`, tidak menghalangi `ready_for_codex`) — seluruhnya SESSION 1-4 selesai.
+- TAHAP 13 (rencana pengujian) dan TAHAP 14 (tabel) berstatus `DONE` — SESSION 5A selesai. Output: `12_TEST_PLAN.md` (5 kelompok eksperimen EXP-01..05, seluruh status `WAITING_FOR_EXPERIMENT`, TIDAK ada hasil dibuat), `02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`, `13_TABLE_MANIFEST.md` + `tables/01`..`13_*.md` (13 kategori tabel, format Markdown). Detail lengkap di `SESSION_5A_HANDOFF.md`.
+- **SPRINT PERSIAPAN MINI-TA (TAHAP 1-17) SELESAI** — SESSION 5B menyambung SESSION 5A dalam satu percakapan (bukan sesi terpisah). TAHAP 15 (`14_CHAPTER_CONTENT_PACK.md`) `PARTIAL` by design: BAB I-IV selesai penuh (28 subbab, memenuhi Quality Gate #15 brief); BAB V dan BAB VI subbab 6.1 sengaja distub `WAITING_FOR_EXPERIMENT` (diizinkan eksplisit brief), TAPI BAB VI subbab 6.2 (keterbatasan) dan 6.3 (saran) berstatus `READY_FOR_DRAFTING` — TIDAK bergantung eksperimen. TAHAP 16 `DONE`: `15_CLAIM_EVIDENCE_CITATION_MAP.md`, 81 Claim ID (`CM-001`..`154`) plus bagian "Klaim Kritis Anti-Overclaim" (5 item prioritas tertinggi, WAJIB dicek Codex sebelum menulis prosa). TAHAP 17 `DONE`: `HANDOFF_TO_CODEX.yaml`, `ready_for_codex: YES_PARTIAL`, 17/17 syarat quality gate `met: true` (termasuk poin 17 — tidak ada kontradiksi kritis algoritma/nonce/key-management/format-protokol). Detail lengkap di `SESSION_5B_HANDOFF.md`.
+- **Langkah selanjutnya BUKAN TAHAP baru** dalam skema 17-tahap brief — dua jalur independen: (a) menjalankan `12_TEST_PLAN.md` untuk melengkapi BAB V/VI, atau (b) Codex mulai menyusun DOCX dari BAB I-IV yang sudah `YES_PARTIAL`. Keduanya boleh berjalan tanpa saling menunggu.
 - Audit codebase menghasilkan 259 klaim final.
 - Audit implementasi kriptografi menghasilkan 36 entry, dikonsolidasi ke 7 komponen inti CORE-1..7.
 - Spesifikasi protokol (`06_PROTOCOL_SPECIFICATION.md`), key lifecycle (`07_KEY_LIFECYCLE.md`), threat model (`08_THREAT_MODEL.md`), scope & tim (`09_SCOPE_AND_TEAM_PLAN.md`), related work & gap (`10_RELATED_WORK_AND_GAP.md`), dan figure manifest (`11_FIGURE_MANIFEST.md`) sudah tersedia sebagai ground truth untuk sesi berikutnya — jangan diulang tanpa kontradiksi spesifik yang terdokumentasi.
 - Referensi terverifikasi total **40 entry** (`references/REFERENCES.bib`) — 33 dari TAHAP 4/9/SESSION 3, 7 tambahan related work TAHAP 10/SESSION 4.
 - `cargo build --release` terverifikasi bersih (0 warning/0 error) pada commit `450d484` (2026-07-26) — detail di `01-claude-preparation/screenshots/STATUS.md`. Jangan mengulang klaim ini sebagai "baru diverifikasi" pada sesi mendatang tanpa build ulang.
-- Tahap aktif berikutnya adalah TAHAP 13 (rencana pengujian, SESSION 5). Jangan mengulang tahap `DONE` tanpa kontradiksi spesifik yang terdokumentasi.
+- Tidak ada lagi "tahap aktif berikutnya" dalam skema TAHAP 1-17 — seluruhnya `DONE`/`PARTIAL by design`. Jangan mengulang tahap `DONE` tanpa kontradiksi spesifik yang terdokumentasi.
 - Root repository telah diaudit; lima direktori hasil agen telah dikarantina secara non-destruktif. Lihat `ROOT_CLEANUP_AUDIT.md`.
 
 ## Versi Ground Truth
@@ -56,19 +59,18 @@ Urutan sumber kebenaran: source code aktual; `Cargo.toml` dan versi terverifikas
 - Jangan menyatakan fitur `IMPLEMENTED` hanya dari dokumentasi.
 - Gunakan `NEEDS_CONFIRMATION` jika data tidak tersedia, dan bedakan status `IMPLEMENTED`, `PARTIAL`, `PLANNED`, `DOCUMENTED_ONLY`, `NOT_FOUND`, `INCONSISTENT`, serta `NEEDS_EXPERIMENT`.
 
-## Workflow Sesi Lanjutan (semula tiga sesi, SESSION 5 dipecah jadi 5A/5B)
+## Workflow Sprint Persiapan (SELESAI — SESSION 1 s.d. 5B)
 
-- Sisa persiapan mini-TA dibagi menjadi sesi lanjutan berurutan: SESSION 3, SESSION 4, SESSION 5A, SESSION 5B.
-- SESSION 3 — Protocol and Security Model: TAHAP 5 (spesifikasi protokol), TAHAP 6 (key lifecycle), TAHAP 7 (threat model). Status: `DONE`.
-- SESSION 4 — Scope, Related Work, and Figures: TAHAP 8 (scope & pembagian tim), TAHAP 10 (related work & gap), TAHAP 11 (diagram teknis), TAHAP 12 (status screenshot aplikasi). Status: `DONE` (TAHAP 12 partial, tidak menghalangi lanjut).
-- SESSION 5A — Testing Plan and Tables: TAHAP 13 (rencana pengujian), TAHAP 14 (tabel). Status: `READY`.
-- SESSION 5B — Chapter Content Pack and Codex Handoff: TAHAP 15 (content pack per BAB — tahap terberat sprint ini), TAHAP 16 (peta klaim-evidence-citation), TAHAP 17 (handoff final Codex). Status: `BLOCKED_BY_SESSION_5A`.
-- Pemecahan SESSION 5 diminta user di akhir SESSION 4 (kuota sesi 5-jam tersisa ~50%) — TAHAP 15 tidak digabung dengan tahap lain karena berisiko kepotong kuota di tengah kerja.
-- `docs/mini-ta/WORKFLOW_STATE.yaml` adalah state mesin lintas Claude dan Codex untuk workflow ini — baca dan perbarui di setiap sesi berikutnya bersama `PROGRESS.md`.
+- Sprint persiapan mini-TA sudah selesai penuh: SESSION 1, 2, 3, 4, 5A, 5B — seluruhnya `DONE`.
+- SESSION 3 — Protocol and Security Model: TAHAP 5-7. Status: `DONE`.
+- SESSION 4 — Scope, Related Work, and Figures: TAHAP 8, 10, 11, 12. Status: `DONE` (TAHAP 12 partial, tidak menghalangi lanjut).
+- SESSION 5A — Testing Plan and Tables: TAHAP 13, 14. Status: `DONE`.
+- SESSION 5B — Chapter Content Pack and Codex Handoff: TAHAP 15 (partial by design), 16, 17. Status: `DONE`. Dijalankan menyambung SESSION 5A dalam satu percakapan (user memilih lanjut bertahap-hati-hati alih-alih sesi baru terpisah, berbeda dari pemecahan SESSION 4→5A/5B sebelumnya).
+- `docs/mini-ta/WORKFLOW_STATE.yaml` (`sprint_status: PREPARATION_COMPLETE`) adalah state mesin lintas Claude dan Codex — baca dan perbarui bila ada pekerjaan lanjutan (eksekusi eksperimen, penyusunan DOCX oleh Codex).
 
-## Wajib Baca Saat Memulai
+## Wajib Baca Saat Memulai (Pekerjaan Lanjutan Pasca-Sprint)
 
 1. `docs/mini-ta/PROJECT_MEMORY.md`
 2. `docs/mini-ta/01-claude-preparation/PROGRESS.md`
-3. `docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md` atau handoff sesi yang lebih baru
-4. Deliverable tahap aktif — untuk TAHAP 13 (tahap berikutnya, SESSION 5): `09_SCOPE_AND_TEAM_PLAN.md`, `10_RELATED_WORK_AND_GAP.md`, `11_FIGURE_MANIFEST.md`, `screenshots/STATUS.md` sebagai ground truth, plus `06_PROTOCOL_SPECIFICATION.md`/`07_KEY_LIFECYCLE.md`/`08_THREAT_MODEL.md` bila relevan untuk merancang skenario pengujian
+3. `docs/mini-ta/01-claude-preparation/SESSION_5B_HANDOFF.md` (handoff terbaru)
+4. `docs/mini-ta/01-claude-preparation/HANDOFF_TO_CODEX.yaml` sebagai entry point — menentukan jalur kerja: (a) eksekusi `12_TEST_PLAN.md` untuk melengkapi BAB V/VI, atau (b) Codex menyusun DOCX dari `14_CHAPTER_CONTENT_PACK.md` BAB I-IV + `15_CLAIM_EVIDENCE_CITATION_MAP.md` (cek "Klaim Kritis Anti-Overclaim" dulu)
