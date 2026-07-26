@@ -1,0 +1,20 @@
+%% Sequence Diagram Handshake Noise_IK (2 pesan)
+%% Evidence: 06_PROTOCOL_SPECIFICATION.md §5.1-5.2 (formalisasi dari versi ASCII)
+sequenceDiagram
+    participant I as Initiator<br/>(sudah tahu static-key Responder)
+    participant R as Responder<br/>(belum tahu static-key Initiator)
+
+    I->>R: Pesan 1: e, es, s, ss<br/>(ephemeral pub, DH(e_i,s_r), static pub terenkripsi, DH(s_i,s_r))
+
+    alt Kontak sudah dikenal (peer_noise_pk = Some)
+        R->>R: bandingkan remote_static() dgn peer_noise_pk<br/>tidak cocok -> Error::IdentityMismatch (fail-closed)
+    else Kontak belum dikenal (peer_noise_pk = None)
+        Note over R: TIDAK ADA pengecekan identitas sama sekali<br/>(trust-on-first-use, NEEDS_CONFIRMATION)
+    end
+
+    R->>I: Pesan 2: e, ee, se<br/>(ephemeral pub, DH(e_i,e_r), DH(e_i,s_r))
+
+    I->>I: into_transport() -> EncryptedSession
+    R->>R: into_transport() -> EncryptedSession
+
+    Note over I,R: Noise_IK_25519_ChaChaPoly_BLAKE2s (crate snow 0.10.0)<br/>session::run_session, crypto::handshake.rs

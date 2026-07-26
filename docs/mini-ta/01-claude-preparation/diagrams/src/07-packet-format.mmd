@@ -1,0 +1,26 @@
+%% Diagram Format Paket/Pesan AKSARA
+%% Evidence: 06_PROTOCOL_SPECIFICATION.md §3, §4.4, §6.3; 07_KEY_LIFECYCLE.md §3.1
+flowchart TB
+    subgraph Frame["Frame Wire Format (transport/frame.rs)"]
+        direction LR
+        F1["2 byte\nbig-endian length"] --> F2["payload ≤65535 byte\n(Noise ciphertext + 16B tag AEAD)"]
+    end
+
+    subgraph Vault["Vault Layout - 108 byte (identity/vault.rs)"]
+        direction LR
+        V1["16 byte\nsalt Argon2id"] --> V2["12 byte\nnonce ChaCha20"] --> V3["64 byte ciphertext\n(32B Ed25519 sk ‖ 32B X25519 sk)"] --> V4["16 byte\ntag Poly1305"]
+    end
+
+    subgraph Invite["Invite Code (contacts/mod.rs)"]
+        direction LR
+        I1["32 byte\nEd25519 pub"] --> I2["32 byte\nX25519 pub"] --> I3["base64url_no_pad\n+ opsional @onion-address"]
+    end
+
+    subgraph Payload["Payload Plaintext (session/mod.rs)"]
+        direction LR
+        P1["1 byte tag"] --> P2["TYPE_TEXT 0x00: UTF-8 teks\nTYPE_BLUR 0x01: +1 byte on/off\nTYPE_PING 0x02: tanpa body"]
+    end
+
+    Frame ~~~ Vault
+    Vault ~~~ Invite
+    Invite ~~~ Payload

@@ -1,0 +1,16 @@
+%% Diagram Konteks AKSARA
+%% Evidence: 08_THREAT_MODEL.md §1 (diagram trust boundary ASCII), 06_PROTOCOL_SPECIFICATION.md §1
+flowchart LR
+    UA["Pengguna A"] -->|passphrase| PA["Proses AKSARA A"]
+    UB["Pengguna B"] -->|passphrase| PB["Proses AKSARA B"]
+
+    PA <-->|"Noise_IK atas LAN mDNS/TCP\natau Tor onion service v3"| PB
+
+    PA --- VA[("Vault + Contacts Store A\n(disk lokal, terenkripsi)")]
+    PB --- VB[("Vault + Contacts Store B\n(disk lokal, terenkripsi)")]
+
+    VA --- OA["OS CSPRNG (OsRng) + Filesystem A"]
+    VB --- OB["OS CSPRNG (OsRng) + Filesystem B"]
+
+    classDef trust fill:#f5f5f5,stroke:#333,stroke-width:1px;
+    class PA,PB trust;

@@ -1,0 +1,25 @@
+%% Diagram Siklus Hidup Kunci AKSARA
+%% Evidence: 07_KEY_LIFECYCLE.md §8 (formalisasi dari versi ASCII), §2-7
+stateDiagram-v2
+    direction LR
+    [*] --> BelumAdaVault
+
+    BelumAdaVault --> KeyBundleMemori: KeyBundle generate - Ed25519 + X25519 via OsRng, setelah passphrase non-kosong tervalidasi
+
+    KeyBundleMemori --> VaultTersimpan: vault seal - Argon2id lalu ChaCha20-Poly1305 encrypt
+
+    VaultTersimpan --> KeyBundleMemori: vault unseal - Argon2id lalu ChaCha20-Poly1305 decrypt
+
+    KeyBundleMemori --> HandshakeAktif: X25519 static key dipakai Noise_IK per sesi, tanpa rotasi
+
+    HandshakeAktif --> SesiBerakhir: EncryptedSession di-drop
+
+    SesiBerakhir --> KeyBundleMemori: Identity dan Noise key tetap di memori, ZeroizeOnDrop saat proses berakhir
+
+    note right of VaultTersimpan
+        Tidak ada rotasi/revokasi kunci apapun (T7, Sec 6)
+    end note
+
+    note right of SesiBerakhir
+        Zeroization transport key tidak terverifikasi eksplisit dari session/mod.rs (Sec 7.2)
+    end note

@@ -1,0 +1,36 @@
+%% Diagram Arsitektur Kriptografi AKSARA (CORE-1..7)
+%% Evidence: 03_CRYPTO_INVENTORY_NORMALIZED.md, 04_CRYPTOGRAPHIC_JUSTIFICATION.md, 07_KEY_LIFECYCLE.md
+flowchart TB
+    OsRng["OsRng (CORE-7)\nsumber entropi seragam"]
+
+    subgraph AtRest["Penyimpanan At-Rest"]
+        Argon2["Argon2id (CORE-5)\nm=19MiB, t=2, p=1\nturunan kunci vault"]
+        ChaChaVault["ChaCha20-Poly1305 (CORE-3)\nenkripsi vault 108-byte"]
+    end
+
+    subgraph Ident["Identitas"]
+        Ed25519["Ed25519 (CORE-6)\nidentity key - HANYA fingerprint"]
+        X25519["X25519 (CORE-2)\nNoise static key"]
+        Blake2s["BLAKE2s (CORE-4)\nfingerprint + contacts-key"]
+    end
+
+    subgraph HS["Handshake"]
+        NoiseIK["Noise_IK_25519_ChaChaPoly_BLAKE2s (CORE-1)\nvia crate snow 0.10.0"]
+    end
+
+    subgraph Trans["Transport Terenkripsi"]
+        ChaChaSession["ChaCha20-Poly1305 (diasumsikan)\nsession transport key"]
+    end
+
+    OsRng --> Argon2
+    OsRng --> Ed25519
+    OsRng --> X25519
+    OsRng --> ChaChaVault
+    Argon2 --> ChaChaVault
+    ChaChaVault --> Ed25519
+    ChaChaVault --> X25519
+    Ed25519 --> Blake2s
+    X25519 --> Blake2s
+    X25519 --> NoiseIK
+    Blake2s -.->|invite code + fingerprint pengikat| NoiseIK
+    NoiseIK --> ChaChaSession

@@ -1,0 +1,28 @@
+%% Sequence Diagram Proses Utama AKSARA (end-to-end)
+%% Evidence: 06_PROTOCOL_SPECIFICATION.md §2-6
+sequenceDiagram
+    participant UA as Pengguna A
+    participant PA as Proses AKSARA A
+    participant PB as Proses AKSARA B
+    participant UB as Pengguna B
+
+    UA->>PA: passphrase (buat/unlock vault)
+    PA->>PA: Argon2id(passphrase, salt) -> ChaCha20-Poly1305 unseal vault
+    UB->>PB: passphrase (buat/unlock vault)
+    PB->>PB: Argon2id(passphrase, salt) -> ChaCha20-Poly1305 unseal vault
+
+    Note over UA,UB: Pertukaran invite code out-of-band<br/>base64url(Ed25519 pub ‖ X25519 pub) [+ @onion]
+    UA-->>UB: invite code A
+    UB-->>UA: invite code B
+
+    PA->>PB: Discovery (mDNS LAN _aksara._tcp.local.) atau Tor onion connect
+    PA->>PB: Handshake Noise_IK pesan 1 (e, es, s, ss)
+    PB->>PA: Handshake Noise_IK pesan 2 (e, ee, se)
+    Note over PA,PB: into_transport() -> EncryptedSession
+
+    loop Sesi aktif
+        PA->>PB: Pesan terenkripsi (ChaCha20-Poly1305)\nTYPE_TEXT / TYPE_BLUR / TYPE_PING
+        PB->>PA: Pesan terenkripsi
+    end
+
+    Note over PA,PB: Sesi berakhir - EncryptedSession di-drop

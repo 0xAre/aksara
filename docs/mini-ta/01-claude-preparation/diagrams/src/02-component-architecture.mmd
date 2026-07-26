@@ -1,0 +1,21 @@
+%% Diagram Arsitektur Komponen AKSARA
+%% Evidence: AGENTS.md (daftar modul), 06_PROTOCOL_SPECIFICATION.md, 07_KEY_LIFECYCLE.md, struktur src/
+flowchart TD
+    Main["main.rs / error.rs\n(entry point, load_or_create_vault, error mapping)"]
+    Identity["identity/\nkeypair.rs, vault.rs\n(IdentityKey, NoiseKey, KeyBundle)"]
+    Crypto["crypto/\nhandshake.rs\n(HandshakeSession, EncryptedSession)"]
+    Transport["transport/\nmod.rs, lan.rs, tor.rs, frame.rs\n(discovery, framing, LAN/Tor)"]
+    Session["session/mod.rs\n(run_session, SessionEvent)"]
+    Contacts["contacts/mod.rs\n(invite code, fingerprint, contacts store)"]
+    TUI["tui/\n(antarmuka terminal)"]
+
+    Main --> Identity
+    Main --> Contacts
+    Main --> Transport
+    Main --> TUI
+    Identity --> Crypto
+    Transport --> Session
+    Crypto --> Session
+    Session --> TUI
+    Contacts --> TUI
+    Contacts -.->|fingerprint dipakai discovery mDNS| Transport
