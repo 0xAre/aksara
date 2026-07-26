@@ -8,7 +8,7 @@ Nama AKSARA = backronym "Authenticated Key-based Secure Autonomous Relay Archite
 - `CARAKA-APP` (Android, Kotlin, mesh/emergency chat) — tidak terkait sama sekali.
 - `Caraka` (Rust/Tauri, sibling folder) — proyek TERPISAH (Tor-only, GUI desktop, sudah M0-M2). Jangan disatukan atau dianggap sama.
 
-**Status:** v0.2.0 disiapkan (belum di-tag). Build + `cargo test` hijau (45 test),
+**Status:** v0.2.1. Build + `cargo test` hijau (46 test),
 `cargo clippy -- -D warnings` bersih — keduanya ditegakkan CI di setiap push/PR,
 jadi perubahan harus lolos keduanya. Lisensi: proprietary (all rights reserved).
 
