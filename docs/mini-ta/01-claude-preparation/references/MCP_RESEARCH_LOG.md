@@ -62,3 +62,32 @@ Format: `citekey — query yang dipakai — domain hasil yang dikonfirmasi`.
 3. **Dua crate doc (`argon2crate`, `blake2crate`) TIDAK diverifikasi via pencarian langsung** — didokumentasikan secara eksplisit di atas sebagai penyimpangan dari proses standar, dengan alasan: (a) pola URL docs.rs sudah diverifikasi berulang untuk 4 crate sejenis dari publisher yang sama, (b) nomor versi berasal dari `Cargo.lock` yang sudah menjadi ground truth terverifikasi sejak TAHAP 1-3, bukan klaim baru. Risiko kesalahan dinilai rendah tapi tidak nol — jika ada keraguan pada saat penulisan BAB, verifikasi ulang manual disarankan sebelum submission akhir.
 4. **`bernstein2008chacha` diberi kualitas MEDIUM-HIGH, bukan HIGH**, karena statusnya sebagai technical report pribadi penulis tanpa peer-review formal — dicatat eksplisit di `ANNOTATED_BIBLIOGRAPHY.md` dan `REFERENCE_MATRIX.md` agar tidak disalahartikan sebagai paper peer-reviewed penuh setara `bernstein2005poly1305` atau `biryukov2016argon2`.
 5. **Tidak ada klaim algoritma/parameter yang dimasukkan ke `04_CRYPTOGRAPHIC_JUSTIFICATION.md`/`05_CRYPTO_ALTERNATIVE_COMPARISON.md` tanpa rujukan pada tabel di atas** — bila sebuah pernyataan teoretis tidak punya sumber terverifikasi di sesi ini, pernyataan tersebut ditandai `NEEDS_CONFIRMATION` di badan dokumen, bukan disajikan sebagai fakta.
+
+---
+
+## SESSION 4 (TAHAP 10 — Related Work & Gap, 2026-07-26)
+
+Tujuan: mencari 5-8 penelitian/sistem terkait untuk `10_RELATED_WORK_AND_GAP.md` — literatur pembanding aplikasi/protokol chat P2P terenkripsi sejenis. 33 referensi TAHAP 4/9/SESSION 3 seluruhnya berfokus primitif kriptografi + mDNS, **bukan** related-work level aplikasi/protokol — gap ini dikonfirmasi eksplisit di `SESSION_3_HANDOFF.md` poin 5.
+
+### MCP yang Dipakai
+
+`ydc-server` (you-search) — 9 query, seluruhnya berhasil pada percobaan pertama tanpa `include_domains` (query memakai judul/penulis/venue spesifik sehingga hasil top otomatis mengarah ke halaman resmi paper/proyek: eprint.iacr.org, ndss-symposium.org, dl.acm.org, gitlab.matrix.org, code.briarproject.org, toktok.ltd). Tidak ada MCP lain dipakai — konsisten batasan CLAUDE.md ("gunakan MCP hanya untuk kebutuhan tahap aktif").
+
+### Jejak Pencarian
+
+| Citekey | Query | Sumber Terverifikasi |
+|---------|-------|------------------------|
+| `kobeissi2019noiseexplorer` | "Noise Explorer formal verification Noise Protocol Framework Kobeissi Bhargavan paper" | eprint.iacr.org/2018/766 (bibtex resmi), wireguard.com (PDF ter-host), semanticscholar.org, hal.science (konfirmasi presentasi RWC 2019 + publikasi EuroS&P 2019) |
+| `cohngordon2020signal` | "A Formal Security Analysis of the Signal Messaging Protocol Cohn-Gordon Cremers Dowling" | eprint.iacr.org/2016/1013 (bibtex resmi), link.springer.com/article/10.1007/s00145-020-09360-1 (J. Cryptology vol 33, 2020), dl.acm.org (DOI cross-check) |
+| `donenfeld2017wireguard` | "WireGuard Jason Donenfeld NDSS 2017 paper next generation kernel network tunnel" | ndss-symposium.org/ndss2017/ndss-2017-programme/ (halaman resmi program NDSS), ndss-symposium.org PDF paper resmi |
+| `borisov2004otr` | "Off-the-Record Communication Why Not To Use PGP Borisov Goldberg Brewer WPES 2004" | dl.acm.org/doi/10.1145/1029179.1029200 (DOI resmi ACM), otr.cypherpunks.ca/otr-wpes.pdf (PDF asli penulis) |
+| `briarspec` | "Briar messaging app peer-to-peer Tor encrypted architecture whitepaper" + "Briar project academic paper Bramble protocol specification technical report peer-to-peer secure messaging Rogers" | briarproject.org/how-it-works/, code.briarproject.org/briar/briar-spec (repositori spesifikasi resmi), en.wikipedia.org/wiki/Briar_(software) (konfirmasi Bramble protocol suite), ethz.ch (laporan analisis independen ETH Zürich sebagai konteks tambahan, tidak dijadikan citekey terpisah) |
+| `toxspec` | "Tox protocol peer-to-peer encrypted instant messaging NaCl cryptography spec" | toktok.ltd/spec.html (spesifikasi resmi TokTok), en.wikipedia.org/wiki/Tox_(protocol) (konfirmasi arsitektur DHT+NaCl, status belum diaudit formal) |
+| `albrecht2024matrix` | "Matrix Olm Megolm cryptographic ratchet specification decentralized messaging" + "A Formal Cryptographic Analysis of Matrix' Core eprint 2023/1300 authors Usenix" | eprint.iacr.org/2023/1300 (bibtex resmi), ieeexplore.ieee.org/document/10646860 (konfirmasi publikasi IEEE S&P 2024), martinralbrecht.wordpress.com (blog penulis pertama, konfirmasi venue) |
+
+### Keputusan Metodologis
+
+1. **7 kandidat dipilih dari domain berbeda** untuk menghindari bias satu jenis sumber: 2 paper formal-verification pada Noise Protocol Framework/turunannya (`kobeissi2019noiseexplorer` untuk Noise_IK langsung, `donenfeld2017wireguard` untuk sistem nyata berbasis Noise), 3 paper formal-analysis protokol pesan populer (`cohngordon2020signal` Signal, `albrecht2024matrix` Matrix, `borisov2004otr` OTR sebagai fondasi historis), dan 2 spesifikasi sistem P2P serverless nyata (`briarspec`, `toxspec`) yang arsitekturnya paling dekat dengan AKSARA (P2P dua pihak tanpa server, salah satunya memakai Tor).
+2. **`briarspec` dan `toxspec` sengaja diberi kualitas MEDIUM** (bukan HIGH) karena keduanya spesifikasi/dokumentasi proyek resmi, bukan paper peer-reviewed — konsisten dengan perlakuan `snowcrate`/dst. pada TAHAP 4/9. Laporan analisis independen Briar oleh ETH Zürich (`ethz.ch/.../report_YuanmingSong.pdf`) ditemukan sebagai konteks tambahan namun **tidak** dijadikan citekey terpisah (bukan publikasi peer-review, berstatus laporan semester project) — disebutkan hanya sebagai catatan di log ini, tidak dikutip di badan `10_RELATED_WORK_AND_GAP.md`.
+3. **Tidak ada satupun dari 7 referensi yang diterima tanpa verifikasi pencarian** — seluruh judul, penulis, tahun, dan venue/DOI dicek langsung dari halaman resmi (eprint IACR, NDSS, ACM DL, IEEE Xplore, atau repositori spesifikasi proyek resmi), bukan dari ingatan model.
+4. **Jumlah total referensi setelah TAHAP 10: 40** (33 + 7) — tetap proporsional untuk tugas mata kuliah, di atas ambang minimum manapun yang relevan pada brief.

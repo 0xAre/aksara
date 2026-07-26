@@ -37,14 +37,21 @@ Kolom "Bab" adalah proyeksi provisional untuk TAHAP 15 (content pack per BAB) ya
 | `blake2crate` | RustCrypto, crate `blake2` v0.10.6 | Dokumentasi library | CR-002, CR-003 | CORE-4 (BLAKE2s) | BAB III | MEDIUM |
 | `rfc6762` | Cheshire, Krochmal, RFC 6762 (2013) | Standar IETF | Metadata leak LAN discovery (transport_lan.rs, `06_PROTOCOL_SPECIFICATION.md`/`08_THREAT_MODEL.md`) | Di luar CORE-1..7 (transport LAN, bukan primitif kripto) | BAB II/IV | HIGH |
 | `rfc6763` | Cheshire, Krochmal, RFC 6763 (2013) | Standar IETF | Format TXT record/service discovery (`_aksara._tcp.local.`, fp=<hex>) yang dipakai transport_lan.rs | Di luar CORE-1..7 (transport LAN, bukan primitif kripto) | BAB II/IV | HIGH |
+| `kobeissi2019noiseexplorer` | Kobeissi, Nicolas, Bhargavan, IEEE EuroS&P 2019 (eprint 2018/766) | Paper primer (peer-reviewed, formal verification) | Related work: verifikasi formal pola Noise_IK yang dipakai AKSARA CORE-1 — AKSARA sendiri tidak melakukan verifikasi formal | CORE-1 (Noise_IK) — related work | BAB II | HIGH |
+| `cohngordon2020signal` | Cohn-Gordon, Cremers, Dowling, Garratt, Stebila, J. Cryptology 2020 (eprint 2016/1013, EuroS&P 2017) | Paper primer (peer-reviewed, formal security analysis) | Related work pembanding: Signal Double Ratchet (rotasi kunci per pesan) vs AKSARA (tidak ada rotasi kunci sesi sama sekali, `07_KEY_LIFECYCLE.md` §6) | Related work protokol pesan terenkripsi | BAB II | HIGH |
+| `donenfeld2017wireguard` | Donenfeld, NDSS 2017 | Paper primer (peer-reviewed) | Related work: sistem nyata lain berbasis Noise Protocol Framework + ChaCha20-Poly1305 + BLAKE2s (stack kripto serupa AKSARA CORE-1/3/4), konteks VPN bukan chat P2P | CORE-1, CORE-3, CORE-4 — related work | BAB II | HIGH |
+| `borisov2004otr` | Borisov, Goldberg, Brewer, WPES 2004 | Paper primer (peer-reviewed) | Related work: OTR memperkenalkan deniability + perfect forward secrecy sebagai properti wajib IM aman — AKSARA tidak menganalisis/menyediakan deniability, forward secrecy hanya `DOCUMENTED_ONLY` (`06_PROTOCOL_SPECIFICATION.md` §5.3) | Related work protokol pesan terenkripsi (fondasi historis) | BAB II | HIGH |
+| `albrecht2024matrix` | Albrecht, Dowling, Jones, IEEE S&P 2024 (eprint 2023/1300) | Paper primer (peer-reviewed, formal cryptographic analysis) | Related work: Matrix Megolm mendukung rotasi sesi terjadwal pada arsitektur federated/multi-device — kontras eksplisit dengan ketiadaan rotasi kunci AKSARA (T7, `08_THREAT_MODEL.md` §6) | Related work manajemen kunci/rotasi sesi | BAB II | HIGH |
+| `briarspec` | Briar Project, spesifikasi Bramble Protocol Suite | Dokumentasi teknis resmi proyek (bukan paper peer-reviewed) | Related work: sistem P2P serverless lain dengan transport ganda (Tor + Bluetooth/Wi-Fi) — arsitektural paling dekat dengan AKSARA (P2P tanpa server, memakai Tor sebagai salah satu transport) | Related work arsitektur aplikasi P2P sejenis | BAB II | MEDIUM |
+| `toxspec` | TokTok/Tox Project, spesifikasi protokol Tox | Dokumentasi teknis resmi proyek (bukan paper peer-reviewed), belum diaudit formal (self-declared) | Related work: pesan terenkripsi P2P murni tanpa server sama sekali (mirip AKSARA), discovery via DHT bukan mDNS, dienkripsi NaCl bukan Noise_IK | Related work arsitektur aplikasi P2P sejenis | BAB II | MEDIUM |
 
 ## Rekap Kualitas Sumber
 
 | Kualitas | Jumlah | Keterangan |
 |----------|--------|------------|
-| HIGH | 26 | Standar resmi (RFC/FIPS/NIST/spesifikasi protokol) dan paper primer peer-reviewed |
+| HIGH | 31 | Standar resmi (RFC/FIPS/NIST/spesifikasi protokol) dan paper primer peer-reviewed — termasuk 5 paper related work TAHAP 10 (`kobeissi2019noiseexplorer`, `cohngordon2020signal`, `donenfeld2017wireguard`, `borisov2004otr`, `albrecht2024matrix`) |
 | MEDIUM-HIGH | 1 | `bernstein2008chacha` — technical report asli penulis algoritma, tapi tidak melalui proses peer-review formal (baru distandardisasi belakangan lewat RFC 8439) |
-| MEDIUM | 6 | Dokumentasi resmi library/crate — otoritatif untuk klaim implementasi, bukan untuk klaim keamanan teoretis |
-| **Total** | **33** | Ditambah `rfc6762`/`rfc6763` di TAHAP 5/7 (SESSION 3) untuk mendukung diskusi metadata leak LAN discovery yang belum dicakup referensi TAHAP 4/9 |
+| MEDIUM | 8 | Dokumentasi resmi library/crate (6) + dokumentasi teknis resmi proyek terkait bukan-peer-review (`briarspec`, `toxspec`) — otoritatif untuk klaim implementasi/arsitektur, bukan untuk klaim keamanan teoretis |
+| **Total** | **40** | 33 dari TAHAP 4/9/SESSION 3 + 7 referensi related work baru TAHAP 10 (SESSION 4) |
 
-Sumber primer/standar resmi (bukan dokumentasi library): **27 dari 33** — jauh di atas syarat minimum 5.
+Sumber primer/standar resmi (bukan dokumentasi library/proyek): **32 dari 40** — jauh di atas syarat minimum 5.
