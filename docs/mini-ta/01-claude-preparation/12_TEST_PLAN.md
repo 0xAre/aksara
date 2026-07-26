@@ -166,7 +166,11 @@ Basis objek uji: `02_CRYPTO_IMPLEMENTATION_AUDIT.md` (ID `CR-xxx`), `03_CRYPTO_I
 
 ## Status Eksekusi
 
-Seluruh 5 kelompok berstatus **`WAITING_FOR_EXPERIMENT`** pada akhir SESSION 5A — rencana ini disiapkan untuk dieksekusi pada sesi terpisah (kemungkinan SESSION 5B atau sesi khusus eksperimen, tergantung kuota dan keputusan pengguna). Template pencatatan hasil: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`.
+**Update pasca-SESSION 5B (2026-07-26, commit `3d22494`)**: `cargo test --release` dijalankan penuh — **46/46 test PASS, 0 FAIL**. Ini mencakup PENUH correctness+rejection EXP-01 (vault, termasuk `wrong_passphrase_returns_error`/`tampered_vault_returns_error` yang ternyata sudah ada sebagai unit test, bukan perlu prosedur CLI manual seperti diperkirakan semula), EXP-02 (handshake, minus metrik latensi), EXP-03 (transport sesi, minus metrik overhead byte), EXP-04 (invite/fingerprint/contacts, minus metrik panjang string). Hasil lengkap: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-26.csv`.
+
+**Belum dijalankan** (butuh instrumentasi manual tambahan di luar `cargo test`, atau di luar kuota sesi): latensi handshake (EXP-02), overhead ciphertext byte (EXP-03), panjang invite (EXP-04), **seluruh EXP-05** (benchmark Argon2id 30 cold-start run + ukuran vault). Status kelompok-kelompok ini tetap `WAITING_FOR_EXPERIMENT` untuk sub-metrik yang belum diukur.
+
+Template kosong asli tetap tersedia: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv` (untuk re-run/replikasi).
 
 ## Referensi
 

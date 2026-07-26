@@ -94,6 +94,12 @@ Transcript lengkap workflow (kalau perlu re-cek reasoning agent): `C:\Users\LENO
 - Aturan filesystem lintas-agen telah aktif: output mini-TA berada di bawah `docs/mini-ta/`, path harus pendek dan deterministik, serta artefak root wajib dikarantina.
 - TAHAP 1, 2, dan 3 tetap `DONE`. Tahap berikutnya tetap TAHAP 4 dan riset referensi yang diperlukan; tidak ada status tahap lain yang diubah oleh housekeeping ini.
 
+## Update Pasca-Sprint (2026-07-26, commit `3d22494`) — Eksekusi Eksperimen Parsial
+
+`cargo test --release` dijalankan: **46/46 PASS, 0 FAIL**, mencakup penuh correctness+rejection EXP-01..04 (`12_TEST_PLAN.md` sudah diupdate, hasil di `02-experiment-data/EXPERIMENT_RESULTS_2026-07-26.csv`). **BELUM dijalankan** (kuota sesi habis): latensi handshake, overhead ciphertext byte, panjang invite, dan **seluruh EXP-05** (benchmark Argon2id — termasuk verifikasi klaim "~100ms" yang paling prioritas). BAB V/VI `14_CHAPTER_CONTENT_PACK.md` **BELUM diupdate** dengan hasil ini — masih perlu EXP-05 dan 3 metrik sisa sebelum BAB V ditulis penuh.
+
+**Next action paling prioritas sesi berikutnya**: jalankan EXP-05 (Argon2id timing, 30 cold-start run) — satu-satunya klaim performa eksplisit yang belum diverifikasi di seluruh sprint. Lalu isi 3 metrik sisa (latensi handshake, overhead ciphertext, panjang invite) — semuanya cepat/murah. Baru setelah itu lengkapi BAB V/VI di `14_CHAPTER_CONTENT_PACK.md` dan update `HANDOFF_TO_CODEX.yaml` (`chapters.bab_5`/`bab_6`, `experiments.result_status`, `readiness.ready_for_codex` → `YES` penuh).
+
 ## Next action kalau lanjut sesi baru
 
 **Sprint persiapan mini-TA (TAHAP 1-17) kini selesai** — `ready_for_codex: YES_PARTIAL` di `HANDOFF_TO_CODEX.yaml`. Sesi berikutnya BUKAN lagi "SESSION 6" dalam skema TAHAP baru, melainkan salah satu dari dua jalur berikut, tergantung permintaan pengguna:
