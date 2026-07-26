@@ -14,7 +14,7 @@
 [![Release](https://img.shields.io/badge/release-v0.2.0-5dd4d4?style=flat-square)](https://github.com/0xAre/aksara/releases)
 [![Rust](https://img.shields.io/badge/Rust-1.89+-orange?style=flat-square&logo=rust)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey?style=flat-square)](LICENSE)
-[![Build](https://img.shields.io/github/actions/workflow/status/0xAre/aksara/release.yml?style=flat-square)](https://github.com/0xAre/aksara/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/0xAre/aksara/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/0xAre/aksara/actions/workflows/ci.yml)
 
 </div>
 
@@ -41,46 +41,47 @@
 
 ## Instalasi
 
-### Prasyarat
-- **Rust** (toolchain stable, rustc ≥ 1.89) — pasang via <https://rustup.rs>
-- **Windows**: Visual Studio Build Tools (MSVC) — dibutuhkan untuk mengompilasi SQLite bundled & kripto. Sudah ada jika Rust dipasang via rustup dengan MSVC host.
-- **Linux/macOS**: toolchain C standar (`build-essential` / Xcode CLT).
+Pilih satu — yang pertama tidak butuh Rust sama sekali.
 
-Tidak butuh OpenSSL, tidak butuh menjalankan daemon Tor terpisah — semuanya terbungkus.
+### 1. Download binary (paling mudah)
 
-### Download siap-pakai — TANPA install Rust (paling mudah)
-Untuk laptop yang masih kosong (belum ada Rust sama sekali), ambil binary jadi dari halaman **Releases**:
+Ambil file untuk OS-mu dari **[halaman Releases](https://github.com/0xAre/aksara/releases)**, lalu jalankan. Tidak ada yang perlu dipasang.
 
-**<https://github.com/0xAre/aksara/releases>**
-
-| OS | File | Cara pakai |
+| OS | File | Menjalankan |
 |---|---|---|
-| Windows | `aksara-x86_64-pc-windows-msvc.exe` | Rename jadi `aksara.exe`, taruh di folder mana saja, dobel-klik / jalankan dari terminal. Sudah static — tidak perlu Visual C++ Redistributable. |
+| Windows | `aksara-x86_64-pc-windows-msvc.exe` | Rename jadi `aksara.exe`, taruh di folder mana saja, dobel-klik atau panggil dari terminal. Sudah static — tanpa Visual C++ Redistributable. |
 | Linux | `aksara-x86_64-unknown-linux-gnu` | `chmod +x aksara-* && ./aksara-*` |
 | macOS (Apple Silicon) | `aksara-aarch64-apple-darwin` | `chmod +x aksara-* && ./aksara-*` |
 
-Tidak perlu install apa pun. Tinggal jalankan.
+Di Windows ada jalur satu baris yang sekalian menambahkan ke PATH:
 
-**Windows — installer satu baris** (download + tambah ke PATH otomatis, tanpa Rust; repo harus publik):
 ```powershell
 irm https://raw.githubusercontent.com/0xAre/aksara/main/install.ps1 | iex
 ```
-Tutup & buka ulang terminal, lalu ketik `aksara`.
 
-> Binary dibuat otomatis oleh GitHub Actions setiap rilis (lihat `.github/workflows/release.yml`).
+Tutup dan buka ulang terminal, lalu ketik `aksara`.
 
-### Pasang via Cargo (kalau sudah ada Rust)
+### 2. Pasang via Cargo
+
 ```bash
 cargo install --git https://github.com/0xAre/aksara
 ```
-Setelah selesai, `aksara` langsung tersedia di PATH (lewat `~/.cargo/bin`). Tidak perlu setup tambahan.
 
-### Build dari source lokal
+`aksara` langsung tersedia lewat `~/.cargo/bin`.
+
+### 3. Build dari source
+
 ```bash
 git clone https://github.com/0xAre/aksara
 cd aksara
 cargo install --path .
 ```
+
+Butuh Rust stable (rustc ≥ 1.89) dari <https://rustup.rs>, plus toolchain C bawaan platform — MSVC Build Tools di Windows (sudah ikut kalau Rust dipasang via rustup dengan host MSVC), `build-essential` di Linux, Xcode CLT di macOS.
+
+Tidak butuh OpenSSL, dan tidak perlu menjalankan daemon Tor terpisah — semuanya terbungkus di dalam binary.
+
+> **Upgrade dari v0.1.0?** Kalian berdua harus update bersamaan. Fingerprint identitas berubah di v0.2.0, jadi peer v0.1.0 dan v0.2.0 tidak akan saling menemukan — dan satu-satunya gejala yang terlihat hanyalah "peer tidak ketemu". Tukar ulang invite code setelah update. Detailnya di [CHANGELOG](CHANGELOG.md).
 
 ---
 
@@ -102,6 +103,18 @@ Identitas (vault terenkripsi) disimpan di `~/.aksara/id.key` secara default, jad
 3. Tekan `a` untuk menambah kontak (tempel invite code mereka, opsional + spasi + nickname).
 4. Pilih kontak (`↑`/`↓`) → `Enter` untuk masuk room.
 
+### Verifikasi kontak
+
+Invite code ditukar di luar aplikasi, jadi AKSARA tidak bisa tahu apakah yang kamu tempel benar-benar dari orang yang kamu maksud. Yang memastikannya adalah **fingerprint**, dan itu tugas kamu:
+
+1. Tekan `i` untuk melihat fingerprint-mu (juga tercetak oleh `aksara id`).
+2. Buka fingerprint kontak di panel kontak.
+3. Bacakan lewat jalur **berbeda** dari tempat kamu menukar invite — telepon, tatap muka, aplikasi lain. Kalau invite dikirim lewat WhatsApp, jangan verifikasi lewat WhatsApp juga.
+
+Cocok → aman. **Berbeda walau satu karakter → jangan masuk room.** Artinya invite yang kamu terima sudah diubah di tengah jalan.
+
+Fingerprint diturunkan dari kunci identitas *dan* kunci enkripsi sekaligus, jadi invite yang dimodifikasi selalu mengubah fingerprint — tidak bisa dipalsukan agar tetap terlihat sama.
+
 ### Keybinding
 | Tombol | Aksi |
 |---|---|
@@ -121,6 +134,8 @@ Identitas (vault terenkripsi) disimpan di `~/.aksara/id.key` secara default, jad
 | `Ctrl+S` | Cari pesan dalam room |
 | `Ctrl+R` | Balas (kutip) pesan tertentu |
 | `PageUp` / `PageDown` | Scroll riwayat chat |
+
+Tiap baris chat menampilkan jam lokal di sisi kanan. Waktunya diambil dari jam perangkatmu sendiri dan tidak pernah dikirim ke lawan bicara.
 
 ### Opsi CLI
 ```
@@ -142,6 +157,7 @@ Passphrase saat `aksara id` dibaca dari env `AKSARA_PASSPHRASE` bila diset (otom
 ## Keamanan (ringkas)
 
 - **Noise_IK** (`Noise_IK_25519_ChaChaPoly_BLAKE2s`) — mutual auth + forward secrecy + identity hiding.
+- **Fingerprint mengikat dua kunci** (`BLAKE2s(ed25519 ‖ noise)`) — invite yang diubah di tengah jalan selalu mengubah fingerprint, sehingga [verifikasi manual](#verifikasi-kontak) benar-benar mendeteksinya.
 - **Vault**: Argon2id (OWASP 2024: m=19 MiB, t=2, p=1) + ChaCha20-Poly1305. File 108 byte, **tanpa magic bytes** — tak bisa dibedakan dari data acak tanpa passphrase.
 - **Zero-trace**: pesan hanya di RAM; kunci sesi di-`ZeroizeOnDrop` saat room ditutup.
 - **Kontak tersimpan terenkripsi**: daftar kontak di-enkripsi ChaCha20-Poly1305 (key diturunkan dari identity via BLAKE2s) — social graph tidak plaintext di disk.
@@ -158,6 +174,8 @@ Passphrase saat `aksara id` dibaca dari env `AKSARA_PASSPHRASE` bila diset (otom
 - [x] **M2** — Jalur internet: Tor onion service + fallback
 - [ ] **M3** — Hardening: obfs4 (anti-DPI/pemblokiran ISP), traffic padding
 - [ ] **M4** — Polish & audit internal
+
+Riwayat perubahan per versi ada di **[CHANGELOG.md](CHANGELOG.md)**.
 
 ## Lisensi
 
