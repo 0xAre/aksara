@@ -40,6 +40,16 @@ const TYPE_BLUR: u8 = 0x01;
 /// mati (umum di Tor: circuit putus tanpa FIN) ketahuan sebelum user mengetik.
 const TYPE_PING: u8 = 0x02;
 
+/// Apa yang dilaporkan task pembaca ke loop utama.
+enum RxFrame {
+    /// Satu frame utuh, masih terenkripsi.
+    Data(Vec<u8>),
+    /// Peer menutup koneksi dengan bersih.
+    Eof,
+    /// Pembacaan gagal (I/O error) — bukan penutupan bersih.
+    Failed,
+}
+
 /// Selang kirim keepalive saat sesi aktif.
 ///
 /// ponytail: deteksi bergantung pada write yang gagal, bukan pada ping yang tak
@@ -55,7 +65,7 @@ const KEEPALIVE_INTERVAL: std::time::Duration = std::time::Duration::from_secs(3
 /// idle — termasuk saat masih menunggu handshake TCP — sehingga urutannya jadi
 /// tidak deterministik antar platform.
 #[cfg(test)]
-const KEEPALIVE_INTERVAL: std::time::Duration = std::time::Duration::from_millis(50);
+const KEEPALIVE_INTERVAL: std::time::Duration = std::time::Duration::from_millis(5);
 
 /// Event dari session task ke UI.
 #[derive(Clone, Debug)]
@@ -89,7 +99,10 @@ pub async fn run_session<S>(
     events: UnboundedSender<SessionEvent>,
 ) -> Result<(), Error>
 where
-    S: AsyncRead + AsyncWrite + Unpin + Send,
+    // `'static` diperlukan karena separuh-baca dipindahkan ke task tersendiri —
+    // lihat komentar cancel-safety di bawah. Semua caller memang memiliki
+    // stream-nya (Conn / TcpStream), jadi bound ini tidak membatasi apa pun.
+    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
     let _ = events.send(SessionEvent::StateChanged(SessionState::Handshaking));
 
@@ -151,6 +164,31 @@ where
     // `session` adalah EncryptedSession; di-drop di akhir fungsi (SEC-03a).
     let mut session = session;
 
+    // Pembacaan frame dipindahkan ke task sendiri, dan HARUS tetap begitu.
+    //
+    // `read_frame` melakukan dua `read_exact` berurutan (2 byte panjang, lalu
+    // payload) sehingga tidak cancel-safe: kalau future-nya di-drop setelah byte
+    // panjang terbaca tapi payload belum, byte itu hilang dari stream dan frame
+    // berikutnya dibaca ngawur — dekripsi gagal, sesi putus. `tokio::select!`
+    // membatalkan setiap arm yang kalah, jadi menaruh `read_frame` langsung di
+    // dalam select berarti merusak stream setiap kali arm lain menang di tengah
+    // pembacaan. Di sini semua arm select cancel-safe (`recv`, `tick`).
+    let (frames_tx, mut frames) = tokio::sync::mpsc::unbounded_channel::<RxFrame>();
+    let reader = tokio::spawn(async move {
+        let mut buf = vec![0u8; MAX_FRAME_LEN + 16];
+        loop {
+            let ev = match read_frame(&mut rd, &mut buf).await {
+                Ok(0) => RxFrame::Eof,
+                Ok(n) => RxFrame::Data(buf[..n].to_vec()),
+                Err(_) => RxFrame::Failed,
+            };
+            let stop = !matches!(ev, RxFrame::Data(_));
+            if frames_tx.send(ev).is_err() || stop {
+                break;
+            }
+        }
+    });
+
     // Tick pertama `interval` selesai seketika — habiskan di sini supaya sesi
     // tidak mengirim ping tepat saat baru aktif.
     let mut keepalive = tokio::time::interval(KEEPALIVE_INTERVAL);
@@ -202,17 +240,18 @@ where
                     Err(_) => break,
                 }
             }
-            res = read_frame(&mut rd, &mut buf) => {
-                let n = match res {
-                    Ok(n) => n,
-                    Err(_) => break,
+            maybe_frame = frames.recv() => {
+                let frame = match maybe_frame {
+                    Some(RxFrame::Data(f)) => f,
+                    Some(RxFrame::Eof) => {
+                        let _ = events.send(SessionEvent::PeerLeft);
+                        break;
+                    }
+                    // I/O error, atau task pembaca berhenti tanpa sempat lapor.
+                    Some(RxFrame::Failed) | None => break,
                 };
-                if n == 0 {
-                    let _ = events.send(SessionEvent::PeerLeft);
-                    break;
-                }
-                let mut pt = vec![0u8; n];
-                match session.decrypt(&buf[..n], &mut pt) {
+                let mut pt = vec![0u8; frame.len()];
+                match session.decrypt(&frame, &mut pt) {
                     Ok(0) => {} // payload kosong, abaikan
                     Ok(m) => match pt[0] {
                         TYPE_TEXT => {
@@ -230,6 +269,10 @@ where
             }
         }
     }
+
+    // Task pembaca bisa saja masih menunggu frame dari peer yang diam — drop
+    // channel saja tidak membangunkannya, jadi hentikan eksplisit.
+    reader.abort();
 
     let _ = events.send(SessionEvent::StateChanged(SessionState::Closed));
     Ok(())
