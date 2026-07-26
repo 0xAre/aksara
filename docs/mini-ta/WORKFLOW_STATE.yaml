@@ -6,11 +6,11 @@ project:
 
 workflow:
   active_sprint: mini_ta_preparation
-  total_sessions_remaining: 2
-  current_session: 4
-  latest_completed_stage: 7
-  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md
-  next_action: scope_related_work_and_figures
+  total_sessions_remaining: 1
+  current_session: 5
+  latest_completed_stage: 12
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
+  next_action: testing_and_codex_handoff
 
 sessions:
   session_3:
@@ -26,12 +26,19 @@ sessions:
   session_4:
     name: Scope, Related Work, and Figures
     stages: [8, 10, 11, 12]
-    status: READY
+    status: DONE
+    note: TAHAP 12 partial (build+fungsi verified, screenshot capture masih manual) - tidak menghalangi ready_for_codex
+    expected_outputs:
+      - docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md
+      - docs/mini-ta/01-claude-preparation/10_RELATED_WORK_AND_GAP.md
+      - docs/mini-ta/01-claude-preparation/11_FIGURE_MANIFEST.md
+      - docs/mini-ta/01-claude-preparation/screenshots/STATUS.md
+      - docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
 
   session_5:
     name: Testing and Codex Handoff
     stages: [13, 14, 15, 16, 17]
-    status: BLOCKED_BY_SESSION_4
+    status: READY
 
 blockers:
   screenshot_capture:
@@ -48,5 +55,5 @@ blockers:
 memory:
   project_memory: docs/mini-ta/PROJECT_MEMORY.md
   progress: docs/mini-ta/01-claude-preparation/PROGRESS.md
-  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
   source_of_truth: AGENTS.md

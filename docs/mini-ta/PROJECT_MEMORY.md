@@ -13,11 +13,13 @@ Dokumen ini memuat fakta stabil lintas-agen, bukan log sesi.
 
 ## Status Stabil
 
-- TAHAP 1 s.d. 7 berstatus `DONE` (SESSION 1-3 selesai).
+- TAHAP 1 s.d. 11 berstatus `DONE`; TAHAP 12 berstatus `DONE` partial (build+verifikasi fungsi selesai, capture screenshot TUI aktual `MANUAL_USER_ACTION_REQUIRED`, tidak menghalangi `ready_for_codex`) — seluruhnya SESSION 1-4 selesai.
 - Audit codebase menghasilkan 259 klaim final.
 - Audit implementasi kriptografi menghasilkan 36 entry, dikonsolidasi ke 7 komponen inti CORE-1..7.
-- Spesifikasi protokol (`06_PROTOCOL_SPECIFICATION.md`), key lifecycle (`07_KEY_LIFECYCLE.md`), dan threat model (`08_THREAT_MODEL.md`) sudah tersedia sebagai ground truth untuk sesi berikutnya — jangan diulang tanpa kontradiksi spesifik yang terdokumentasi.
-- Tahap aktif berikutnya adalah TAHAP 8 (scope & pembagian tim, SESSION 4). Jangan mengulang tahap `DONE` tanpa kontradiksi spesifik yang terdokumentasi.
+- Spesifikasi protokol (`06_PROTOCOL_SPECIFICATION.md`), key lifecycle (`07_KEY_LIFECYCLE.md`), threat model (`08_THREAT_MODEL.md`), scope & tim (`09_SCOPE_AND_TEAM_PLAN.md`), related work & gap (`10_RELATED_WORK_AND_GAP.md`), dan figure manifest (`11_FIGURE_MANIFEST.md`) sudah tersedia sebagai ground truth untuk sesi berikutnya — jangan diulang tanpa kontradiksi spesifik yang terdokumentasi.
+- Referensi terverifikasi total **40 entry** (`references/REFERENCES.bib`) — 33 dari TAHAP 4/9/SESSION 3, 7 tambahan related work TAHAP 10/SESSION 4.
+- `cargo build --release` terverifikasi bersih (0 warning/0 error) pada commit `450d484` (2026-07-26) — detail di `01-claude-preparation/screenshots/STATUS.md`. Jangan mengulang klaim ini sebagai "baru diverifikasi" pada sesi mendatang tanpa build ulang.
+- Tahap aktif berikutnya adalah TAHAP 13 (rencana pengujian, SESSION 5). Jangan mengulang tahap `DONE` tanpa kontradiksi spesifik yang terdokumentasi.
 - Root repository telah diaudit; lima direktori hasil agen telah dikarantina secara non-destruktif. Lihat `ROOT_CLEANUP_AUDIT.md`.
 
 ## Versi Ground Truth
@@ -58,13 +60,13 @@ Urutan sumber kebenaran: source code aktual; `Cargo.toml` dan versi terverifikas
 
 - Sisa persiapan mini-TA dibagi menjadi tiga sesi lanjutan berurutan: SESSION 3, SESSION 4, SESSION 5.
 - SESSION 3 — Protocol and Security Model: TAHAP 5 (spesifikasi protokol), TAHAP 6 (key lifecycle), TAHAP 7 (threat model). Status: `DONE`.
-- SESSION 4 — Scope, Related Work, and Figures: TAHAP 8 (scope & pembagian tim), TAHAP 10 (related work & gap), TAHAP 11 (diagram teknis), TAHAP 12 (status screenshot aplikasi). Status: `READY`.
-- SESSION 5 — Testing and Codex Handoff: TAHAP 13 (rencana pengujian), TAHAP 14 (tabel), TAHAP 15 (content pack per BAB), TAHAP 16 (peta klaim-evidence-citation), TAHAP 17 (handoff final Codex). Status: `BLOCKED_BY_SESSION_4`.
+- SESSION 4 — Scope, Related Work, and Figures: TAHAP 8 (scope & pembagian tim), TAHAP 10 (related work & gap), TAHAP 11 (diagram teknis), TAHAP 12 (status screenshot aplikasi). Status: `DONE` (TAHAP 12 partial, tidak menghalangi lanjut).
+- SESSION 5 — Testing and Codex Handoff: TAHAP 13 (rencana pengujian), TAHAP 14 (tabel), TAHAP 15 (content pack per BAB), TAHAP 16 (peta klaim-evidence-citation), TAHAP 17 (handoff final Codex). Status: `READY`.
 - `docs/mini-ta/WORKFLOW_STATE.yaml` adalah state mesin lintas Claude dan Codex untuk workflow ini — baca dan perbarui di setiap sesi berikutnya bersama `PROGRESS.md`.
 
 ## Wajib Baca Saat Memulai
 
 1. `docs/mini-ta/PROJECT_MEMORY.md`
 2. `docs/mini-ta/01-claude-preparation/PROGRESS.md`
-3. `docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md` atau handoff sesi yang lebih baru
-4. Deliverable tahap aktif — untuk TAHAP 8 (tahap berikutnya): `06_PROTOCOL_SPECIFICATION.md`, `07_KEY_LIFECYCLE.md`, `08_THREAT_MODEL.md` sebagai ground truth, plus `03_CRYPTO_INVENTORY_NORMALIZED.md`/`04_CRYPTOGRAPHIC_JUSTIFICATION.md` bila relevan
+3. `docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md` atau handoff sesi yang lebih baru
+4. Deliverable tahap aktif — untuk TAHAP 13 (tahap berikutnya, SESSION 5): `09_SCOPE_AND_TEAM_PLAN.md`, `10_RELATED_WORK_AND_GAP.md`, `11_FIGURE_MANIFEST.md`, `screenshots/STATUS.md` sebagai ground truth, plus `06_PROTOCOL_SPECIFICATION.md`/`07_KEY_LIFECYCLE.md`/`08_THREAT_MODEL.md` bila relevan untuk merancang skenario pengujian
