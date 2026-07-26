@@ -13,10 +13,11 @@ Dokumen ini memuat fakta stabil lintas-agen, bukan log sesi.
 
 ## Status Stabil
 
-- TAHAP 1, 2, dan 3 berstatus `DONE`.
+- TAHAP 1 s.d. 7 berstatus `DONE` (SESSION 1-3 selesai).
 - Audit codebase menghasilkan 259 klaim final.
-- Audit implementasi kriptografi menghasilkan 36 entry.
-- Tahap aktif berikutnya tetap TAHAP 4, normalisasi dan justifikasi kriptografi, disertai riset referensi yang diperlukan. Jangan mengulang tahap `DONE` tanpa kontradiksi spesifik yang terdokumentasi.
+- Audit implementasi kriptografi menghasilkan 36 entry, dikonsolidasi ke 7 komponen inti CORE-1..7.
+- Spesifikasi protokol (`06_PROTOCOL_SPECIFICATION.md`), key lifecycle (`07_KEY_LIFECYCLE.md`), dan threat model (`08_THREAT_MODEL.md`) sudah tersedia sebagai ground truth untuk sesi berikutnya — jangan diulang tanpa kontradiksi spesifik yang terdokumentasi.
+- Tahap aktif berikutnya adalah TAHAP 8 (scope & pembagian tim, SESSION 4). Jangan mengulang tahap `DONE` tanpa kontradiksi spesifik yang terdokumentasi.
 - Root repository telah diaudit; lima direktori hasil agen telah dikarantina secara non-destruktif. Lihat `ROOT_CLEANUP_AUDIT.md`.
 
 ## Versi Ground Truth
@@ -53,9 +54,17 @@ Urutan sumber kebenaran: source code aktual; `Cargo.toml` dan versi terverifikas
 - Jangan menyatakan fitur `IMPLEMENTED` hanya dari dokumentasi.
 - Gunakan `NEEDS_CONFIRMATION` jika data tidak tersedia, dan bedakan status `IMPLEMENTED`, `PARTIAL`, `PLANNED`, `DOCUMENTED_ONLY`, `NOT_FOUND`, `INCONSISTENT`, serta `NEEDS_EXPERIMENT`.
 
+## Workflow Tiga Sesi Lanjutan
+
+- Sisa persiapan mini-TA dibagi menjadi tiga sesi lanjutan berurutan: SESSION 3, SESSION 4, SESSION 5.
+- SESSION 3 — Protocol and Security Model: TAHAP 5 (spesifikasi protokol), TAHAP 6 (key lifecycle), TAHAP 7 (threat model). Status: `DONE`.
+- SESSION 4 — Scope, Related Work, and Figures: TAHAP 8 (scope & pembagian tim), TAHAP 10 (related work & gap), TAHAP 11 (diagram teknis), TAHAP 12 (status screenshot aplikasi). Status: `READY`.
+- SESSION 5 — Testing and Codex Handoff: TAHAP 13 (rencana pengujian), TAHAP 14 (tabel), TAHAP 15 (content pack per BAB), TAHAP 16 (peta klaim-evidence-citation), TAHAP 17 (handoff final Codex). Status: `BLOCKED_BY_SESSION_4`.
+- `docs/mini-ta/WORKFLOW_STATE.yaml` adalah state mesin lintas Claude dan Codex untuk workflow ini — baca dan perbarui di setiap sesi berikutnya bersama `PROGRESS.md`.
+
 ## Wajib Baca Saat Memulai
 
 1. `docs/mini-ta/PROJECT_MEMORY.md`
 2. `docs/mini-ta/01-claude-preparation/PROGRESS.md`
-3. `docs/mini-ta/01-claude-preparation/SESSION_1_HANDOFF.md` atau handoff sesi yang lebih baru
-4. Deliverable tahap aktif, untuk tahap berikutnya `01_CODEBASE_AUDIT.md`, `02_CRYPTO_IMPLEMENTATION_AUDIT.md`, dan evidence matrix yang relevan
+3. `docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md` atau handoff sesi yang lebih baru
+4. Deliverable tahap aktif — untuk TAHAP 8 (tahap berikutnya): `06_PROTOCOL_SPECIFICATION.md`, `07_KEY_LIFECYCLE.md`, `08_THREAT_MODEL.md` sebagai ground truth, plus `03_CRYPTO_INVENTORY_NORMALIZED.md`/`04_CRYPTOGRAPHIC_JUSTIFICATION.md` bila relevan

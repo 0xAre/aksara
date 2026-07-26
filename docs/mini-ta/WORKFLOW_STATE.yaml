@@ -1,0 +1,52 @@
+project:
+  name: AKSARA
+  document_type: Tugas Akhir Mata Kuliah Implementasi Kriptografi
+  work_type: kelompok
+  member_count: 3
+
+workflow:
+  active_sprint: mini_ta_preparation
+  total_sessions_remaining: 2
+  current_session: 4
+  latest_completed_stage: 7
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md
+  next_action: scope_related_work_and_figures
+
+sessions:
+  session_3:
+    name: Protocol and Security Model
+    stages: [5, 6, 7]
+    status: DONE
+    expected_outputs:
+      - docs/mini-ta/01-claude-preparation/06_PROTOCOL_SPECIFICATION.md
+      - docs/mini-ta/01-claude-preparation/07_KEY_LIFECYCLE.md
+      - docs/mini-ta/01-claude-preparation/08_THREAT_MODEL.md
+      - docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md
+
+  session_4:
+    name: Scope, Related Work, and Figures
+    stages: [8, 10, 11, 12]
+    status: READY
+
+  session_5:
+    name: Testing and Codex Handoff
+    stages: [13, 14, 15, 16, 17]
+    status: BLOCKED_BY_SESSION_4
+
+blockers:
+  screenshot_capture:
+    status: MANUAL_USER_ACTION_REQUIRED
+    blocks_ready_for_codex: false
+
+  member_names:
+    status: NEEDS_CONFIRMATION
+    placeholder:
+      - Anggota 1
+      - Anggota 2
+      - Anggota 3
+
+memory:
+  project_memory: docs/mini-ta/PROJECT_MEMORY.md
+  progress: docs/mini-ta/01-claude-preparation/PROGRESS.md
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_3_HANDOFF.md
+  source_of_truth: AGENTS.md

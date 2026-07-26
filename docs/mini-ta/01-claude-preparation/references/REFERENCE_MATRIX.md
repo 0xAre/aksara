@@ -35,14 +35,16 @@ Kolom "Bab" adalah proyeksi provisional untuk TAHAP 15 (content pack per BAB) ya
 | `x25519dalekcrate` | dalek-cryptography, crate `x25519-dalek` v2.0.1 | Dokumentasi library | CR-016, CR-022, CR-032 | CORE-2 (X25519) | BAB III | MEDIUM |
 | `argon2crate` | RustCrypto, crate `argon2` v0.5.3 | Dokumentasi library | CR-014 | CORE-5 (Argon2id) | BAB III | MEDIUM |
 | `blake2crate` | RustCrypto, crate `blake2` v0.10.6 | Dokumentasi library | CR-002, CR-003 | CORE-4 (BLAKE2s) | BAB III | MEDIUM |
+| `rfc6762` | Cheshire, Krochmal, RFC 6762 (2013) | Standar IETF | Metadata leak LAN discovery (transport_lan.rs, `06_PROTOCOL_SPECIFICATION.md`/`08_THREAT_MODEL.md`) | Di luar CORE-1..7 (transport LAN, bukan primitif kripto) | BAB II/IV | HIGH |
+| `rfc6763` | Cheshire, Krochmal, RFC 6763 (2013) | Standar IETF | Format TXT record/service discovery (`_aksara._tcp.local.`, fp=<hex>) yang dipakai transport_lan.rs | Di luar CORE-1..7 (transport LAN, bukan primitif kripto) | BAB II/IV | HIGH |
 
 ## Rekap Kualitas Sumber
 
 | Kualitas | Jumlah | Keterangan |
 |----------|--------|------------|
-| HIGH | 24 | Standar resmi (RFC/FIPS/NIST/spesifikasi protokol) dan paper primer peer-reviewed |
+| HIGH | 26 | Standar resmi (RFC/FIPS/NIST/spesifikasi protokol) dan paper primer peer-reviewed |
 | MEDIUM-HIGH | 1 | `bernstein2008chacha` — technical report asli penulis algoritma, tapi tidak melalui proses peer-review formal (baru distandardisasi belakangan lewat RFC 8439) |
 | MEDIUM | 6 | Dokumentasi resmi library/crate — otoritatif untuk klaim implementasi, bukan untuk klaim keamanan teoretis |
-| **Total** | **31** | Melebihi target 15–25 karena TAHAP 9 digabung ke TAHAP 4 dan mencakup referensi pembanding untuk `05_CRYPTO_ALTERNATIVE_COMPARISON.md` (bukan hanya justifikasi primitif terpakai) |
+| **Total** | **33** | Ditambah `rfc6762`/`rfc6763` di TAHAP 5/7 (SESSION 3) untuk mendukung diskusi metadata leak LAN discovery yang belum dicakup referensi TAHAP 4/9 |
 
-Sumber primer/standar resmi (bukan dokumentasi library): **25 dari 31** — jauh di atas syarat minimum 5.
+Sumber primer/standar resmi (bukan dokumentasi library): **27 dari 33** — jauh di atas syarat minimum 5.

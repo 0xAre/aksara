@@ -2,7 +2,7 @@
 
 Baca file ini DULU sebelum melanjutkan sesi. Sumber instruksi lengkap:
 `docs/mini-ta/CLAUDE_PREPARATION_BRIEF.md` (17 TAHAP, aturan anti-fabrikasi, quality gate).
-Update terakhir: TAHAP 4 dan TAHAP 9 (riset referensi, digabung) selesai. Sesi berikutnya mulai TAHAP 5 (spesifikasi protokol).
+Update terakhir: TAHAP 5, 6, 7 (SESSION 3 — Protocol and Security Model) selesai. Sesi berikutnya (SESSION 4) mulai TAHAP 8 (scope & tim).
 
 ## Status per TAHAP
 
@@ -12,9 +12,9 @@ Update terakhir: TAHAP 4 dan TAHAP 9 (riset referensi, digabung) selesai. Sesi b
 | 2 | Audit codebase | ✅ DONE | `01_CODEBASE_AUDIT.md` + `evidence/CODE_EVIDENCE_MATRIX.md` selesai. Matrix berisi 259 klaim final; verdict `CORRECTED` dipakai sebagai klaim final, verdict `REFUTED` di-drop. |
 | 3 | Audit kriptografi | ✅ DONE | `02_CRYPTO_IMPLEMENTATION_AUDIT.md` selesai. Inventaris berisi 36 primitif/entry kripto dari field `primitives` raw JSON. |
 | 4 | Justifikasi kriptografi | ✅ DONE | `03_CRYPTO_INVENTORY_NORMALIZED.md` (36 entry dikategorikan → 7 komponen inti CORE-1..7), `04_CRYPTOGRAPHIC_JUSTIFICATION.md` (15 poin/komponen), `05_CRYPTO_ALTERNATIVE_COMPARISON.md` (7 fungsi utama × maks 2 alternatif, multi-kriteria). |
-| 5 | Spesifikasi protokol | ⬜ PENDING | Output: `06_PROTOCOL_SPECIFICATION.md` (lihat pemetaan penomoran di §0 Keputusan Penting). Butuh #2+#3+#4 (justifikasi kripto sudah tersedia sebagai ground truth) |
-| 6 | Key lifecycle | ⬜ PENDING | Output: `07_KEY_LIFECYCLE.md`. Butuh #2+#3+#4 |
-| 7 | Threat model | ⬜ PENDING | Output: `08_THREAT_MODEL.md`. Butuh #2+#3+#4 |
+| 5 | Spesifikasi protokol | ✅ DONE | `06_PROTOCOL_SPECIFICATION.md` selesai — alur invite/discovery/handshake Noise_IK (CR-007..011, CR-026/027)/transport session/framing, berbasis evidence TAHAP 2/3 (`session.json`, `crypto_handshake.json`, `transport_lan.json`, `transport_tor.json`) + justifikasi TAHAP 4. 2 referensi baru (`rfc6762`, `rfc6763`) ditambahkan untuk konteks mDNS. |
+| 6 | Key lifecycle | ✅ DONE | `07_KEY_LIFECYCLE.md` selesai — generation/storage/usage/rotation/zeroization seluruh material kunci (identity, noise, vault, contacts-store), berbasis evidence `identity.json`/`contacts.json`/`main_and_error.json` TAHAP 2/3. Tidak ada referensi baru dibutuhkan. |
+| 7 | Threat model | ✅ DONE | `08_THREAT_MODEL.md` selesai — trust boundary, aset, 5 model musuh (A1-A5), ancaman per komponen (invite/discovery/handshake/transport/vault/passphrase/Tor), risk register deskriptif T1-T7. Referensi `rfc6762`/`rfc6763` dipakai ulang dari TAHAP 5, tidak ada entry baru. |
 | 8 | Scope & tim | ⬜ PENDING | Output: `09_SCOPE_AND_TEAM_PLAN.md`. Nama anggota: TIDAK ADA sumber terkonfirmasi (cek 3 proposal CARAKA sibling folder, semua placeholder `[Nama X — TBD]`) → **pakai placeholder Anggota 1/2/3**, tidak perlu tanya user lagi soal ini |
 | 9 | Riset referensi MCP | ✅ DONE | Digabung ke sesi TAHAP 4. 31 referensi terverifikasi (25 standar/primer, 6 dok. library) — lihat `references/REFERENCES.bib`, `REFERENCE_MATRIX.md`, `ANNOTATED_BIBLIOGRAPHY.md`, `MCP_RESEARCH_LOG.md`. `semantic-scholar` rate-limited setelah 1 query sukses; `tavily` gagal total (HTTP 432, kuota habis) — riset dialihkan penuh ke `ydc-server`(you-search) dengan domain filter resmi. Detail kendala di `MCP_RESEARCH_LOG.md`. |
 | 10 | Related work & gap | ⬜ PENDING | Output: `10_RELATED_WORK_AND_GAP.md` |
@@ -25,6 +25,16 @@ Update terakhir: TAHAP 4 dan TAHAP 9 (riset referensi, digabung) selesai. Sesi b
 | 15 | Content pack per BAB | ⬜ PENDING | Output: `14_CHAPTER_CONTENT_PACK.md` |
 | 16 | Peta klaim | ⬜ PENDING | Output: `15_CLAIM_EVIDENCE_CITATION_MAP.md` |
 | 17 | Handoff Codex | ⬜ PENDING | Output: `HANDOFF_TO_CODEX.yaml` (tidak bernomor) |
+
+## Sprint Tiga Sesi Berikutnya
+
+State mesin lintas-agen untuk sprint ini: `docs/mini-ta/WORKFLOW_STATE.yaml`. Baca file itu di awal setiap sesi berikutnya bersama file ini.
+
+| Session | Tahap | Fokus | Status | Handoff |
+|---------|-------|-------|--------|---------|
+| 3 | 5, 6, 7 | Protocol and Security Model (spesifikasi protokol, key lifecycle, threat model) | ✅ DONE | `SESSION_3_HANDOFF.md` |
+| 4 | 8, 10, 11, 12 | Scope, Related Work, and Figures (scope & tim, related work/gap, diagram, screenshot) | READY | `SESSION_4_HANDOFF.md` |
+| 5 | 13, 14, 15, 16, 17 | Testing and Codex Handoff (rencana pengujian, tabel, content pack, peta klaim, handoff Codex) | BLOCKED_BY_SESSION_4 | `SESSION_5_HANDOFF.md` |
 
 ## Keputusan penting (jangan diulang tanya ke user)
 
@@ -81,9 +91,9 @@ Transcript lengkap workflow (kalau perlu re-cek reasoning agent): `C:\Users\LENO
 
 ## Next action kalau lanjut sesi baru
 
-1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, lalu `SESSION_2_HANDOFF.md` (atau handoff sesi lebih baru), `03_CRYPTO_INVENTORY_NORMALIZED.md`, `04_CRYPTOGRAPHIC_JUSTIFICATION.md`, `05_CRYPTO_ALTERNATIVE_COMPARISON.md`.
-2. Jangan mengulang audit codebase/kripto/normalisasi/justifikasi/riset referensi kecuali ada klaim yang secara eksplisit perlu dikonfirmasi ulang.
-3. Lanjut TAHAP 5: spesifikasi protokol (`docs/mini-ta/01-claude-preparation/04_PROTOCOL_SPECIFICATION.md` per penomoran brief asli — cek penomoran final terhadap file yang sudah ada di folder ini sebelum menulis, karena TAHAP 4 sesi ini memakai 3 file `03/04/05` sehingga penomoran brief asli untuk TAHAP 5 dst. kemungkinan perlu digeser +1 atau disesuaikan; putuskan penomoran definitif di awal sesi TAHAP 5 dan catat keputusannya di sini).
-4. Jika TAHAP 5+ membutuhkan referensi eksternal baru, tambahkan ke `references/` yang sudah ada (JANGAN membuat ulang dari nol) — 31 referensi TAHAP 4/9 sudah mencakup 7 komponen kripto inti; TAHAP 5 (protokol) dan TAHAP 6/7 (key lifecycle/threat model) kemungkinan besar cukup memakai ulang referensi yang sama.
-5. `semantic-scholar` dan `tavily` sempat bermasalah (rate-limit/kuota habis) sesi ini — coba lagi di sesi baru (kuota mungkin sudah reset), tapi jangan blocking: `ydc-server`(you-search) dengan `include_domains` terarah adalah fallback yang terbukti bekerja baik.
+1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, lalu `SESSION_3_HANDOFF.md` (atau handoff sesi lebih baru), `06_PROTOCOL_SPECIFICATION.md`, `07_KEY_LIFECYCLE.md`, `08_THREAT_MODEL.md` sebagai ground truth SESSION 3.
+2. Jangan mengulang audit codebase/kripto/normalisasi/justifikasi/riset referensi/spesifikasi protokol/key lifecycle/threat model kecuali ada klaim yang secara eksplisit perlu dikonfirmasi ulang.
+3. Lanjut TAHAP 8 (scope & tim, `09_SCOPE_AND_TEAM_PLAN.md` — placeholder Anggota 1/2/3, JANGAN tanya user lagi), lalu TAHAP 10 (`10_RELATED_WORK_AND_GAP.md`), TAHAP 11 (`11_FIGURE_MANIFEST.md`, `mmdc` sudah berfungsi), TAHAP 12 (screenshot, sebagian BLOCKED — verifikasi fungsi build+run tetap bisa jalan). Penomoran file TAHAP 8+ SUDAH FINAL, lihat §0 Keputusan Penting.
+4. Jika TAHAP 8+ membutuhkan referensi eksternal baru, tambahkan ke `references/REFERENCES.bib` yang sudah ada (33 entry per akhir SESSION 3, JANGAN membuat ulang dari nol).
+5. `semantic-scholar` dan `tavily` sempat bermasalah sesi-sesi sebelumnya (rate-limit/kuota habis) — `ydc-server`(you-search) dengan `include_domains` terarah adalah fallback yang terbukti bekerja baik (dipakai lagi sukses di SESSION 3 untuk verifikasi `rfc6762`).
 6. Update file ini setiap TAHAP selesai — jangan tunggu sampai akhir sesi.
