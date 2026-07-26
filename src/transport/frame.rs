@@ -94,6 +94,52 @@ mod tests {
         assert_eq!(n, 0, "EOF harus menghasilkan 0, bukan error");
     }
 
+    /// `read_frame` TIDAK cancel-safe — ini yang membuat `session::run_session`
+    /// wajib menaruh pembacaan di task tersendiri, bukan sebagai arm
+    /// `tokio::select!` (select membatalkan setiap arm yang kalah).
+    ///
+    /// Di sini pembatalan disimulasikan dengan `timeout` yang kedaluwarsa saat
+    /// frame baru datang separuh. Byte yang sudah terkonsumsi hilang bersama
+    /// future-nya, jadi pembacaan berikutnya menafsirkan sisa payload sebagai
+    /// header panjang — stream tidak sinkron lagi dan isinya rusak.
+    #[tokio::test]
+    async fn read_frame_yang_dibatalkan_merusak_sinkronisasi_stream() {
+        let (mut a, mut b) = tokio::io::duplex(4096);
+
+        let payload = vec![7u8; 300];
+        let len = (payload.len() as u16).to_be_bytes();
+
+        // Kirim header + separuh payload, lalu diamkan supaya pembacaan pending.
+        a.write_all(&len).await.unwrap();
+        a.write_all(&payload[..100]).await.unwrap();
+        a.flush().await.unwrap();
+
+        let mut buf = vec![0u8; 1024];
+        let dibatalkan = tokio::time::timeout(
+            std::time::Duration::from_millis(50),
+            read_frame(&mut b, &mut buf),
+        )
+        .await;
+        assert!(dibatalkan.is_err(), "pembacaan seharusnya masih menunggu payload");
+
+        // Sisa frame pertama menyusul, lalu satu frame kedua yang utuh.
+        a.write_all(&payload[100..]).await.unwrap();
+        write_frame(&mut a, b"frame kedua").await.unwrap();
+
+        // Pembacaan berikutnya mulai dari tengah payload lama, bukan dari header
+        // frame kedua — jadi mustahil menghasilkan "frame kedua" yang utuh.
+        let hasil = read_frame(&mut b, &mut buf).await;
+        let rusak = match hasil {
+            Err(_) => true,
+            Ok(n) => &buf[..n] != b"frame kedua",
+        };
+        assert!(
+            rusak,
+            "read_frame ternyata cancel-safe — kalau ini benar, komentar dan task \
+             pembaca terpisah di session::run_session perlu ditinjau ulang"
+        );
+    }
+
     #[tokio::test]
     async fn oversized_payload_rejected() {
         let (mut a, _b) = tokio::io::duplex(4096);
