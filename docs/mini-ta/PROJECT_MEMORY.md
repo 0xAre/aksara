@@ -56,12 +56,14 @@ Urutan sumber kebenaran: source code aktual; `Cargo.toml` dan versi terverifikas
 - Jangan menyatakan fitur `IMPLEMENTED` hanya dari dokumentasi.
 - Gunakan `NEEDS_CONFIRMATION` jika data tidak tersedia, dan bedakan status `IMPLEMENTED`, `PARTIAL`, `PLANNED`, `DOCUMENTED_ONLY`, `NOT_FOUND`, `INCONSISTENT`, serta `NEEDS_EXPERIMENT`.
 
-## Workflow Tiga Sesi Lanjutan
+## Workflow Sesi Lanjutan (semula tiga sesi, SESSION 5 dipecah jadi 5A/5B)
 
-- Sisa persiapan mini-TA dibagi menjadi tiga sesi lanjutan berurutan: SESSION 3, SESSION 4, SESSION 5.
+- Sisa persiapan mini-TA dibagi menjadi sesi lanjutan berurutan: SESSION 3, SESSION 4, SESSION 5A, SESSION 5B.
 - SESSION 3 — Protocol and Security Model: TAHAP 5 (spesifikasi protokol), TAHAP 6 (key lifecycle), TAHAP 7 (threat model). Status: `DONE`.
 - SESSION 4 — Scope, Related Work, and Figures: TAHAP 8 (scope & pembagian tim), TAHAP 10 (related work & gap), TAHAP 11 (diagram teknis), TAHAP 12 (status screenshot aplikasi). Status: `DONE` (TAHAP 12 partial, tidak menghalangi lanjut).
-- SESSION 5 — Testing and Codex Handoff: TAHAP 13 (rencana pengujian), TAHAP 14 (tabel), TAHAP 15 (content pack per BAB), TAHAP 16 (peta klaim-evidence-citation), TAHAP 17 (handoff final Codex). Status: `READY`.
+- SESSION 5A — Testing Plan and Tables: TAHAP 13 (rencana pengujian), TAHAP 14 (tabel). Status: `READY`.
+- SESSION 5B — Chapter Content Pack and Codex Handoff: TAHAP 15 (content pack per BAB — tahap terberat sprint ini), TAHAP 16 (peta klaim-evidence-citation), TAHAP 17 (handoff final Codex). Status: `BLOCKED_BY_SESSION_5A`.
+- Pemecahan SESSION 5 diminta user di akhir SESSION 4 (kuota sesi 5-jam tersisa ~50%) — TAHAP 15 tidak digabung dengan tahap lain karena berisiko kepotong kuota di tengah kerja.
 - `docs/mini-ta/WORKFLOW_STATE.yaml` adalah state mesin lintas Claude dan Codex untuk workflow ini — baca dan perbarui di setiap sesi berikutnya bersama `PROGRESS.md`.
 
 ## Wajib Baca Saat Memulai

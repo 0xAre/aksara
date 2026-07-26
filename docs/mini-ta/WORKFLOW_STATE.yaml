@@ -6,11 +6,15 @@ project:
 
 workflow:
   active_sprint: mini_ta_preparation
-  total_sessions_remaining: 1
-  current_session: 5
+  total_sessions_remaining: 2
+  current_session: 5a
   latest_completed_stage: 12
   latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
-  next_action: testing_and_codex_handoff
+  next_action: test_plan_and_tables
+  note: >
+    SESSION 5 dipecah jadi 5A dan 5B atas permintaan user (kuota sesi 5-jam
+    tersisa ~50% saat SESSION 4 selesai) - TAHAP 15 (content pack 6 BAB)
+    terlalu berat digabung dengan 13/14/16/17 dalam satu sesi.
 
 sessions:
   session_3:
@@ -35,10 +39,27 @@ sessions:
       - docs/mini-ta/01-claude-preparation/screenshots/STATUS.md
       - docs/mini-ta/01-claude-preparation/SESSION_4_HANDOFF.md
 
-  session_5:
-    name: Testing and Codex Handoff
-    stages: [13, 14, 15, 16, 17]
+  session_5a:
+    name: Testing Plan and Tables
+    stages: [13, 14]
     status: READY
+    expected_outputs:
+      - docs/mini-ta/01-claude-preparation/12_TEST_PLAN.md
+      - docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv
+      - docs/mini-ta/01-claude-preparation/13_TABLE_MANIFEST.md
+      - docs/mini-ta/01-claude-preparation/tables/*
+      - docs/mini-ta/01-claude-preparation/SESSION_5A_HANDOFF.md
+
+  session_5b:
+    name: Chapter Content Pack and Codex Handoff
+    stages: [15, 16, 17]
+    status: BLOCKED_BY_SESSION_5A
+    note: Tahap terberat sprint ini (content pack 6 BAB) - sengaja diberi sesi tersendiri dengan kuota penuh.
+    expected_outputs:
+      - docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md
+      - docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
+      - docs/mini-ta/01-claude-preparation/HANDOFF_TO_CODEX.yaml
+      - docs/mini-ta/01-claude-preparation/SESSION_5B_HANDOFF.md
 
 blockers:
   screenshot_capture:

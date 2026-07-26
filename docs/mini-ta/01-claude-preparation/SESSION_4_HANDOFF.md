@@ -31,14 +31,16 @@ Status sesi: TAHAP 8, 10, 11 selesai penuh. TAHAP 12 selesai **partial** (build+
 7. **7 diagram** (`11_FIGURE_MANIFEST.md`) siap dipakai BAB IV pada TAHAP 15 — 4 dari 7 sudah diverifikasi visual penuh (FIG-03, 05, 06, 07), 3 lainnya (FIG-01, 02, 04) hanya dicek dimensi piksel (lihat confidence table manifest). Bila ada waktu di SESSION 5, verifikasi visual 3 diagram sisanya sebelum dipakai di dokumen final.
 8. **Diagram topologi pengujian sengaja tidak dibuat** sesi ini (menunggu `12_TEST_PLAN.md`) — TAHAP 13 SESSION 5 sebaiknya mempertimbangkan menambah diagram ke-8 setelah skenario pengujian final, atau eksplisit memutuskan tidak perlu (tetap dalam rentang 5-8 diagram yang disyaratkan brief).
 
-## Instruksi Sesi Berikutnya (SESSION 5 — TAHAP 13, 14, 15, 16, 17)
+## Instruksi Sesi Berikutnya (SESSION 5 dipecah jadi 5A + 5B — lihat catatan di bawah)
+
+**Update pasca-handoff ini**: atas permintaan user (kuota sesi 5-jam tersisa ~50% saat SESSION 4 selesai), SESSION 5 dipecah jadi **SESSION 5A** (TAHAP 13, 14 — ringan/mekanis) dan **SESSION 5B** (TAHAP 15, 16, 17 — berat, sintesis lintas-dokumen, sengaja diberi sesi tersendiri kuota penuh). `WORKFLOW_STATE.yaml`/`PROGRESS.md` sudah mencerminkan pemecahan ini (`session_5a`/`session_5b`). Instruksi di bawah tetap berlaku secara teknis, hanya batas sesinya yang berubah.
 
 1. Mulai dari `PROGRESS.md`, lalu file ini, lalu `09_SCOPE_AND_TEAM_PLAN.md`/`10_RELATED_WORK_AND_GAP.md`/`11_FIGURE_MANIFEST.md`/`screenshots/STATUS.md` sebagai ground truth baru.
 2. Jangan mengulang TAHAP 1-12 (audit, normalisasi, justifikasi, riset referensi, protokol, key lifecycle, threat model, scope/tim, related work, diagram, build/screenshot) kecuali ada kontradiksi terdokumentasi.
-3. **TAHAP 13 (rencana pengujian)** → `12_TEST_PLAN.md`. 3-6 kelompok eksperimen realistis, JANGAN membuat hasil eksperimen (rencana saja). Buat juga `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`.
-4. **TAHAP 14 (tabel)** → `13_TABLE_MANIFEST.md` + data di `tables/` (CSV/Markdown).
-5. **TAHAP 15 (content pack per BAB)** → `14_CHAPTER_CONTENT_PACK.md`. BAB V hanya boleh diisi setelah data eksperimen tersedia (kemungkinan besar tetap `WAITING_FOR_EXPERIMENT` pada sesi ini kecuali eksperimen TAHAP 13 sempat dijalankan). BAB VI tidak boleh berisi kesimpulan hasil sebelum BAB V selesai.
-6. **TAHAP 16 (peta klaim)** → `15_CLAIM_EVIDENCE_CITATION_MAP.md`.
-7. **TAHAP 17 (handoff Codex)** → `HANDOFF_TO_CODEX.yaml` — set `ready_for_codex` sesuai 17 syarat quality gate `CLAUDE_PREPARATION_BRIEF.md`, cantumkan screenshot capture sebagai `blocking_issues` non-blocking.
+3. **SESSION 5A — TAHAP 13 (rencana pengujian)** → `12_TEST_PLAN.md`. 3-6 kelompok eksperimen realistis, JANGAN membuat hasil eksperimen (rencana saja). Buat juga `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`.
+4. **SESSION 5A — TAHAP 14 (tabel)** → `13_TABLE_MANIFEST.md` + data di `tables/` (CSV/Markdown). Tutup SESSION 5A dengan `SESSION_5A_HANDOFF.md`.
+5. **SESSION 5B — TAHAP 15 (content pack per BAB)** → `14_CHAPTER_CONTENT_PACK.md`. BAB V hanya boleh diisi setelah data eksperimen tersedia (kemungkinan besar tetap `WAITING_FOR_EXPERIMENT` kecuali eksperimen TAHAP 13 sempat dijalankan). BAB VI tidak boleh berisi kesimpulan hasil sebelum BAB V selesai.
+6. **SESSION 5B — TAHAP 16 (peta klaim)** → `15_CLAIM_EVIDENCE_CITATION_MAP.md`.
+7. **SESSION 5B — TAHAP 17 (handoff Codex)** → `HANDOFF_TO_CODEX.yaml` — set `ready_for_codex` sesuai 17 syarat quality gate `CLAUDE_PREPARATION_BRIEF.md`, cantumkan screenshot capture sebagai `blocking_issues` non-blocking. Tutup SESSION 5B dengan `SESSION_5B_HANDOFF.md`.
 8. Referensi baru (bila dibutuhkan TAHAP 13+): tambahkan ke `references/REFERENCES.bib` yang sudah ada (40 entry) dan `references/REFERENCE_MATRIX.md` — **jangan** membuat file bibliografi terpisah.
 9. Update `PROGRESS.md` di checkpoint tengah (tiap TAHAP selesai), jangan tunggu akhir sesi.

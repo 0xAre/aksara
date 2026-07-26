@@ -2,7 +2,7 @@
 
 Baca file ini DULU sebelum melanjutkan sesi. Sumber instruksi lengkap:
 `docs/mini-ta/CLAUDE_PREPARATION_BRIEF.md` (17 TAHAP, aturan anti-fabrikasi, quality gate).
-Update terakhir: TAHAP 8, 10, 11, 12 (SESSION 4 — Scope, Related Work, and Figures) selesai (TAHAP 12 partial — lihat baris tabel). Sesi berikutnya (SESSION 5) mulai TAHAP 13 (rencana pengujian).
+Update terakhir: TAHAP 8, 10, 11, 12 (SESSION 4 — Scope, Related Work, and Figures) selesai (TAHAP 12 partial — lihat baris tabel). SESSION 5 dipecah jadi 5A (TAHAP 13-14) dan 5B (TAHAP 15-17) — lihat catatan di tabel Sprint. Sesi berikutnya (SESSION 5A) mulai TAHAP 13 (rencana pengujian).
 
 ## Status per TAHAP
 
@@ -26,7 +26,7 @@ Update terakhir: TAHAP 8, 10, 11, 12 (SESSION 4 — Scope, Related Work, and Fig
 | 16 | Peta klaim | ⬜ PENDING | Output: `15_CLAIM_EVIDENCE_CITATION_MAP.md` |
 | 17 | Handoff Codex | ⬜ PENDING | Output: `HANDOFF_TO_CODEX.yaml` (tidak bernomor) |
 
-## Sprint Tiga Sesi Berikutnya
+## Sprint Sesi Lanjutan (semula 3 sesi, SESSION 5 dipecah jadi 5A/5B)
 
 State mesin lintas-agen untuk sprint ini: `docs/mini-ta/WORKFLOW_STATE.yaml`. Baca file itu di awal setiap sesi berikutnya bersama file ini.
 
@@ -34,7 +34,10 @@ State mesin lintas-agen untuk sprint ini: `docs/mini-ta/WORKFLOW_STATE.yaml`. Ba
 |---------|-------|-------|--------|---------|
 | 3 | 5, 6, 7 | Protocol and Security Model (spesifikasi protokol, key lifecycle, threat model) | ✅ DONE | `SESSION_3_HANDOFF.md` |
 | 4 | 8, 10, 11, 12 | Scope, Related Work, and Figures (scope & tim, related work/gap, diagram, screenshot) | ✅ DONE (TAHAP 12 partial, tidak menghalangi lanjut) | `SESSION_4_HANDOFF.md` |
-| 5 | 13, 14, 15, 16, 17 | Testing and Codex Handoff (rencana pengujian, tabel, content pack, peta klaim, handoff Codex) | READY | `SESSION_5_HANDOFF.md` |
+| 5A | 13, 14 | Testing Plan and Tables (rencana pengujian, tabel) | READY | `SESSION_5A_HANDOFF.md` |
+| 5B | 15, 16, 17 | Chapter Content Pack and Codex Handoff (content pack per BAB, peta klaim, handoff Codex) | BLOCKED_BY_SESSION_5A | `SESSION_5B_HANDOFF.md` |
+
+**Catatan pemecahan SESSION 5**: dipecah jadi 5A/5B atas permintaan user (kuota sesi 5-jam tersisa ~50% saat SESSION 4 selesai). TAHAP 15 (content pack 6 BAB) adalah tahap terberat di seluruh sprint — digabung dengan 13/14/16/17 berisiko kepotong di tengah kuota. 5A (ringan-menengah, mekanis) jadi sesi transisi; 5B (berat, sintesis lintas-dokumen) dapat sesi tersendiri dengan kuota penuh.
 
 ## Keputusan penting (jangan diulang tanya ke user)
 
@@ -95,8 +98,9 @@ Transcript lengkap workflow (kalau perlu re-cek reasoning agent): `C:\Users\LENO
 
 1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, lalu `SESSION_4_HANDOFF.md` (atau handoff sesi lebih baru), `09_SCOPE_AND_TEAM_PLAN.md`, `10_RELATED_WORK_AND_GAP.md`, `11_FIGURE_MANIFEST.md`, `screenshots/STATUS.md` sebagai ground truth SESSION 4.
 2. Jangan mengulang audit codebase/kripto/normalisasi/justifikasi/riset referensi/spesifikasi protokol/key lifecycle/threat model/scope-tim/related-work/diagram kecuali ada klaim yang secara eksplisit perlu dikonfirmasi ulang.
-3. Lanjut TAHAP 13 (rencana pengujian, `12_TEST_PLAN.md` — 3-6 kelompok eksperimen, JANGAN membuat hasil, hanya rencana + template CSV `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`), lalu TAHAP 14 (`13_TABLE_MANIFEST.md`), TAHAP 15 (`14_CHAPTER_CONTENT_PACK.md`, BAB I-VI), TAHAP 16 (`15_CLAIM_EVIDENCE_CITATION_MAP.md`), TAHAP 17 (`HANDOFF_TO_CODEX.yaml`). Penomoran file SUDAH FINAL, lihat §0 Keputusan Penting.
-4. Subcommand `aksara id --vault <path> --offline` (binary hasil build SESSION 4 masih valid di `target/release/aksara.exe` bila belum dibersihkan) bisa dipakai lagi untuk verifikasi cepat tanpa build ulang, bila TAHAP 13 butuh contoh output nyata sebagai evidence tambahan (bukan pengganti eksperimen terencana).
-5. Jika TAHAP 13+ membutuhkan referensi eksternal baru, tambahkan ke `references/REFERENCES.bib` yang sudah ada (40 entry per akhir SESSION 4, JANGAN membuat ulang dari nol).
-6. `semantic-scholar` dan `tavily` bermasalah sejak sesi-sesi sebelumnya (rate-limit/kuota habis) — `ydc-server`(you-search) dengan `include_domains`/query spesifik terarah adalah fallback yang terbukti bekerja baik di SESSION 3 dan SESSION 4.
-7. Update file ini setiap TAHAP selesai — jangan tunggu sampai akhir sesi.
+3. **SESSION 5A** (sesi transisi, lebih ringan): TAHAP 13 (rencana pengujian, `12_TEST_PLAN.md` — 3-6 kelompok eksperimen, JANGAN membuat hasil, hanya rencana + template CSV `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv`), lalu TAHAP 14 (`13_TABLE_MANIFEST.md` + `tables/`). Tutup dengan `SESSION_5A_HANDOFF.md`.
+4. **SESSION 5B** (sesi terpisah, kuota penuh — JANGAN digabung ke 5A): TAHAP 15 (`14_CHAPTER_CONTENT_PACK.md`, BAB I-VI — tahap terberat), TAHAP 16 (`15_CLAIM_EVIDENCE_CITATION_MAP.md`), TAHAP 17 (`HANDOFF_TO_CODEX.yaml`, tentukan `ready_for_codex` dari 17 syarat quality gate). Tutup dengan `SESSION_5B_HANDOFF.md`. Penomoran file SUDAH FINAL, lihat §0 Keputusan Penting.
+5. Subcommand `aksara id --vault <path> --offline` (binary hasil build SESSION 4 masih valid di `target/release/aksara.exe` bila belum dibersihkan) bisa dipakai lagi untuk verifikasi cepat tanpa build ulang, bila TAHAP 13 butuh contoh output nyata sebagai evidence tambahan (bukan pengganti eksperimen terencana).
+6. Jika TAHAP 13+ membutuhkan referensi eksternal baru, tambahkan ke `references/REFERENCES.bib` yang sudah ada (40 entry per akhir SESSION 4, JANGAN membuat ulang dari nol).
+7. `semantic-scholar` dan `tavily` bermasalah sejak sesi-sesi sebelumnya (rate-limit/kuota habis) — `ydc-server`(you-search) dengan `include_domains`/query spesifik terarah adalah fallback yang terbukti bekerja baik di SESSION 3 dan SESSION 4.
+8. Update file ini setiap TAHAP selesai — jangan tunggu sampai akhir sesi.
