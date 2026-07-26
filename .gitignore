@@ -13,6 +13,9 @@ id.key
 # Artefak rilis lokal
 /dist
 
+# Template akademik lokal
+/docs/mini-ta/00-template/
+
 # Scratch / log
 *.log
 
