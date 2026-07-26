@@ -4,6 +4,26 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 Versi mengikuti [SemVer](https://semver.org/lang/id/) — selama masih `0.x`,
 perubahan yang memutus kompatibilitas menaikkan angka minor.
 
+## [0.2.1] — 2026-07-26
+
+### Diperbaiki
+
+- **Sesi bisa putus sendiri di tengah percakapan.** Pembacaan frame ditaruh
+  langsung sebagai cabang `tokio::select!`, padahal operasinya membaca panjang
+  dan isi dalam dua tahap. Ketika cabang lain menang tepat saat sebuah frame
+  baru masuk separuh, tahap yang sudah berjalan dibatalkan dan byte yang
+  terlanjur terbaca hilang — frame berikutnya jadi salah tafsir, dekripsi
+  gagal, dan room tertutup tanpa sebab yang terlihat.
+
+  Peluangnya paling besar pada frame yang datang terpotong-potong, jadi jalur
+  Tor dan pesan panjang paling terdampak. Cacat ini sebenarnya sudah ada sejak
+  v0.1.0 (terpicu bila kamu mengirim pesan tepat saat pesan masuk sedang
+  separuh), hanya jarang; keepalive di v0.2.0 membuatnya sering.
+
+  Pembacaan kini berjalan di jalur sendiri sehingga tidak pernah dibatalkan di
+  tengah. **Semua pengguna v0.2.0 dianjurkan update.** Tidak ada perubahan
+  protokol — v0.2.0 dan v0.2.1 tetap bisa saling terhubung.
+
 ## [0.2.0] — 2026-07-25
 
 ### ⚠ Wajib dibaca sebelum update
@@ -64,5 +84,6 @@ Rilis pertama. Chat P2P terminal tanpa server perantara.
 - TUI ratatui: Mode Light tersinkron, cari pesan, reply, scroll wrap-aware.
 - Binary siap-pakai untuk Windows, Linux, dan macOS.
 
+[0.2.1]: https://github.com/0xAre/aksara/releases/tag/v0.2.1
 [0.2.0]: https://github.com/0xAre/aksara/releases/tag/v0.2.0
 [0.1.0]: https://github.com/0xAre/aksara/releases/tag/v0.1.0
