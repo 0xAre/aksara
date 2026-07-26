@@ -12,22 +12,37 @@ Update terakhir: TAHAP 4 dan TAHAP 9 (riset referensi, digabung) selesai. Sesi b
 | 2 | Audit codebase | ✅ DONE | `01_CODEBASE_AUDIT.md` + `evidence/CODE_EVIDENCE_MATRIX.md` selesai. Matrix berisi 259 klaim final; verdict `CORRECTED` dipakai sebagai klaim final, verdict `REFUTED` di-drop. |
 | 3 | Audit kriptografi | ✅ DONE | `02_CRYPTO_IMPLEMENTATION_AUDIT.md` selesai. Inventaris berisi 36 primitif/entry kripto dari field `primitives` raw JSON. |
 | 4 | Justifikasi kriptografi | ✅ DONE | `03_CRYPTO_INVENTORY_NORMALIZED.md` (36 entry dikategorikan → 7 komponen inti CORE-1..7), `04_CRYPTOGRAPHIC_JUSTIFICATION.md` (15 poin/komponen), `05_CRYPTO_ALTERNATIVE_COMPARISON.md` (7 fungsi utama × maks 2 alternatif, multi-kriteria). |
-| 5 | Spesifikasi protokol | ⬜ PENDING | Butuh #2+#3 |
-| 6 | Key lifecycle | ⬜ PENDING | Butuh #2+#3 |
-| 7 | Threat model | ⬜ PENDING | Butuh #2+#3 |
-| 8 | Scope & tim | ⬜ PENDING | Nama anggota: TIDAK ADA sumber terkonfirmasi (cek 3 proposal CARAKA sibling folder, semua placeholder `[Nama X — TBD]`) → **pakai placeholder Anggota 1/2/3**, tidak perlu tanya user lagi soal ini |
+| 5 | Spesifikasi protokol | ⬜ PENDING | Output: `06_PROTOCOL_SPECIFICATION.md` (lihat pemetaan penomoran di §0 Keputusan Penting). Butuh #2+#3+#4 (justifikasi kripto sudah tersedia sebagai ground truth) |
+| 6 | Key lifecycle | ⬜ PENDING | Output: `07_KEY_LIFECYCLE.md`. Butuh #2+#3+#4 |
+| 7 | Threat model | ⬜ PENDING | Output: `08_THREAT_MODEL.md`. Butuh #2+#3+#4 |
+| 8 | Scope & tim | ⬜ PENDING | Output: `09_SCOPE_AND_TEAM_PLAN.md`. Nama anggota: TIDAK ADA sumber terkonfirmasi (cek 3 proposal CARAKA sibling folder, semua placeholder `[Nama X — TBD]`) → **pakai placeholder Anggota 1/2/3**, tidak perlu tanya user lagi soal ini |
 | 9 | Riset referensi MCP | ✅ DONE | Digabung ke sesi TAHAP 4. 31 referensi terverifikasi (25 standar/primer, 6 dok. library) — lihat `references/REFERENCES.bib`, `REFERENCE_MATRIX.md`, `ANNOTATED_BIBLIOGRAPHY.md`, `MCP_RESEARCH_LOG.md`. `semantic-scholar` rate-limited setelah 1 query sukses; `tavily` gagal total (HTTP 432, kuota habis) — riset dialihkan penuh ke `ydc-server`(you-search) dengan domain filter resmi. Detail kendala di `MCP_RESEARCH_LOG.md`. |
-| 10 | Related work & gap | ⬜ PENDING | |
-| 11 | Diagram Mermaid | ⬜ PENDING | `mmdc` SUDAH DIPERBAIKI sesi ini (lihat Keputusan Penting) — render pipeline teruji OK |
+| 10 | Related work & gap | ⬜ PENDING | Output: `10_RELATED_WORK_AND_GAP.md` |
+| 11 | Diagram Mermaid | ⬜ PENDING | Output: `11_FIGURE_MANIFEST.md`. `mmdc` SUDAH DIPERBAIKI sesi ini (lihat Keputusan Penting) — render pipeline teruji OK |
 | 12 | Screenshot aplikasi | 🔴 BLOCKED (bagian render), verifikasi fungsi bisa jalan | Tidak ada tool screenshot OS/terminal di environment ini. Build+run untuk verifikasi fungsi masih bisa. Pengambilan gambar aktual perlu user manual. TIDAK memblokir `ready_for_codex` (screenshot tak masuk 17 syarat quality gate) |
-| 13 | Rencana pengujian | ⬜ PENDING | |
-| 14 | Tabel | ⬜ PENDING | |
-| 15 | Content pack per BAB | ⬜ PENDING | |
-| 16 | Peta klaim | ⬜ PENDING | |
-| 17 | Handoff Codex | ⬜ PENDING | |
+| 13 | Rencana pengujian | ⬜ PENDING | Output: `12_TEST_PLAN.md` |
+| 14 | Tabel | ⬜ PENDING | Output: `13_TABLE_MANIFEST.md` |
+| 15 | Content pack per BAB | ⬜ PENDING | Output: `14_CHAPTER_CONTENT_PACK.md` |
+| 16 | Peta klaim | ⬜ PENDING | Output: `15_CLAIM_EVIDENCE_CITATION_MAP.md` |
+| 17 | Handoff Codex | ⬜ PENDING | Output: `HANDOFF_TO_CODEX.yaml` (tidak bernomor) |
 
 ## Keputusan penting (jangan diulang tanya ke user)
 
+0. **Penomoran file TAHAP 5+ digeser +2** — brief asli (`CLAUDE_PREPARATION_BRIEF.md`) menomori TAHAP 4 sebagai 1 file tunggal (`03_CRYPTOGRAPHIC_JUSTIFICATION.md`), tapi sesi TAHAP 4 aktual memakai 3 file (`03_CRYPTO_INVENTORY_NORMALIZED.md`, `04_CRYPTOGRAPHIC_JUSTIFICATION.md`, `05_CRYPTO_ALTERNATIVE_COMPARISON.md`) sesuai instruksi eksplisit pengguna. Untuk menghindari tabrakan nomor, SELURUH file TAHAP 5 s.d. TAHAP 16 digeser +2 dari nomor di brief. Pemetaan final:
+   | TAHAP | Nama file di brief | Nama file final (dipakai) |
+   |-------|---------------------|------------------------------|
+   | 5 — Spesifikasi protokol | `04_PROTOCOL_SPECIFICATION.md` | **`06_PROTOCOL_SPECIFICATION.md`** |
+   | 6 — Manajemen kunci | `05_KEY_LIFECYCLE.md` | **`07_KEY_LIFECYCLE.md`** |
+   | 7 — Threat model | `06_THREAT_MODEL.md` | **`08_THREAT_MODEL.md`** |
+   | 8 — Scope & tim | `07_SCOPE_AND_TEAM_PLAN.md` | **`09_SCOPE_AND_TEAM_PLAN.md`** |
+   | 9 — Riset referensi | `references/*` (subfolder, tidak bernomor) | tidak berubah — sudah `DONE` |
+   | 10 — Related work & gap | `08_RELATED_WORK_AND_GAP.md` | **`10_RELATED_WORK_AND_GAP.md`** |
+   | 11 — Diagram | `09_FIGURE_MANIFEST.md` | **`11_FIGURE_MANIFEST.md`** |
+   | 13 — Rencana pengujian | `10_TEST_PLAN.md` | **`12_TEST_PLAN.md`** |
+   | 14 — Tabel | `11_TABLE_MANIFEST.md` | **`13_TABLE_MANIFEST.md`** |
+   | 15 — Content pack per BAB | `12_CHAPTER_CONTENT_PACK.md` | **`14_CHAPTER_CONTENT_PACK.md`** |
+   | 16 — Peta klaim | `13_CLAIM_EVIDENCE_CITATION_MAP.md` | **`15_CLAIM_EVIDENCE_CITATION_MAP.md`** |
+   | 17 — Handoff Codex | `HANDOFF_TO_CODEX.yaml` | tidak berubah (tidak bernomor) |
 1. **mmdc diperbaiki** — instalasi global `@mermaid-js/mermaid-cli` awalnya korup (node_modules kosong). User sudah **mengizinkan** `npm install -g @mermaid-js/mermaid-cli`. Sudah dijalankan dengan `PUPPETEER_SKIP_DOWNLOAD=true` (download Chromium bawaan gagal), lalu diarahkan ke Chrome sistem via config `docs/mini-ta/puppeteer-config.json` (`executablePath: C:\Program Files\Google\Chrome\Application\chrome.exe`). Diverifikasi render SVG+PNG sukses (exit 0). **Cara pakai untuk TAHAP 11:** `mmdc -i <file>.mmd -o <out>.svg -p "docs/mini-ta/puppeteer-config.json" -b white` (jalankan dari root repo, sesuaikan path relatif).
 2. **Nama anggota kelompok** — tidak ada nama asli di manapun (proposal CARAKA lama semua placeholder). Sudah diputuskan pakai placeholder Anggota 1/2/3 di TAHAP 8, ditandai `NEEDS_CONFIRMATION` di handoff akhir. Jangan tanya user lagi soal ini.
 3. **Screenshot TAHAP 12** — sudah dilaporkan ke user sebagai blocking issue (tidak ada tool capture). User belum diminta konfirmasi lanjutan soal ini karena tidak menghalangi `ready_for_codex`. Cukup dokumentasikan di `14_OPEN_QUESTIONS.md`.
