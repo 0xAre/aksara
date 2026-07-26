@@ -1,0 +1,564 @@
+{
+  "module": "crypto_handshake",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "Modul crypto::handshake mengimplementasikan pola Noise_IK dengan nama pattern lengkap 'Noise_IK_25519_ChaChaPoly_BLAKE2s' via crate snow, dipakai untuk membangun HandshakeState (initiator/responder).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 3,
+        "evidence_line_end": 21,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "Dokumentasi header menyatakan alur handshake 2 pesan: pesan 1 initiator->responder (e, es, s, ss), pesan 2 responder->initiator (e, ee, se); alur ini dikonfirmasi empiris oleh helper do_handshake yang memanggil write_message/read_message tepat 2 kali per sisi.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 12,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Verifikasi empiris ada di do_handshake() baris 109-129, dipakai oleh keempat test."
+      },
+      {
+        "category": "identity",
+        "claim": "HandshakeSession::new_initiator menerima local_noise_privkey dan peer_noise_pubkey masing-masing sebagai array 32-byte (&[u8;32]) — sesuai ukuran kunci X25519 — dibangun via snow::Builder dengan local_private_key() dan remote_public_key().",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 38,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "HandshakeSession::new_responder hanya menerima local_noise_privkey (&[u8;32]); peer's public key TIDAK diketahui di awal dan baru diverifikasi setelah membaca message pertama (khas pola 'IK' pada Noise: initiator sudah tahu responder's key, responder belum tahu initiator's key).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 48,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "write_message() dan read_message() pada HandshakeSession adalah wrapper tipis yang langsung mendelegasikan ke snow::HandshakeState::write_message/read_message, memetakan error via Error::Noise.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 52,
+        "evidence_line_end": 60,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "into_transport() mengonsumsi HandshakeSession (by value) dan memanggil snow's into_transport_mode() untuk berpindah ke mode transport terenkripsi, menghasilkan EncryptedSession baru; komentar kode menyatakan memanggil ini sebelum handshake selesai akan menghasilkan error.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 68,
+        "evidence_line_end": 73,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "remote_static() mengekspos remote static public key (Option<&[u8]>) yang sudah diverifikasi snow setelah handshake — dipakai untuk memastikan koneksi ke contact yang benar. Tipe kembalian adalah slice (&[u8]), bukan array tetap [u8;32], meski secara test isinya 32 byte.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 75,
+        "evidence_line_end": 79,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Test wrong_peer_key_fails_handshake membuktikan bahwa jika initiator memakai public key peer yang salah (kunci milik 'eve', bukan 'bob'), read_message di sisi responder mengembalikan Err — menunjukkan autentikasi static-key initiator gagal dideteksi lewat kegagalan DH ('es'), bukan lewat pemeriksaan eksplisit terpisah.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 193,
+        "evidence_line_end": 217,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Hanya sisi responder (bob) yang diuji memanggil remote_static() untuk memverifikasi identitas initiator (test responder_verifies_initiator_identity). Tidak ada test di file ini yang memanggil remote_static() pada sisi initiator untuk memverifikasi identitas responder — sehingga 'autentikasi mutual' hanya dibuktikan test sebagian (satu arah eksplisit + satu arah implisit lewat kegagalan DH pada test wrong_peer_key_fails_handshake).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 174,
+        "evidence_line_end": 191,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "HIGH",
+        "notes": "Fakta yang diverifikasi: tidak ada pemanggilan alice.remote_static() di seluruh file test. API remote_static() sendiri generik dan bisa dipanggil kedua sisi (baris 77-79)."
+      },
+      {
+        "category": "limitation",
+        "claim": "Properti keamanan 'Forward secrecy' dan 'Identity hiding' hanya disebutkan di komentar header, tidak ada test di file ini yang secara eksplisit memverifikasi properti tersebut (mis. tidak ada test yang membandingkan ephemeral key antar sesi, atau memeriksa ciphertext static-key initiator).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 14,
+        "evidence_line_end": 17,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "MEDIUM"
+      },
+      {
+        "category": "testing",
+        "claim": "is_finished() hanya dikompilasi di bawah #[cfg(test)] — tidak tersedia di kode produksi/runtime. Komentar menyatakan runtime menyimpulkan selesai lewat into_transport().",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 62,
+        "evidence_line_end": 66,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "EncryptedSession::encrypt()/decrypt() adalah wrapper tipis di atas snow::TransportState::write_message/read_message; komentar kode menyatakan buffer output encrypt harus punya kapasitas minimal plaintext.len()+16 untuk overhead AEAD (tag 16 byte).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 88,
+        "evidence_line_end": 98,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Semua error dari pemanggilan snow (write_message, read_message, into_transport_mode) dipetakan seragam ke satu varian Error::Noise via .map_err(Error::Noise); tidak ada diferensiasi jenis kegagalan (mis. tag AEAD invalid vs pattern parse error) yang terlihat di file ini.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 53,
+        "evidence_line_end": 97,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Definisi persis varian Error::Noise ada di src/error.rs yang tidak dibaca dalam audit ini — evidence_symbol Error::Noise merujuk situs pemakaian, bukan definisi."
+      },
+      {
+        "category": "error_handling",
+        "claim": "Builder::new(NOISE_PATTERN.parse()?) dan pemanggilan Builder lain menggunakan operator '?' sehingga error parsing pattern/konfigurasi Noise di-propagate lewat konversi From ke Error; tipe error asli dari snow (mis. snow::Error / PatternProblem) dan mekanisme konversinya tidak terlihat di file ini.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 33,
+        "evidence_line_end": 36,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM"
+      },
+      {
+        "category": "logging",
+        "claim": "Tidak ditemukan pemanggilan logging (log::, tracing::, println!, dsb.) di seluruh handshake.rs — semua kegagalan diteruskan murni lewat Result<_, Error>.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 219,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Tidak ditemukan penggunaan crate zeroize atau derive Zeroize/ZeroizeOnDrop di handshake.rs pada struct HandshakeSession/EncryptedSession maupun field state-nya, meski zeroize 1.9.0 ada di dependency graph proyek.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 24,
+        "evidence_line_end": 86,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH",
+        "notes": "Tidak diverifikasi apakah snow::HandshakeState/TransportState sendiri melakukan zeroize secara internal — di luar cakupan file ini."
+      },
+      {
+        "category": "identity",
+        "claim": "Test menggunakan crate::identity::keypair::NoiseKey::generate()/.secret_bytes()/.public_bytes() untuk membuat keypair X25519 dipakai dalam handshake; implementasi generation/storage NoiseKey berada di modul identity yang tidak termasuk cakupan pembacaan file pada audit ini.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 104,
+        "evidence_line_end": 104,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM"
+      },
+      {
+        "category": "testing",
+        "claim": "Test handshake_ik_roundtrip: memverifikasi handshake IK 2-pesan lengkap antara dua NoiseKey independen berhasil, dengan assert is_finished()==true pada kedua sisi (initiator dan responder) di dalam do_handshake().",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 131,
+        "evidence_line_end": 145,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test transport_encrypt_decrypt_roundtrip: setelah handshake, memverifikasi EncryptedSession.encrypt() oleh alice lalu .decrypt() oleh bob menghasilkan kembali plaintext asli byte-per-byte (assert_eq pada baris 171).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 147,
+        "evidence_line_end": 172,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test responder_verifies_initiator_identity: memverifikasi bob.remote_static() mengembalikan bytes yang sama persis dengan alice_noise.public_bytes(), membuktikan responder bisa mengonfirmasi static public key initiator pasca-handshake.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 174,
+        "evidence_line_end": 191,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test wrong_peer_key_fails_handshake: memverifikasi bahwa jika initiator (alice) memakai public key peer yang salah (milik 'eve' penyerang, bukan 'bob'), bob.read_message() pada pesan pertama mengembalikan Err — men-assert result.is_err() pada baris 216.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 193,
+        "evidence_line_end": 217,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Test menggunakan buffer pesan tetap MAX_MSG_LEN=65535 byte, konsisten dengan batas ukuran pesan maksimum standar Noise Protocol; nilai ini hanya konstanta di modul test dan tidak ada validasi/pemaksaan batas 65535 di kode produksi handshake.rs itu sendiri.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 107,
+        "evidence_line_end": 107,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM"
+      },
+      {
+        "category": "architecture",
+        "claim": "src/crypto/mod.rs hanya mendeklarasikan satu submodul publik: handshake (pub mod handshake;). Tidak ada submodul crypto lain yang dideklarasikan di file ini.",
+        "evidence_file": "src/crypto/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 1,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "Pada seluruh test, handshake message dikirim tanpa payload aplikasi (payload kosong &[] pada write_message di baris 115 dan 122) — pengiriman data aplikasi bersamaan dengan handshake message (0-RTT payload) tidak dilatih/diuji di file ini.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 115,
+        "evidence_line_end": 122,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM"
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "X25519 Diffie-Hellman (Noise DH token es/ss/ee/se)",
+        "category": "key_agreement",
+        "algorithm": "X25519 (Curve25519 ECDH)",
+        "library_crate": "snow",
+        "crate_version": "0.10.0",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 47,
+        "function_in_system": "Key agreement steps (es, ss, ee, se) dalam Noise_IK handshake, dikonfigurasi lewat nama pattern '25519' dan dijalankan otomatis oleh snow::Builder/HandshakeState saat write_message/read_message dipanggil.",
+        "input_output_desc": "Input: local_private_key &[u8;32], remote_public_key &[u8;32] (baris 32-36, 43-46). Output DH shared secret tidak pernah terlihat langsung di file ini — sepenuhnya internal ke snow.",
+        "key_size_bits": "256 (array [u8;32] pada parameter fungsi, baris 32 dan 43)",
+        "key_generation": "TIDAK terlihat di file ini — kunci sudah dibentuk sebelumnya (dari identity::keypair::NoiseKey di modul lain, per komentar baris 30-31, 41-42) dan hanya diteruskan sebagai argumen.",
+        "key_storage": "Disimpan opak di dalam field `state: HandshakeState` (baris 25) dan `state: TransportState` (baris 85); tidak ada penyimpanan/serialisasi tambahan di file ini.",
+        "key_rotation_or_distribution": "Tidak ada mekanisme rotasi di file ini — satu static keypair dipakai apa adanya per pemanggilan new_initiator/new_responder; distribusi kunci publik peer disebut berasal dari 'contact code' (komentar baris 7, 31) tapi mekanismenya di luar file ini.",
+        "error_handling": "Kegagalan Builder (mis. parse pattern, local_private_key, remote_public_key, build_initiator/build_responder) di-propagate via operator '?' ke Result<Self, Error> (baris 33-37, 44-47); kegagalan DH saat handshake berjalan (mis. peer key salah) muncul sebagai Err dari read_message, dipetakan ke Error::Noise (baris 59), dibuktikan test wrong_peer_key_fails_handshake (baris 193-217).",
+        "misuse_risk_notes": "Pembangkitan ephemeral key ('e') dan komputasi DH sepenuhnya internal ke crate snow — tidak dapat diverifikasi/diaudit dari file ini. Tidak ada pengecekan eksplisit di handshake.rs terhadap kunci publik peer yang all-zero atau titik lemah (low-order point) — kepercayaan sepenuhnya pada implementasi snow.",
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "ChaCha20-Poly1305 (Noise 'ChaChaPoly') untuk handshake payload & transport messages",
+        "category": "AEAD",
+        "algorithm": "ChaCha20-Poly1305",
+        "library_crate": "snow",
+        "crate_version": "0.10.0",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 98,
+        "function_in_system": "Enkripsi/dekripsi payload handshake (write_message/read_message, baris 52-60) DAN enkripsi/dekripsi pesan transport pasca-handshake (EncryptedSession::encrypt/decrypt, baris 91-98).",
+        "input_output_desc": "encrypt(): plaintext &[u8] -> out &mut [u8] berisi ciphertext, mengembalikan usize panjang ciphertext (baris 91-93). decrypt(): ciphertext -> out plaintext (baris 96-98).",
+        "tag_size_bytes": "16 byte (128 bit) — dinyatakan eksplisit di komentar baris 90: 'out harus punya kapasitas setidaknya plaintext.len() + 16 (overhead AEAD)'.",
+        "nonce_or_iv_size_bytes": "Tidak terlihat di file ini — nonce/counter Noise dikelola sepenuhnya internal oleh snow::HandshakeState/TransportState, tidak ada parameter nonce yang di-pass dari handshake.rs.",
+        "associated_data_desc": "Tidak terlihat AD eksplisit di file ini (tidak ada parameter associated_data pada API encrypt/decrypt/write_message/read_message) — Noise handshake hash (h) dipakai sebagai AD secara implisit oleh protokol, sepenuhnya internal ke snow.",
+        "key_generation": "Kunci sesi (cipher key) diturunkan otomatis oleh snow dari hasil DH selama handshake (mix_key) — proses ini tidak terlihat di file ini.",
+        "key_storage": "Opak di dalam `state: TransportState`/`state: HandshakeState` (baris 25, 85).",
+        "key_rotation_or_distribution": "Tidak ada rekey/rotasi terlihat di file ini — satu set kunci transport per sesi handshake, dipakai untuk seluruh masa hidup EncryptedSession.",
+        "error_handling": "Error dekripsi/enkripsi (termasuk kegagalan verifikasi tag AEAD) dipetakan ke Error::Noise via map_err (baris 92, 97) tanpa diferensiasi lebih lanjut di file ini.",
+        "misuse_risk_notes": "Manajemen nonce sepenuhnya didelegasikan ke snow dan tidak dapat diverifikasi dari file ini. API EncryptedSession hanya mengekspos encrypt/decrypt lewat &mut self secara sekuensial sehingga wrapper ini sendiri tidak menyediakan cara untuk memanggil ulang dengan nonce yang sama; namun tidak ada proteksi eksplisit di file ini terhadap reordering/replay pesan transport (tidak ada pengecekan sequence number tambahan di luar yang built-in ke snow).",
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "BLAKE2s sebagai fungsi hash Noise (transcript hash / HKDF)",
+        "category": "hash",
+        "algorithm": "BLAKE2s",
+        "library_crate": "snow",
+        "crate_version": "0.10.0",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 21,
+        "function_in_system": "Dipakai internal oleh snow untuk mix_hash (transcript hash 'h') dan sebagai basis HKDF (mix_key) selama Noise_IK handshake — tidak ada pemanggilan langsung fungsi hash di file ini, hanya dikonfigurasi lewat token 'BLAKE2s' pada string pattern.",
+        "input_output_desc": "Tidak terlihat langsung di file ini — sepenuhnya internal ke implementasi Noise di crate snow.",
+        "key_generation": "Tidak relevan/tidak terlihat.",
+        "key_storage": "Tidak relevan/tidak terlihat.",
+        "error_handling": "Tidak ada penanganan error spesifik untuk hash yang terlihat di file ini.",
+        "misuse_risk_notes": "Tidak ada pemanggilan eksplisit di file ini untuk diaudit; domain separation dan konstruksi HKDF sepenuhnya bergantung pada implementasi internal snow, tidak dapat diverifikasi dari handshake.rs/mod.rs.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Noise HKDF (key derivation dari DH output, berbasis BLAKE2s)",
+        "category": "KDF",
+        "algorithm": "HKDF (Noise Protocol construction, berbasis BLAKE2s)",
+        "library_crate": "snow",
+        "crate_version": "0.10.0",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 21,
+        "function_in_system": "Derivasi kunci sesi ChaChaPoly dari hasil DH (es/ss/ee/se) selama handshake — hanya tersirat dari nama pattern, tidak ada kode derivasi kunci eksplisit terlihat di handshake.rs.",
+        "key_generation": "Turunan otomatis dari DH output oleh snow; tidak terlihat langsung di file ini.",
+        "key_rotation_or_distribution": "Tidak ada rotasi/rekey terlihat.",
+        "error_handling": "Tidak terlihat di file ini.",
+        "misuse_risk_notes": "Karena seluruh proses KDF berada di dalam crate snow dan tidak ada satu baris kode pun di handshake.rs/mod.rs yang memanggilnya langsung, klaim ini murni inferensi dari nama pattern string — tidak bisa diverifikasi lebih jauh tanpa membaca source snow.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Key serialization kunci Noise sebagai raw byte array",
+        "category": "key_serialization",
+        "algorithm": "Tidak ada format serialisasi khusus — raw fixed-size byte array",
+        "library_crate": "snow",
+        "crate_version": "0.10.0",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 46,
+        "function_in_system": "local_noise_privkey dan peer_noise_pubkey diterima sebagai &[u8;32] mentah (bukan PEM/DER/base64/hex) lalu diteruskan langsung ke snow::Builder::local_private_key()/remote_public_key().",
+        "input_output_desc": "Input: referensi array 32-byte. Tidak ada encode/decode di file ini.",
+        "key_generation": "Tidak di file ini.",
+        "key_storage": "Tidak di file ini — hanya diteruskan sebagai parameter fungsi.",
+        "error_handling": "Kegagalan pada local_private_key()/remote_public_key() (mis. panjang kunci tidak valid untuk snow, walau tipe [u8;32] sudah memaksa panjang tetap di level Rust) di-propagate via '?' ke Result<Self, Error>.",
+        "misuse_risk_notes": "Tipe [u8;32] memaksa panjang kunci benar di level compile-time untuk parameter fungsi, mengurangi risiko truncation/panjang salah dibanding representasi string; tidak ada risiko misuse serialisasi tambahan yang terlihat di file ini.",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "CSPRNG untuk pembangkitan ephemeral/static key",
+        "category": "CSPRNG",
+        "algorithm": "Tidak terlihat di file ini",
+        "library_crate": "Tidak terlihat di handshake.rs/mod.rs (kandidat: rand 0.8.6 dipakai di tempat lain sesuai daftar resolusi Cargo.lock, tapi tidak diimpor/dipanggil di kedua file ini)",
+        "crate_version": "tidak dapat dikonfirmasi dari file ini",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 18,
+        "evidence_line_end": 18,
+        "function_in_system": "Tidak ada pemanggilan CSPRNG langsung di handshake.rs — pembangkitan ephemeral key ('e') terjadi internal di snow saat write_message/read_message; pembangkitan static keypair (NoiseKey::generate(), dipakai di test baris 133-134 dst) ada di modul identity::keypair yang tidak termasuk cakupan file yang dibaca pada audit ini.",
+        "key_generation": "Tidak terlihat di file ini.",
+        "error_handling": "Tidak terlihat di file ini.",
+        "misuse_risk_notes": "Tidak dapat dinilai dari file ini karena sumber entropi tidak terlihat/tidak diimpor di handshake.rs maupun mod.rs.",
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  "verified": {
+    "module": "crypto_handshake",
+    "verified_claims": [
+      {
+        "original_claim": "architecture: Noise_IK pattern 'Noise_IK_25519_ChaChaPoly_BLAKE2s' via snow, dipakai membangun HandshakeState (initiator/responder).",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 3,
+        "evidence_line_end": 21,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 3 komentar pattern name persis cocok, baris 18 import Builder/HandshakeState/TransportState dari snow, baris 21 const NOISE_PATTERN berisi string yang sama persis."
+      },
+      {
+        "original_claim": "comm_model: header 2-message flow (msg1 e,es,s,ss / msg2 e,ee,se), dikonfirmasi empiris oleh do_handshake yang memanggil write_message/read_message tepat 2 kali per sisi; catatan menyebut do_handshake dipakai oleh KEEMPAT test.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 12,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Header lines 9-12 dan isi do_handshake() (baris 109-129) akurat. Namun catatan 'dipakai oleh keempat test' SALAH: do_handshake() hanya dipanggil di 3 dari 4 test — handshake_ik_roundtrip (baris 144), transport_encrypt_decrypt_roundtrip (baris 159), responder_verifies_initiator_identity (baris 186). Test keempat, wrong_peer_key_fails_handshake, TIDAK memanggil do_handshake() sama sekali — ia menjalankan write_message/read_message secara manual hanya untuk message 1 (baris 209-216), karena tujuannya memang menguji kegagalan sebelum message 2 terkirim.",
+        "corrected_status": "IMPLEMENTED",
+        "reviewer_notes": "Diverifikasi via grep 'do_handshake' — hanya muncul di baris 109 (definisi) dan 144, 159, 186 (pemanggilan). Baris 193-217 (wrong_peer_key_fails_handshake) tidak menyebut do_handshake."
+      },
+      {
+        "original_claim": "identity: new_initiator menerima local_noise_privkey & peer_noise_pubkey sebagai &[u8;32], dibangun via snow::Builder dengan local_private_key()/remote_public_key().",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 38,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "identity: new_responder hanya menerima local_noise_privkey (&[u8;32]); peer pubkey belum diketahui di awal, khas pola IK.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 48,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Sesuai komentar baris 42: 'Responder tidak perlu tahu peer's pubkey di awal — akan diverifikasi dari message 1.'"
+      },
+      {
+        "original_claim": "data_flow: write_message()/read_message() adalah wrapper tipis ke snow::HandshakeState, error dipetakan via Error::Noise.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 52,
+        "evidence_line_end": 60,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "session_mgmt: into_transport() mengonsumsi HandshakeSession by value, memanggil into_transport_mode(), menghasilkan EncryptedSession; komentar menyatakan memanggil sebelum selesai = error.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 68,
+        "evidence_line_end": 73,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Komentar baris 69 persis: 'Memanggil ini sebelum handshake selesai akan menghasilkan error.'"
+      },
+      {
+        "original_claim": "auth: remote_static() mengembalikan Option<&[u8]> (slice, bukan array tetap), diambil setelah handshake selesai.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 75,
+        "evidence_line_end": 79,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "auth: test wrong_peer_key_fails_handshake membuktikan read_message di sisi responder mengembalikan Err ketika initiator memakai public key peer yang salah (eve, bukan bob) — dideskripsikan sebagai 'autentikasi static-key initiator gagal dideteksi lewat kegagalan DH (es)'.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 193,
+        "evidence_line_end": 217,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Fakta baris & perilaku (bob.read_message() mengembalikan Err ketika alice pakai eve's pubkey) akurat. Tapi framing 'autentikasi static-key INITIATOR' kurang presisi: token DH 'es' pada Noise_IK adalah DH(initiator ephemeral, RESPONDER static) — ini mengautentikasi secara implisit apakah initiator benar-benar menghubungi RESPONDER yang benar (identitas bob), bukan memverifikasi static key milik initiator sendiri (alice). Kegagalan terjadi karena 'es' yang dihitung alice (pakai eve_pub) tidak cocok dengan 'es' yang dihitung bob (pakai private key bob sendiri), sehingga dekripsi field 's'/payload message 1 gagal di sisi bob.",
+        "corrected_status": "IMPLEMENTED",
+        "reviewer_notes": "Komentar kode sendiri (baris 199-214) menggunakan framing serupa ('Bob tidak bisa dekripsi'), jadi ini bukan fabrikasi — hanya istilah 'autentikasi static-key initiator' yang menyesatkan soal properti keamanan mana yang sebenarnya diuji."
+      },
+      {
+        "original_claim": "auth: hanya responder (bob) yang diuji memanggil remote_static() (test responder_verifies_initiator_identity); tidak ada test yang memanggil remote_static() di sisi initiator.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 174,
+        "evidence_line_end": 191,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Diverifikasi via grep 'remote_static' pada seluruh file — hanya muncul di definisi (baris 77-78) dan satu pemanggilan bob.remote_static() (baris 189). Tidak ada alice.remote_static() di manapun."
+      },
+      {
+        "original_claim": "limitation: Forward secrecy & Identity hiding hanya disebut di komentar header, tidak ada test eksplisit yang memverifikasinya.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 14,
+        "evidence_line_end": 17,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 14-17 persis berisi ketiga properti keamanan tsb. Ditinjau keempat test (131-217): tidak ada yang membandingkan ephemeral key antar sesi atau memeriksa ciphertext static-key."
+      },
+      {
+        "original_claim": "testing: is_finished() hanya dikompilasi di bawah #[cfg(test)], tidak tersedia di runtime produksi.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 62,
+        "evidence_line_end": 66,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "data_flow: EncryptedSession::encrypt()/decrypt() wrapper tipis di atas snow::TransportState; komentar menyatakan buffer output butuh plaintext.len()+16 untuk overhead AEAD.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 88,
+        "evidence_line_end": 98,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Komentar baris 90 persis: \"`out` harus punya kapasitas setidaknya `plaintext.len() + 16` (overhead AEAD).\""
+      },
+      {
+        "original_claim": "error_handling: semua error dari write_message/read_message/into_transport_mode dipetakan seragam ke Error::Noise via .map_err(Error::Noise); tidak ada diferensiasi jenis kegagalan.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 53,
+        "evidence_line_end": 97,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Diverifikasi via grep: map_err(Error::Noise) muncul persis 5 kali (baris 53, 59, 71, 92, 97), semua identik tanpa diferensiasi."
+      },
+      {
+        "original_claim": "error_handling: Builder::new(NOISE_PATTERN.parse()?) dan pemanggilan Builder lain pakai operator '?'; tipe error asli snow tidak terlihat di file ini.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 33,
+        "evidence_line_end": 36,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "4 pemakaian '?' pada baris 33-36 (parse, local_private_key, remote_public_key, build_initiator). Tidak ada impl From<snow::Error> for Error terlihat di file ini."
+      },
+      {
+        "original_claim": "logging: tidak ditemukan pemanggilan log::/tracing::/println! di seluruh handshake.rs.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 219,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "limitation: tidak ditemukan penggunaan zeroize/Zeroize/ZeroizeOnDrop pada HandshakeSession/EncryptedSession maupun field state-nya di handshake.rs.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 24,
+        "evidence_line_end": 86,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Import file hanya snow::{...} dan crate::error::Error (baris 18-19); tidak ada import/derive zeroize di manapun dalam file."
+      },
+      {
+        "original_claim": "identity: test menggunakan NoiseKey::generate()/.secret_bytes()/.public_bytes() untuk keypair X25519 dipakai dalam handshake.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 104,
+        "evidence_line_end": 104,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Klaim tekstualnya benar (NoiseKey dipakai untuk generate/secret_bytes/public_bytes di seluruh test), tapi rentang baris yang dikutip (104-104) hanya berisi baris import 'use crate::identity::keypair::NoiseKey;' — bukan pemanggilan method-nya. Pemanggilan .generate() ada di baris 133-134, 149-150, 176-177, 195-197 (termasuk eve_noise di baris 197 yang tidak disebut klaim asli); .secret_bytes() di baris 137, 142, 153, 157, 180, 184, 201, 206; .public_bytes() di baris 138, 154, 181, 190, 202.",
+        "corrected_status": "IMPLEMENTED",
+        "reviewer_notes": "Diverifikasi via grep — bukti aktual tersebar di 4 fungsi test, bukan satu baris tunggal."
+      },
+      {
+        "original_claim": "testing: handshake_ik_roundtrip memverifikasi handshake IK 2-pesan lengkap, dengan assert is_finished()==true pada kedua sisi di dalam do_handshake().",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 131,
+        "evidence_line_end": 145,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "testing: transport_encrypt_decrypt_roundtrip memverifikasi encrypt() oleh alice lalu decrypt() oleh bob menghasilkan kembali plaintext byte-per-byte, assert_eq di baris 171.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 147,
+        "evidence_line_end": 172,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "testing: responder_verifies_initiator_identity memverifikasi bob.remote_static() == alice_noise.public_bytes().",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 174,
+        "evidence_line_end": 191,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "testing: wrong_peer_key_fails_handshake men-assert result.is_err() pada baris 216 ketika initiator pakai public key peer yang salah.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 193,
+        "evidence_line_end": 217,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "limitation: MAX_MSG_LEN=65535 hanya konstanta modul test, tidak ada validasi/pemaksaan batas di kode produksi handshake.rs.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 107,
+        "evidence_line_end": 107,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 107 berada di dalam mod tests (#[cfg(test)] dimulai baris 101); tidak ada konstanta serupa di area produksi (baris 1-99)."
+      },
+      {
+        "original_claim": "comm_model: seluruh test mengirim handshake message dengan payload aplikasi kosong (&[]) pada write_message baris 115 dan 122; 0-RTT payload tidak diuji.",
+        "evidence_file": "src/crypto/handshake.rs",
+        "evidence_line_start": 115,
+        "evidence_line_end": 122,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Payload &[] juga dipakai di write_message baris 210 (test wrong_peer_key_fails_handshake) — konsisten, tidak ada satupun test yang mengirim payload aplikasi non-kosong."
+      },
+      {
+        "original_claim": "architecture: src/crypto/mod.rs hanya mendeklarasikan pub mod handshake; tidak ada submodul crypto lain.",
+        "evidence_file": "src/crypto/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 1,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "File mod.rs seluruhnya hanya 1 baris: 'pub mod handshake;'."
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "X25519 Diffie-Hellman (Noise DH token es/ss/ee/se) via snow 0.10.0",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "ChaCha20-Poly1305 (Noise ChaChaPoly) untuk handshake payload & transport messages via snow 0.10.0, tag 16 byte",
+        "verdict": "CONFIRMED",
+        "corrections": "Field crate_library 'snow' akurat untuk apa yang terlihat di handshake.rs (tidak ada import langsung ke crate chacha20poly1305/chacha20/poly1305 meski ketiganya ada di dependency graph — kemungkinan dependency transitif snow, tidak dipakai langsung di file ini)."
+      },
+      {
+        "primitive_name": "BLAKE2s sebagai fungsi hash Noise (transcript hash/HKDF) via snow 0.10.0",
+        "verdict": "CONFIRMED",
+        "corrections": "Klaim murni inferensi dari token 'BLAKE2s' pada string pattern baris 21 — sudah tepat dihedge sebagai NEEDS_CONFIRMATION/LOW confidence oleh auditor asli, tidak ada pemanggilan langsung untuk diverifikasi lebih jauh dari file ini."
+      },
+      {
+        "primitive_name": "Noise HKDF (key derivation dari DH output, berbasis BLAKE2s) via snow 0.10.0",
+        "verdict": "CONFIRMED",
+        "corrections": "Sama seperti BLAKE2s — murni inferensi dari nama pattern, sudah tepat dihedge LOW confidence."
+      },
+      {
+        "primitive_name": "Key serialization kunci Noise sebagai raw byte array [u8;32]",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "CSPRNG untuk pembangkitan ephemeral/static key",
+        "verdict": "CONFIRMED",
+        "corrections": "Akurat: tidak ada import rand/CSPRNG di handshake.rs (hanya snow dan crate::error::Error, baris 18-19). Referensi NoiseKey::generate() dipakai test di baris 133-134 (dan berulang di 149-150, 176-177, 195-197), sesuai klaim; implementasi generate() ada di modul identity yang di luar cakupan audit ini."
+      }
+    ]
+  }
+}

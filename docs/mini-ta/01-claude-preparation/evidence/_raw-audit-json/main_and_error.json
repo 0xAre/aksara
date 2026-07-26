@@ -1,0 +1,646 @@
+{
+  "module": "main_and_error",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "main.rs mendaftarkan 7 modul aplikasi: contacts, crypto, error, identity, session, transport, tui.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 7,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Parsing argumen CLI dilakukan manual (loop match atas std::env::args()) tanpa dependency clap, sesuai komentar eksplisit 'demi binary kecil'.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 23,
+        "evidence_line_end": 109,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Mode default aplikasi adalah ONLINE (LAN+Tor); flag --offline mematikan Tor sehingga hanya LAN yang aktif. Flag --tor diterima tapi merupakan no-op karena online sudah default.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 86,
+        "evidence_line_end": 87,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Lihat juga baris 31-32 (komentar field offline) dan baris 210 (online = !args.offline)."
+      },
+      {
+        "category": "architecture",
+        "claim": "--listen dan --dial saling eksklusif; keduanya diberikan bersamaan menghasilkan error string sebelum program lanjut. Bila tidak ada keduanya, mode ConnectKind::Auto dipakai.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 93,
+        "evidence_line_end": 98,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "Lokasi data default adalah ~/.aksara (HOME di Unix, USERPROFILE di Windows, fallback '.'), vault identitas disimpan di ~/.aksara/id.key.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 36,
+        "evidence_line_end": 51,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "Direktori cache & state Tor diturunkan dari nama file vault dengan pola '<stem>-tcache' dan '<stem>-tstate' di folder induk vault, supaya instance dengan vault berbeda tidak berbagi state Tor.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 135,
+        "evidence_line_end": 151,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Pada subcommand `id`, bootstrap Tor dilakukan SINKRON (di-await langsung) sebelum invite code dicetak; jika gagal, error ditampilkan lewat Display ({e}) ke stderr dan invite tetap dicetak sebagai LAN-only (onion = None).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 223,
+        "evidence_line_end": 236,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Pada mode TUI normal (bukan subcommand id), bootstrap Tor dijalankan di background lewat tokio::spawn dan hasilnya (Result<Arc<TorContext>, String>) dikirim ke TUI lewat mpsc::unbounded_channel agar startup TUI tidak terblokir; error TorContext::launch dikonversi jadi String polos via .to_string() sebelum masuk channel.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 287,
+        "evidence_line_end": 301,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Unlock/pembuatan vault pada jalur run normal (bukan subcommand id) tidak terjadi di main.rs — main.rs hanya menghitung vault_exists (path.exists()) lalu meneruskannya bersama vault_path ke tui::run(); logika unlock aktual ada di modul tui (di luar cakupan file ini).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 303,
+        "evidence_line_end": 312,
+        "status": "PARTIAL",
+        "confidence": "MEDIUM",
+        "notes": "Untuk subcommand `id`, unlock terjadi langsung via load_or_create_vault() di baris 237."
+      },
+      {
+        "category": "architecture",
+        "claim": "rustls diberi default CryptoProvider berbasis ring lewat rustls::crypto::ring::default_provider().install_default(), dipanggil idempotent (Result diabaikan via `let _ =`) sebelum bootstrap Tor, supaya arti-client punya provider TLS.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 213,
+        "evidence_line_end": 215,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Saat mode online di Windows, main.rs mengeset env var FS_MISTRUST_DISABLE_PERMISSIONS_CHECKS=true (jika belum diset) untuk melewati pengecekan permission filesystem fs-mistrust milik arti/Tor — komentar kode menyebutnya 'dev convenience'. Ini melemahkan salah satu pengecekan keamanan bawaan stack Tor terkait permission direktori state/cache.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 216,
+        "evidence_line_end": 219,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "main() membuat tokio multi-thread runtime (enable_all()); kegagalan parse argumen exit code 2, kegagalan build runtime atau error dari real_main() exit code 1 dengan pesan ke stderr.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 315,
+        "evidence_line_end": 339,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Passphrase vault dibaca dari environment variable AKSARA_PASSPHRASE bila ada (dipakai langsung tanpa prompt), atau interaktif dari stdin bila tidak ada.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 155,
+        "evidence_line_end": 164,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Komentar kode eksplisit menyatakan input passphrase dari stdin MASIH TER-ECHO ke layar pada versi ini ('Catatan M1'); input tersembunyi via crossterm direncanakan menyusul di milestone M4 — belum diimplementasikan di file ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 153,
+        "evidence_line_end": 154,
+        "status": "PLANNED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Bila passphrase diberikan lewat AKSARA_PASSPHRASE, nilainya berada di environment variable proses — tidak ada mekanisme di main.rs untuk membersihkan/menyembunyikannya dari environment setelah dibaca.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 156,
+        "evidence_line_end": 158,
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM",
+        "notes": "Fakta keberadaan jalur ini pasti (HIGH); dampak keamanan (visibilitas antar-proses) bergantung OS dan tidak diverifikasi lebih lanjut dari file ini, jadi confidence keseluruhan diturunkan ke MEDIUM."
+      },
+      {
+        "category": "auth",
+        "claim": "Saat membuat vault baru, passphrase kosong ditolak dan menghasilkan Error::KeyDerivation sebelum KeyBundle::generate() dipanggil.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 175,
+        "evidence_line_end": 178,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "KeyBundle memiliki field `identity` (diakses via .public_key().to_bytes()) dan `noise` (diakses via .public_bytes()/.secret_bytes()) — mengindikasikan dua pasangan kunci terpisah: identitas dan Noise. Implementasi struct KeyBundle sendiri ada di src/identity/keypair.rs, di luar cakupan file yang dibaca untuk tugas ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 187,
+        "evidence_line_end": 200,
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "category": "identity",
+        "claim": "Fingerprint dihitung dari gabungan byte public key identitas dan public key noise via contacts::fingerprint(&ed_pub, &noise_pub); algoritma hash yang dipakai tidak terlihat di main.rs/error.rs (implementasi ada di modul contacts).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 191,
+        "evidence_line_end": 191,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "category": "identity",
+        "claim": "Invite code dibuat dari public key identitas, public key noise, dan opsional alamat onion via contacts::encode_invite(); format encoding tidak terlihat di file ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 192,
+        "evidence_line_end": 192,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "category": "ui",
+        "claim": "Pada output subcommand `id`, fingerprint ditampilkan dalam kelompok 8-karakter dipisah ' · ' (chunks(8) atas &str fingerprint), dan status Transport ditampilkan 'LAN + Tor' jika onion address berhasil didapat atau 'LAN' saja jika tidak.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 239,
+        "evidence_line_end": 261,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Kontak yang dipra-muat lewat --add tanpa --name diberi nickname default berformat 'peer-<8 karakter pertama fingerprint>'.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 270,
+        "evidence_line_end": 273,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Decode invite code dari --add yang gagal tidak menghentikan program — hanya mencetak peringatan ke stderr dan kontak tersebut dilewati (bukan fatal error).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 281,
+        "evidence_line_end": 284,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Kontak dari CLI (--add) diproses (decode invite, dimasukkan ke contact_list) sebelum vault dibuka/di-unlock — tidak memerlukan identitas lokal ter-autentikasi terlebih dulu.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 265,
+        "evidence_line_end": 285,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "enum Error (src/error.rs) memiliki 12 varian via #[derive(thiserror::Error)]: KeyDerivation, Encryption, Decryption, Noise(#[from] snow::Error), Io(#[from] std::io::Error), InvalidKey, FrameTooLarge, ConnectionClosed, Mdns(String), Tor(String), InvalidInvite, IdentityMismatch.",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 4,
+        "evidence_line_end": 43,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "std::io::Error dan snow::Error dikonversi otomatis ke Error via #[from], sehingga operator `?` di modul lain langsung men-propagate keduanya sebagai Error::Io / Error::Noise. read_passphrase() di main.rs memanfaatkan konversi Io ini (io::stdin().read_line(&mut s)?).",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 16,
+        "evidence_line_end": 20,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Error::Decryption sengaja diberi pesan Display yang ambigu ('vault could not be opened') — komentar kode di puncak file (baris 1-3) dan di atas varian (baris 12-13) menyatakan ini disengaja supaya penyerang tidak bisa membedakan passphrase salah vs vault corrupt lewat pesan error (mitigasi oracle attack pada pesan error, bukan klaim tentang timing/side-channel).",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 14,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Pesan Display sebagian varian menyertakan detail internal via {0} (Io: 'I/O error: {0}', Mdns: 'mDNS error: {0}', Tor: 'Tor error: {0}'), sedangkan varian lain yang berkaitan keamanan (KeyDerivation, Encryption, Decryption, Noise, InvalidKey, FrameTooLarge, ConnectionClosed, InvalidInvite, IdentityMismatch) memakai string tetap tanpa {0} sehingga tidak membocorkan detail internal ke Display walau untuk Noise sumber errornya (snow::Error) tetap disimpan lewat #[from] untuk keperluan std::error::Error::source().",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 6,
+        "evidence_line_end": 42,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Error::IdentityMismatch dikomentari sebagai 'Remote static key tidak cocok dengan kontak yang diharapkan — fail closed'; menandakan ada verifikasi kunci statis peer terhadap daftar kontak di suatu tempat dalam sistem (implementasi pemakaiannya tidak terlihat di error.rs/main.rs, hanya deklarasi varian).",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 42,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM",
+        "notes": "Keberadaan varian dan komentar desainnya pasti (HIGH); tempat/logika pemakaiannya di modul lain tidak diverifikasi di sini."
+      },
+      {
+        "category": "limitation",
+        "claim": "Varian Error::FrameTooLarge menunjukkan ada batas ukuran maksimum frame protokol, tapi nilai batas pastinya (angka byte) tidak dideklarasikan di error.rs maupun main.rs — kemungkinan didefinisikan sebagai const di modul transport/session yang tidak dibaca untuk tugas ini.",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 25,
+        "evidence_line_end": 26,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "category": "testing",
+        "claim": "Tidak ditemukan fungsi #[test] maupun blok #[cfg(test)] pada src/main.rs (339 baris) atau src/error.rs (43 baris) — tidak ada unit test langsung di dua file ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 339,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "rustls default CryptoProvider (ring)",
+        "category": "other",
+        "algorithm": "Instalasi CryptoProvider default rustls berbasis ring; algoritma TLS spesifik (cipher suite dsb.) tidak dirinci di titik pemanggilan ini.",
+        "library_crate": "rustls 0.23.40 (backend ring 0.17.14)",
+        "crate_version": "rustls 0.23.40 / ring 0.17.14",
+        "function_in_system": "Dipanggil sekali di real_main() sebelum bootstrap Tor (baik jalur print_id maupun jalur normal), supaya arti-client (Tor client) punya TLS crypto provider default saat online.",
+        "input_output_desc": "rustls::crypto::ring::default_provider().install_default() tidak menerima argumen dari sisi pemanggil; mengembalikan Result yang dibuang via `let _ =`.",
+        "key_generation": "Tidak relevan — ini instalasi provider, bukan pembangkitan kunci.",
+        "key_storage": "Tidak ada penyimpanan kunci pada baris ini.",
+        "key_rotation_or_distribution": "Tidak ada.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 213,
+        "evidence_line_end": 215,
+        "error_handling": "Return value Result dari install_default() dibuang via `let _ =`; kegagalan pemasangan (misalnya provider sudah terpasang sebelumnya, atau alasan lain) tidak dilog maupun menghentikan program.",
+        "misuse_risk_notes": "Karena Result diabaikan sepenuhnya, tidak ada cara dari kode ini untuk membedakan 'sudah terpasang (aman diabaikan)' vs kegagalan lain yang mestinya fatal — berpotensi program lanjut tanpa CryptoProvider valid pada skenario yang tidak dites di sini.",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "Ed25519 identity public key access (to_bytes)",
+        "category": "key_serialization",
+        "algorithm": "Ed25519, via ed25519-dalek PublicKey::to_bytes() (nama tipe persis KeyBundle.identity tidak terlihat langsung di main.rs, disimpulkan dari nama field & import identity::keypair::KeyBundle).",
+        "library_crate": "ed25519-dalek 2.2.0",
+        "crate_version": "2.2.0",
+        "function_in_system": "build_self_keys() mengambil byte public key identitas untuk dimasukkan ke struct SelfKeys (dipakai print invite/fingerprint dan diteruskan ke tui::run()).",
+        "input_output_desc": "bundle.identity.public_key().to_bytes() -> array byte (ukuran tidak dideklarasikan lokal di main.rs).",
+        "key_size_bits": "Tidak dinyatakan eksplisit di main.rs/error.rs — panjang array hasil to_bytes() tidak terlihat di titik pemanggilan ini (implementasi ada di src/identity/keypair.rs, di luar cakupan tugas).",
+        "key_generation": "Pasangan kunci dibuat via KeyBundle::generate() (main.rs baris 179); implementasi pembangkitan (termasuk sumber randomness) tidak ada di main.rs/error.rs.",
+        "key_storage": "Disegel ke disk lewat vault::seal()/dibuka lewat vault::unseal() (baris 180 dan 171); detail algoritma penyimpanan tidak diverifikasi dari dua file yang dibaca untuk tugas ini.",
+        "key_rotation_or_distribution": "Tidak ada mekanisme rotasi kunci yang terlihat di main.rs/error.rs.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 187,
+        "evidence_line_end": 188,
+        "error_handling": "Pemanggilan langsung tanpa penanganan Result — public_key()/to_bytes() dipakai sebagai operasi infallible di titik ini.",
+        "misuse_risk_notes": "Ini public key sehingga eksposur bukan masalah kerahasiaan; risiko utama adalah tidak ada verifikasi di sini bahwa byte ini konsisten dipakai sebagai identitas jangka panjang tanpa domain separation eksplisit — namun domain separation (jika ada) tidak terlihat dari main.rs.",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "X25519 (Noise) key material access (public_bytes/secret_bytes)",
+        "category": "key_agreement",
+        "algorithm": "X25519 (via x25519-dalek), dipakai sebagai static key untuk handshake Noise (deskripsi Noise_IK ada di project CLAUDE.md, tidak diverifikasi ulang langsung dari isi crypto module yang tidak dibaca untuk tugas ini).",
+        "library_crate": "x25519-dalek 2.0.1",
+        "crate_version": "2.0.1",
+        "function_in_system": "build_self_keys() mengambil byte public dan SECRET key noise dari KeyBundle untuk dimasukkan ke struct SelfKeys, yang lalu diteruskan ke tui::run().",
+        "input_output_desc": "bundle.noise.public_bytes() dan bundle.noise.secret_bytes() -> array byte; ukuran tidak dideklarasikan lokal di main.rs.",
+        "key_size_bits": "Tidak dinyatakan eksplisit di main.rs/error.rs.",
+        "key_generation": "Via KeyBundle::generate() (baris 179); detail implementasi di luar cakupan file ini.",
+        "key_storage": "Via vault::seal()/unseal() (baris 180, 171); algoritma penyimpanan tidak diverifikasi dari dua file yang dibaca.",
+        "key_rotation_or_distribution": "Tidak ada mekanisme rotasi yang terlihat.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 189,
+        "evidence_line_end": 190,
+        "error_handling": "Pemanggilan langsung tanpa Result.",
+        "misuse_risk_notes": "secret_bytes() mengekstrak kunci PRIVAT X25519 mentah ke variabel lokal noise_sk (baris 190) lalu disalin ke struct SelfKeys (baris 193-199) yang diteruskan ke tui::run(). Tidak terlihat di main.rs apakah tipe KeyBundle/SelfKeys mengimplementasikan ZeroizeOnDrop untuk secret ini — definisi struct-nya berada di modul identity/tui yang tidak dibaca untuk tugas ini, jadi status zeroization eksplisit NEEDS_CONFIRMATION.",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "KeyBundle::generate() — entrypoint pembangkitan pasangan kunci baru",
+        "category": "CSPRNG",
+        "algorithm": "Tidak diketahui persis dari main.rs/error.rs. Nama field KeyBundle (identity, noise) mengindikasikan gabungan pembangkitan Ed25519 + X25519, tapi implementasi (termasuk sumber randomness) ada di src/identity/keypair.rs yang TIDAK dibaca untuk tugas ini.",
+        "library_crate": "Kandidat berdasar Cargo.lock: ed25519-dalek 2.2.0, x25519-dalek 2.0.1, rand 0.8.6 — pemakaian persisnya tidak dikonfirmasi dari dua file yang dibaca.",
+        "function_in_system": "Dipanggil hanya saat file vault belum ada di disk, dalam load_or_create_vault() (main.rs baris 167-185), setelah passphrase non-kosong divalidasi.",
+        "input_output_desc": "KeyBundle::generate() -> KeyBundle (tanpa argumen terlihat di call site).",
+        "key_generation": "Dipanggil di main.rs baris 179; validasi sebelum panggilan hanya memastikan passphrase tidak kosong (baris 176-178), tidak ada validasi terhadap proses generate key itu sendiri di file ini.",
+        "key_storage": "Hasil KeyBundle langsung disegel via vault::seal() (baris 180) dan ditulis ke disk via vault::write_vault() (baris 181).",
+        "key_rotation_or_distribution": "Tidak ada — tidak ditemukan mekanisme rotasi kunci identitas di main.rs/error.rs.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 179,
+        "evidence_line_end": 179,
+        "error_handling": "KeyBundle::generate() dipanggil tanpa menangani Result (dianggap infallible di call site ini).",
+        "misuse_risk_notes": "Sumber randomness (CSPRNG) yang dipakai tidak dapat dipastikan dari main.rs/error.rs saja — perlu pembacaan src/identity/keypair.rs untuk verifikasi (mis. apakah pakai OsRng dari rand 0.8.6).",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Vault seal/unseal (proteksi identitas berbasis passphrase)",
+        "category": "password_hashing",
+        "algorithm": "TIDAK diverifikasi langsung dari main.rs/error.rs. Deskripsi tingkat-repo (CLAUDE.md project) menyebut 'vault identitas Argon2id/ChaCha20-Poly1305', namun klaim algoritma persis ini TIDAK dikonfirmasi dari isi src/identity/vault.rs karena file tersebut di luar cakupan pembacaan tugas (hanya main.rs & error.rs yang dibaca).",
+        "library_crate": "Kandidat dari Cargo.lock: argon2 0.5.3, chacha20poly1305 0.10.1 (chacha20 0.10.0, poly1305 0.8.0, aead 0.5.2) — pemakaian persis di titik ini tidak dikonfirmasi tanpa membaca src/identity/vault.rs.",
+        "function_in_system": "load_or_create_vault() di main.rs memanggil vault::read_vault()+vault::unseal() untuk membuka vault yang sudah ada, atau vault::seal()+vault::write_vault() untuk membuat vault baru.",
+        "input_output_desc": "unseal(&vault_bytes, pass.as_bytes()) -> Result<KeyBundle, Error>; seal(&bundle, pass.as_bytes()) -> Result<Vec<u8>-like, Error> (tipe persis tidak terlihat di main.rs).",
+        "key_generation": "Kunci enkripsi vault (jika ada KDF seperti Argon2id) tidak terlihat di main.rs — hanya passphrase mentah berupa &[u8] yang diteruskan ke vault::seal()/unseal() (baris 171, 180).",
+        "key_storage": "Vault tersimpan sebagai file di path yang ditentukan args.vault_path (default ~/.aksara/id.key), ditulis via vault::write_vault() (baris 181) dan dibaca via vault::read_vault() (baris 169).",
+        "key_rotation_or_distribution": "Tidak ada mekanisme rotasi/ubah-passphrase yang terlihat di main.rs/error.rs.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 167,
+        "evidence_line_end": 185,
+        "error_handling": "Kegagalan unseal (baik karena passphrase salah maupun vault corrupt) dipetakan ke satu varian Error::Decryption dengan pesan Display yang sama ('vault could not be opened') — didesain ambigu, lihat error.rs baris 1-3 dan 12-14.",
+        "misuse_risk_notes": "Desain pesan error ambigu (error.rs baris 1-3, 12-14) secara eksplisit dimaksudkan mencegah oracle attack lewat isi pesan error saat proses unseal gagal. Ini mitigasi yang relevan dan terlihat jelas di kode, tapi hanya mencakup channel pesan error tekstual — potensi side-channel lain (mis. timing perbedaan proses Argon2id vs pembacaan file) tidak bisa dinilai dari main.rs/error.rs saja.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Noise protocol error passthrough (snow::Error)",
+        "category": "key_agreement",
+        "algorithm": "Noise (kemungkinan Noise_IK sesuai deskripsi project CLAUDE.md) — implementasi handshake ada di modul crypto yang TIDAK dibaca untuk tugas ini; di error.rs hanya tipe error snow::Error yang terlihat, bukan logika handshake itu sendiri.",
+        "library_crate": "snow 0.10.0",
+        "crate_version": "0.10.0",
+        "function_in_system": "Varian Error::Noise(#[from] snow::Error) menyediakan jalur konversi otomatis error handshake Noise (dari crate snow) ke tipe Error aplikasi, dipakai lewat operator `?` di modul lain (tidak ada pemakaian langsung di main.rs/error.rs selain deklarasi varian).",
+        "input_output_desc": "Konversi From<snow::Error> for Error (auto-generated oleh #[from]); tidak ada input/output lain yang terlihat di error.rs.",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 16,
+        "evidence_line_end": 17,
+        "error_handling": "Pesan Display varian ini adalah string tetap 'noise handshake error' TANPA menyertakan {0} — artinya detail asli dari snow::Error TIDAK dibocorkan ke output Display, walau objek error aslinya tetap tersimpan (dan bisa diakses lewat std::error::Error::source() berkat #[from]).",
+        "misuse_risk_notes": "Karena source() masih membawa snow::Error asli, kode LAIN yang secara eksplisit memanggil source()/Debug pada Error bisa saja membocorkan detail Noise meskipun Display tidak — hal ini tidak bisa diverifikasi ada/tidaknya dari main.rs/error.rs saja.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      }
+    ]
+  },
+  "verified": {
+    "module": "main_and_error",
+    "verified_claims": [
+      {
+        "original_claim": "main.rs mendaftarkan 7 modul aplikasi: contacts, crypto, error, identity, session, transport, tui.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 7,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Parsing argumen CLI dilakukan manual (loop match atas std::env::args()) tanpa dependency clap, sesuai komentar eksplisit 'demi binary kecil'.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 23,
+        "evidence_line_end": 109,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Komentar persis ada di baris 23 pada doc-comment struct Args; loop match manual ada di impl Args::parse() baris 54-108."
+      },
+      {
+        "original_claim": "Mode default aplikasi adalah ONLINE (LAN+Tor); flag --offline mematikan Tor sehingga hanya LAN yang aktif. Flag --tor diterima tapi merupakan no-op karena online sudah default.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 86,
+        "evidence_line_end": 87,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 86-87 persis '--offline => offline = true' dan '--tor => {} // no-op'. Baris 31 (bukan 31-32, field offline ada di 32) berisi komentar terkait, baris 210 'let online = !args.offline;' cocok."
+      },
+      {
+        "original_claim": "--listen dan --dial saling eksklusif; keduanya diberikan bersamaan menghasilkan error string sebelum program lanjut. Bila tidak ada keduanya, mode ConnectKind::Auto dipakai.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 93,
+        "evidence_line_end": 98,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Lokasi data default adalah ~/.aksara (HOME di Unix, USERPROFILE di Windows, fallback '.'), vault identitas disimpan di ~/.aksara/id.key.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 36,
+        "evidence_line_end": 51,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Urutan sebenarnya: HOME dicoba dulu, baru USERPROFILE (env::var_os('HOME').or_else(USERPROFILE)), tapi deskripsi 'HOME di Unix, USERPROFILE di Windows' tetap benar secara praktis karena Unix umumnya tak punya USERPROFILE dan Windows umumnya tak punya HOME."
+      },
+      {
+        "original_claim": "Direktori cache & state Tor diturunkan dari nama file vault dengan pola '<stem>-tcache' dan '<stem>-tstate' di folder induk vault, supaya instance dengan vault berbeda tidak berbagi state Tor.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 135,
+        "evidence_line_end": 151,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Pada subcommand `id`, bootstrap Tor dilakukan SINKRON (di-await langsung) sebelum invite code dicetak; jika gagal, error ditampilkan lewat Display ({e}) ke stderr dan invite tetap dicetak sebagai LAN-only (onion = None).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 223,
+        "evidence_line_end": 236,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Pada mode TUI normal (bukan subcommand id), bootstrap Tor dijalankan di background lewat tokio::spawn dan hasilnya (Result<Arc<TorContext>, String>) dikirim ke TUI lewat mpsc::unbounded_channel agar startup TUI tidak terblokir; error TorContext::launch dikonversi jadi String polos via .to_string() sebelum masuk channel.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 287,
+        "evidence_line_end": 301,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Unlock/pembuatan vault pada jalur run normal (bukan subcommand id) tidak terjadi di main.rs — main.rs hanya menghitung vault_exists (path.exists()) lalu meneruskannya bersama vault_path ke tui::run(); logika unlock aktual ada di modul tui (di luar cakupan file ini).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 303,
+        "evidence_line_end": 312,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Catatan tambahan klaim tentang line 237 (subcommand id) juga benar: load_or_create_vault() dipanggil persis di baris 237."
+      },
+      {
+        "original_claim": "rustls diberi default CryptoProvider berbasis ring lewat rustls::crypto::ring::default_provider().install_default(), dipanggil idempotent (Result diabaikan via `let _ =`) sebelum bootstrap Tor, supaya arti-client punya provider TLS.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 213,
+        "evidence_line_end": 215,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Saat mode online di Windows, main.rs mengeset env var FS_MISTRUST_DISABLE_PERMISSIONS_CHECKS=true (jika belum diset) untuk melewati pengecekan permission filesystem fs-mistrust milik arti/Tor — komentar kode menyebutnya 'dev convenience'. Ini melemahkan salah satu pengecekan keamanan bawaan stack Tor terkait permission direktori state/cache.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 216,
+        "evidence_line_end": 219,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Saat mode online, main.rs mengeset env var FS_MISTRUST_DISABLE_PERMISSIONS_CHECKS=true (jika belum diset) untuk melewati pengecekan permission filesystem fs-mistrust milik arti/Tor. Klaim asli menyebut ini terjadi 'di Windows' — tapi kode di baris 216-219 TIDAK punya guard platform apa pun (dikonfirmasi: tidak ada `cfg(windows)`/`target_os` di seluruh main.rs). Baris ini dieksekusi tanpa syarat OS setiap kali online=true, jadi env var ini di-set di SEMUA platform (Linux/macOS/Windows), bukan cuma Windows — hanya komentar kode ('Dev convenience di Windows') yang menyiratkan itu niatnya Windows-only, padahal implementasinya lebih luas. Ini melemahkan pengecekan permission fs-mistrust di semua OS, bukan hanya Windows.",
+        "reviewer_notes": "Verifikasi via grep 'cfg\\(|target_os|windows' di src/main.rs -> No files found, mengkonfirmasi tidak ada gating platform sama sekali."
+      },
+      {
+        "original_claim": "main() membuat tokio multi-thread runtime (enable_all()); kegagalan parse argumen exit code 2, kegagalan build runtime atau error dari real_main() exit code 1 dengan pesan ke stderr.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 315,
+        "evidence_line_end": 339,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Passphrase vault dibaca dari environment variable AKSARA_PASSPHRASE bila ada (dipakai langsung tanpa prompt), atau interaktif dari stdin bila tidak ada.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 155,
+        "evidence_line_end": 164,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Komentar kode eksplisit menyatakan input passphrase dari stdin MASIH TER-ECHO ke layar pada versi ini ('Catatan M1'); input tersembunyi via crossterm direncanakan menyusul di milestone M4 — belum diimplementasikan di file ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 153,
+        "evidence_line_end": 154,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Bila passphrase diberikan lewat AKSARA_PASSPHRASE, nilainya berada di environment variable proses — tidak ada mekanisme di main.rs untuk membersihkan/menyembunyikannya dari environment setelah dibaca.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 156,
+        "evidence_line_end": 158,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Saat membuat vault baru, passphrase kosong ditolak dan menghasilkan Error::KeyDerivation sebelum KeyBundle::generate() dipanggil.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 175,
+        "evidence_line_end": 178,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "KeyBundle memiliki field `identity` (diakses via .public_key().to_bytes()) dan `noise` (diakses via .public_bytes()/.secret_bytes()) — mengindikasikan dua pasangan kunci terpisah: identitas dan Noise. Implementasi struct KeyBundle sendiri ada di src/identity/keypair.rs, di luar cakupan file yang dibaca untuk tugas ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 187,
+        "evidence_line_end": 200,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Fingerprint dihitung dari gabungan byte public key identitas dan public key noise via contacts::fingerprint(&ed_pub, &noise_pub); algoritma hash yang dipakai tidak terlihat di main.rs/error.rs (implementasi ada di modul contacts).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 191,
+        "evidence_line_end": 191,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Invite code dibuat dari public key identitas, public key noise, dan opsional alamat onion via contacts::encode_invite(); format encoding tidak terlihat di file ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 192,
+        "evidence_line_end": 192,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Pada output subcommand `id`, fingerprint ditampilkan dalam kelompok 8-karakter dipisah ' · ' (chunks(8) atas &str fingerprint), dan status Transport ditampilkan 'LAN + Tor' jika onion address berhasil didapat atau 'LAN' saja jika tidak.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 239,
+        "evidence_line_end": 261,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Kontak yang dipra-muat lewat --add tanpa --name diberi nickname default berformat 'peer-<8 karakter pertama fingerprint>'.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 270,
+        "evidence_line_end": 273,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Decode invite code dari --add yang gagal tidak menghentikan program — hanya mencetak peringatan ke stderr dan kontak tersebut dilewati (bukan fatal error).",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 281,
+        "evidence_line_end": 284,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Kontak dari CLI (--add) diproses (decode invite, dimasukkan ke contact_list) sebelum vault dibuka/di-unlock — tidak memerlukan identitas lokal ter-autentikasi terlebih dulu.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 265,
+        "evidence_line_end": 285,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "enum Error (src/error.rs) memiliki 12 varian via #[derive(thiserror::Error)]: KeyDerivation, Encryption, Decryption, Noise(#[from] snow::Error), Io(#[from] std::io::Error), InvalidKey, FrameTooLarge, ConnectionClosed, Mdns(String), Tor(String), InvalidInvite, IdentityMismatch.",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 4,
+        "evidence_line_end": 43,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Dihitung ulang persis 12 varian dalam urutan yang sama seperti klaim."
+      },
+      {
+        "original_claim": "std::io::Error dan snow::Error dikonversi otomatis ke Error via #[from], sehingga operator `?` di modul lain langsung men-propagate keduanya sebagai Error::Io / Error::Noise. read_passphrase() di main.rs memanfaatkan konversi Io ini (io::stdin().read_line(&mut s)?).",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 16,
+        "evidence_line_end": 20,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris rujukan main.rs 162 (io::stdin().read_line(&mut s)?) juga terkonfirmasi."
+      },
+      {
+        "original_claim": "Error::Decryption sengaja diberi pesan Display yang ambigu ('vault could not be opened') — komentar kode di puncak file (baris 1-3) dan di atas varian (baris 12-13) menyatakan ini disengaja supaya penyerang tidak bisa membedakan passphrase salah vs vault corrupt lewat pesan error (mitigasi oracle attack pada pesan error, bukan klaim tentang timing/side-channel).",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 14,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Komentar atas varian sebenarnya persis di baris 12 (satu baris, bukan 12-13); baris 13 adalah atribut #[error(...)] dan baris 14 nama varian Decryption. Perbedaan ini kosmetik, tidak mengubah substansi klaim."
+      },
+      {
+        "original_claim": "Pesan Display sebagian varian menyertakan detail internal via {0} (Io: 'I/O error: {0}', Mdns: 'mDNS error: {0}', Tor: 'Tor error: {0}'), sedangkan varian lain yang berkaitan keamanan (KeyDerivation, Encryption, Decryption, Noise, InvalidKey, FrameTooLarge, ConnectionClosed, InvalidInvite, IdentityMismatch) memakai string tetap tanpa {0} sehingga tidak membocorkan detail internal ke Display walau untuk Noise sumber errornya (snow::Error) tetap disimpan lewat #[from] untuk keperluan std::error::Error::source().",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 6,
+        "evidence_line_end": 42,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Error::IdentityMismatch dikomentari sebagai 'Remote static key tidak cocok dengan kontak yang diharapkan — fail closed'; menandakan ada verifikasi kunci statis peer terhadap daftar kontak di suatu tempat dalam sistem (implementasi pemakaiannya tidak terlihat di error.rs/main.rs, hanya deklarasi varian).",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 42,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Varian Error::FrameTooLarge menunjukkan ada batas ukuran maksimum frame protokol, tapi nilai batas pastinya (angka byte) tidak dideklarasikan di error.rs maupun main.rs — kemungkinan didefinisikan sebagai const di modul transport/session yang tidak dibaca untuk tugas ini.",
+        "evidence_file": "src/error.rs",
+        "evidence_line_start": 25,
+        "evidence_line_end": 26,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Tidak ditemukan fungsi #[test] maupun blok #[cfg(test)] pada src/main.rs (339 baris) atau src/error.rs (43 baris) — tidak ada unit test langsung di dua file ini.",
+        "evidence_file": "src/main.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 339,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Panjang file dikonfirmasi: main.rs 339 baris, error.rs 43 baris, tanpa #[test]/#[cfg(test)] pada keduanya."
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "rustls default CryptoProvider (ring)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Ed25519 identity public key access (to_bytes)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "X25519 (Noise) key material access (public_bytes/secret_bytes)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "KeyBundle::generate() — entrypoint pembangkitan pasangan kunci baru",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Vault seal/unseal (proteksi identitas berbasis passphrase)",
+        "verdict": "CONFIRMED",
+        "corrections": "Deskripsi field sudah sesuai dan sudah tepat menandai algoritma pasti (Argon2id/ChaCha20-Poly1305) sebagai NEEDS_CONFIRMATION karena vault.rs tidak dibaca — tidak ada overclaim."
+      },
+      {
+        "primitive_name": "Noise protocol error passthrough (snow::Error)",
+        "verdict": "CONFIRMED"
+      }
+    ]
+  }
+}

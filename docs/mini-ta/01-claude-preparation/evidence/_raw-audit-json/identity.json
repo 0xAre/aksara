@@ -1,0 +1,738 @@
+{
+  "module": "identity",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "IdentityKey wraps an Ed25519 keypair (VerifyingKey + SigningKey) documented as the long-term identity, with #[derive(ZeroizeOnDrop)] and the verifying key excluded from zeroization via #[zeroize(skip)].",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 6,
+        "evidence_line_end": 15,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "NoiseKey wraps an X25519 keypair used for the Noise_IK DH handshake; kept as a separate struct from IdentityKey because Ed25519 and X25519 use different scalar spaces (per code comment).",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 49,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "KeyBundle aggregates IdentityKey + NoiseKey as the complete per-user key material; KeyBundle::generate() builds a fresh bundle by calling IdentityKey::generate() and NoiseKey::generate(). Struct also derives ZeroizeOnDrop.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 89,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "The identity module consists of exactly two public submodules: keypair and vault (no other submodules declared).",
+        "evidence_file": "src/identity/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 2,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "IdentityKey::generate() creates a fresh Ed25519 keypair via SigningKey::generate(&mut OsRng), i.e. CSPRNG-based key generation.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 18,
+        "evidence_line_end": 22,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "IdentityKey::from_secret_bytes(bytes: [u8;32]) reconstructs the signing key from a raw 32-byte secret and re-derives the verifying key.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 24,
+        "evidence_line_end": 28,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Raw Ed25519 secret bytes are exposed only through a pub(crate)-scoped secret_bytes() function, restricting export of the secret outside the identity module.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 30,
+        "evidence_line_end": 33,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "NoiseKey::generate() creates a fresh X25519 keypair via X25519Secret::random_from_rng(OsRng), CSPRNG-based.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 51,
+        "evidence_line_end": 56,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Raw X25519 secret bytes are exposed only through pub(crate) secret_bytes(); its doc comment says the purpose is vault serialization and the snow (Noise) builder, but no snow/handshake usage of this function is present anywhere in these three files — only the vault serialization use (vault.rs) is actually observable here.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 64,
+        "evidence_line_end": 67,
+        "status": "PARTIAL",
+        "confidence": "MEDIUM",
+        "notes": "The 'snow builder' part of the doc comment is unverified within the reviewed files."
+      },
+      {
+        "category": "storage",
+        "claim": "IdentityKey, NoiseKey and KeyBundle all derive ZeroizeOnDrop so secret fields are wiped from memory on drop; the public/verifying fields are explicitly excluded from zeroization via #[zeroize(skip)] since they are not secret.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 10,
+        "evidence_line_end": 76,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "vault.rs documents a fixed 108-byte on-disk vault layout: 16-byte Argon2id salt + 12-byte ChaCha20 nonce + 64-byte ciphertext (32B Ed25519 sk + 32B X25519 sk) + 16-byte Poly1305 tag, with explicitly no header, magic bytes, version, or app-identifying string by design.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 31,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "seal() assembles the on-disk vault by concatenating salt || nonce || (ciphertext+tag) into a fixed [u8; VAULT_SIZE] array.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 87,
+        "evidence_line_end": 90,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "unseal() parses the vault by splitting at fixed offsets (SALT_LEN, then NONCE_LEN) and treats the remainder as ciphertext+tag.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 99,
+        "evidence_line_end": 101,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "write_vault()/read_vault() perform plain std::fs::write / std::fs::read; no explicit file-permission hardening (e.g. restricting access mode) is present in this file.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 132,
+        "evidence_line_end": 142,
+        "status": "NOT_FOUND",
+        "confidence": "MEDIUM",
+        "notes": "Absence claim limited to what's visible in vault.rs; permission hardening could theoretically exist elsewhere in the crate, not confirmed either way here."
+      },
+      {
+        "category": "data_flow",
+        "claim": "seal(bundle, passphrase) flow: build 64-byte plaintext (Ed25519 sk || X25519 sk) -> generate random 16-byte salt -> derive 256-bit key via Argon2id -> generate random 96-bit nonce -> ChaCha20Poly1305 encrypt -> concatenate salt||nonce||ciphertext+tag into VAULT_SIZE array.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 58,
+        "evidence_line_end": 93,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "unseal(vault, passphrase) flow: split stored salt/nonce/ciphertext -> re-derive key via Argon2id with stored salt -> ChaCha20Poly1305 decrypt+verify tag -> validate plaintext length equals 64 -> split back into 32-byte Ed25519 and X25519 secrets -> reconstruct KeyBundle.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 95,
+        "evidence_line_end": 128,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "derive_key() maps any Argon2 hash_password_into failure to Error::KeyDerivation.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 49,
+        "evidence_line_end": 56,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "seal() maps ChaCha20Poly1305 encryption failure to Error::Encryption.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 78,
+        "evidence_line_end": 81,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "unseal() maps AEAD decrypt/tag-verification failure to Error::Decryption; the preceding code comment states this ambiguity between 'wrong passphrase' and 'vault corrupt' is intentional to prevent an oracle attack.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 95,
+        "evidence_line_end": 112,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "unseal() also returns Error::Decryption if the decrypted plaintext length does not equal the expected 64 bytes (PLAINTEXT_LEN).",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 114,
+        "evidence_line_end": 116,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "read_vault() maps a wrong-sized file (try_into::<[u8;VAULT_SIZE]>() failure) to Error::Decryption rather than a distinct format/size error, per an inline comment stating this keeps the error 'ambiguous'.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 137,
+        "evidence_line_end": 142,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "write_vault() and read_vault() map filesystem I/O failures to Error::Io.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 132,
+        "evidence_line_end": 139,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "No key-rotation mechanism exists in these files, either for the passphrase-derived vault encryption key or for the long-term Ed25519/X25519 identity keys — every seal() call re-derives a key from a freshly random salt, but there is no scheduled/triggered rotation logic.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 39,
+        "evidence_line_end": 93,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "These three files (keypair.rs, vault.rs, mod.rs) contain no signing/verification function calls and no Noise_IK handshake logic — only Ed25519/X25519 key generation, in-memory storage, and vault-level AEAD encryption of the raw secrets are implemented here; the actual use of these keys in the Noise protocol or for message signing is out of scope of this module.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 119,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "The vault format's deliberate lack of magic bytes/version field (justified in comments as 'SEC-05 compliance' / plausible deniability) means the code has no way to detect or migrate an old/incompatible vault layout if PLAINTEXT_LEN or field order ever changes.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 14,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "MEDIUM",
+        "notes": "The referenced 'SEC-05' requirement is not defined within these three files, so its exact scope/compliance cannot be independently confirmed from this review."
+      },
+      {
+        "category": "limitation",
+        "claim": "The ciphertext-length sanity check after encryption uses debug_assert_eq! rather than a runtime check, so it is compiled out entirely in release builds and provides no production safeguard.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 83,
+        "evidence_line_end": 84,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Describes what the code does (debug-only assertion); the risk is that it offers no protection in release builds."
+      },
+      {
+        "category": "benchmark",
+        "claim": "A code comment claims the chosen Argon2id parameters (19 MiB memory, t=2, p=1) take '~100ms' to unlock on 'modern hardware'. No benchmark, timing test, or measurement exists in these files to substantiate this figure.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 33,
+        "evidence_line_end": 38,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "LOW",
+        "notes": "Unverified comment claim; treat as documentation only, not a measured fact."
+      },
+      {
+        "category": "testing",
+        "claim": "Test identity_key_roundtrip verifies that an Ed25519 IdentityKey survives a secret_bytes() -> from_secret_bytes() round trip with an identical resulting public key.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 95,
+        "evidence_line_end": 101,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test noise_key_roundtrip verifies that an X25519 NoiseKey survives a secret_bytes() -> from_secret_bytes() round trip with an identical resulting public key.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 103,
+        "evidence_line_end": 109,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test keybundle_keys_are_independent asserts that the Ed25519 identity public key bytes differ from the X25519 noise public key bytes within the same KeyBundle.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 111,
+        "evidence_line_end": 118,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test seal_unseal_roundtrip verifies that seal() -> unseal() preserves both the Ed25519 and X25519 public keys, and that the sealed vault is exactly VAULT_SIZE (108) bytes.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 148,
+        "evidence_line_end": 160,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test wrong_passphrase_returns_error verifies that unseal() returns an Err when given an incorrect passphrase.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 162,
+        "evidence_line_end": 167,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test vault_looks_random verifies that two seal() calls with the same bundle and passphrase produce different vault byte arrays (non-determinism from random salt/nonce).",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 169,
+        "evidence_line_end": 177,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test tampered_vault_returns_error verifies that flipping a single ciphertext byte causes unseal() to fail, demonstrating the AEAD tag detects tampering.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 179,
+        "evidence_line_end": 186,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test vault_has_no_magic_bytes only checks that two seal() calls produce different first-16-byte (salt) prefixes; the test's own inline comment admits no stronger 'no magic bytes' property is actually asserted ('Tidak ada assertion spesifik yang bisa dibuat selain bukan constant').",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 188,
+        "evidence_line_end": 198,
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM",
+        "notes": "Test name implies a broader guarantee than what is actually verified; the assertion is limited to salt randomness across two calls."
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "ChaCha20-Poly1305 AEAD (vault encryption)",
+        "category": "AEAD",
+        "algorithm": "ChaCha20-Poly1305 (IETF construction, 96-bit nonce)",
+        "library_crate": "chacha20poly1305 0.10.1 (deps: chacha20 0.10.0, poly1305 0.8.0, aead 0.5.2)",
+        "key_size_bits": "256 bits (32 bytes) — Key::from_slice(&*enc_key) where enc_key: Zeroizing<[u8;32]> from derive_key() (vault.rs:49-56, key buffer declared [0u8;32] at line 51)",
+        "nonce_or_iv_size_bytes": "12 bytes / 96 bits — const NONCE_LEN: usize = 12 (vault.rs:29); nonce generated via ChaCha20Poly1305::generate_nonce(&mut OsRng) (vault.rs:75)",
+        "tag_size_bytes": "16 bytes / 128 bits — const TAG_LEN: usize = 16 (vault.rs:31); ciphertext length asserted PLAINTEXT_LEN+TAG_LEN=80 via debug_assert_eq! (vault.rs:84, debug-build only)",
+        "associated_data_desc": "None — cipher.encrypt(&nonce, plaintext.as_slice()) (vault.rs:78-81) and cipher.decrypt(nonce, ciphertext) (vault.rs:107-112) use the AEAD convenience methods with no associated data supplied; no domain separation/context binding via AAD.",
+        "function_in_system": "Encrypts/decrypts the 64-byte secret material (32B Ed25519 signing key + 32B X25519 secret) for at-rest storage in the identity vault file. Used by seal() (vault.rs:60-93) and unseal() (vault.rs:98-128).",
+        "input_output_desc": "seal: 64-byte plaintext + 256-bit key + 96-bit nonce -> 80-byte ciphertext+tag. unseal: reverse, output re-split into the two original 32-byte secrets (vault.rs:118-122).",
+        "key_generation": "Not generated directly for the AEAD — derived per call from the user passphrase via Argon2id (derive_key(), vault.rs:49-56) using a fresh random 16-byte salt generated with OsRng on every seal() call (vault.rs:67-69), so the AEAD key differs on every re-seal even with the same passphrase.",
+        "key_storage": "Held only transiently as Zeroizing<[u8;32]> (vault.rs:49-56); never persisted itself — only the salt needed to re-derive it is stored on disk (first 16 bytes of the vault).",
+        "key_rotation_or_distribution": "Tidak ada — no scheduled/triggered rotation mechanism found; a new key is only derived because a new salt is generated on each seal() invocation, not via any rotation policy.",
+        "error_handling": "Encrypt failure -> Error::Encryption (vault.rs:81). Decrypt/tag-verify failure -> Error::Decryption (vault.rs:111); plaintext-length mismatch after decrypt also forced to Error::Decryption (vault.rs:114-116). Code comment (vault.rs:96-97) states this ambiguity between wrong-passphrase and corrupt-vault is intentional, to avoid an oracle attack.",
+        "misuse_risk_notes": "(1) No AAD/domain separation is used, so nothing cryptographically binds a given ciphertext to a specific vault/context beyond the vault's own byte layout. (2) Nonce is randomly generated (not counter-based) each call; catastrophic under key reuse, but no code path in this file reuses a single derived key across multiple encrypt calls — each seal() re-derives the key from a fresh random salt, which mitigates (but does not by itself formally rule out at the 96-bit birthday bound) nonce-reuse risk under a fixed key. (3) The ciphertext-length sanity check (vault.rs:84) is a debug_assert_eq!, compiled out in release builds — not a security control. (4) Explicit zeroization is present: plaintext buffer is Zeroizing<[u8;64]> (vault.rs:62), derived key is Zeroizing<[u8;32]>, decrypted plaintext is Zeroizing<Vec<u8>> (vault.rs:108), via zeroize 1.9.0.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 60,
+        "evidence_line_end": 128,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "Argon2id password-based key derivation",
+        "category": "password_hashing",
+        "algorithm": "Argon2id, version 0x13 (19)",
+        "library_crate": "argon2 0.5.3",
+        "key_size_bits": "256 bits (32 bytes) output — Params::new(19*1024, 2, 1, Some(32)) (vault.rs:40-45)",
+        "function_in_system": "Derives the 256-bit ChaCha20Poly1305 vault-encryption key from the user's passphrase and a random salt, used identically in both seal() and unseal() via derive_key().",
+        "input_output_desc": "Input: passphrase bytes + 16-byte salt + fixed params (m=19*1024 KiB, t=2, p=1) -> output: 32-byte key written into a zeroized buffer via hash_password_into (vault.rs:52-53).",
+        "key_generation": "Argon2::new(Algorithm::Argon2id, Version::V0x13, argon2_params()).hash_password_into(passphrase, salt, key.as_mut()) (vault.rs:50-53).",
+        "key_storage": "Output wrapped in Zeroizing<[u8;32]> (vault.rs:51,55), wiped on drop. The salt (not secret) is the first 16 bytes of the persisted vault file (SALT_LEN=16, vault.rs:28).",
+        "key_rotation_or_distribution": "Tidak ada — Argon2id parameters (m,t,p) are fixed constants (vault.rs:40-45); only the salt is randomized per seal() call (vault.rs:67-69), there is no rotation of the parameter set itself.",
+        "error_handling": "hash_password_into failure mapped to Error::KeyDerivation (vault.rs:54).",
+        "misuse_risk_notes": "Output is used directly as the AEAD key with no intermediate HKDF/domain-separation step. The code comment (vault.rs:33-38) claims the parameters follow 'OWASP 2024' guidance and take '~100ms' on modern hardware; the parameter values (19 MiB / t=2 / p=1) are directly verified in code, but the timing claim is unverified by any benchmark/test in these files.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 39,
+        "evidence_line_end": 56,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "Ed25519 identity keypair (signing/verifying key)",
+        "category": "signature",
+        "algorithm": "Ed25519",
+        "library_crate": "ed25519-dalek 2.2.0",
+        "key_size_bits": "Secret/signing key: 256 bits (32 bytes) — explicit [u8;32] in from_secret_bytes(bytes: [u8;32]) (keypair.rs:24) and secret_bytes() -> &[u8;32] (keypair.rs:31-33). Public/verifying key: standard Ed25519 is 256 bits/32 bytes, but this file does not declare an explicit 32-byte array/const for VerifyingKey — its size is only implied via the ed25519-dalek 2.x API (VerifyingKey::to_bytes(), used only in tests, keypair.rs:100,115), not asserted in-file.",
+        "function_in_system": "Long-term identity key used to derive a public identity (doc comment: shared with contacts via invite code, keypair.rs:6-7); consumed by vault.rs for at-rest serialization.",
+        "key_generation": "IdentityKey::generate() calls SigningKey::generate(&mut OsRng) (keypair.rs:19) — CSPRNG-based (rand 0.8.6 OsRng).",
+        "key_storage": "Held in-memory in IdentityKey{verifying, signing} (keypair.rs:11-15); struct derives ZeroizeOnDrop (keypair.rs:10), secret signing field zeroized on drop, verifying field explicitly #[zeroize(skip)] (keypair.rs:12). secret_bytes() is pub(crate)-only (keypair.rs:30-33), used by vault.rs:63 for vault serialization.",
+        "key_rotation_or_distribution": "Tidak ada rotation logic in this file. Doc comment (keypair.rs:6-7) states the public key is shared with contacts via invite code, but no such distribution code exists in these three files.",
+        "error_handling": "No fallible operations shown for key construction here (SigningKey::generate / SigningKey::from_bytes used without Result handling in this file).",
+        "misuse_risk_notes": "This file contains ONLY key generation/storage for the Ed25519 identity key — no sign()/verify() call sites exist in keypair.rs, vault.rs, or mod.rs, so signature-side misuse (message/domain-separation practices, signature malleability handling, etc.) cannot be assessed from these files. Zeroization of the secret is explicit; the public verifying key is correctly excluded from zeroization.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 6,
+        "evidence_line_end": 38,
+        "status": "PARTIAL",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "X25519 Noise keypair (Diffie-Hellman key agreement)",
+        "category": "key_agreement",
+        "algorithm": "X25519 (Curve25519 ECDH)",
+        "library_crate": "x25519-dalek 2.0.1",
+        "key_size_bits": "Secret: 256 bits (32 bytes) — X25519Secret::from(bytes: [u8;32]) (keypair.rs:58-59), secret_bytes() -> [u8;32] (keypair.rs:65-67). Public: 256 bits (32 bytes) — public_bytes() -> [u8;32] (keypair.rs:69-71), explicit in-file.",
+        "function_in_system": "Documented (comment, keypair.rs:40-41) as the DH key used for the Noise_IK handshake; only key generation/storage is present in this file, not the handshake itself.",
+        "key_generation": "NoiseKey::generate() calls X25519Secret::random_from_rng(OsRng) (keypair.rs:53) — CSPRNG-based.",
+        "key_storage": "In-memory in NoiseKey{public, secret} (keypair.rs:45-49); struct derives ZeroizeOnDrop (keypair.rs:44), public field #[zeroize(skip)] (keypair.rs:46). secret_bytes() is pub(crate)-only (keypair.rs:64-67); confirmed consumed by vault.rs:64 for vault serialization; no snow-builder usage is present in these three files despite the comment mentioning it.",
+        "key_rotation_or_distribution": "Tidak ada — no rotation logic observed in this file.",
+        "error_handling": "No fallible operations shown for key construction in this file.",
+        "misuse_risk_notes": "Only key generation/storage is in scope of these files; the actual Noise_IK handshake (snow 0.10.0 per project dependencies) where this key would be consumed is not present here, so DH-output handling and any handshake-transcript/nonce practices cannot be assessed from these three files alone. Zeroization is explicit via ZeroizeOnDrop.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 72,
+        "status": "PARTIAL",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "OsRng (CSPRNG for key/salt/nonce generation)",
+        "category": "CSPRNG",
+        "algorithm": "OS-provided CSPRNG (rand::rngs::OsRng)",
+        "library_crate": "rand 0.8.6",
+        "function_in_system": "Randomness source for: Ed25519 key generation (keypair.rs:19), X25519 key generation (keypair.rs:53), Argon2id salt generation (vault.rs:68-69), ChaCha20Poly1305 nonce generation (vault.rs:75).",
+        "error_handling": "None shown explicitly at these call sites — fill_bytes()/generate_nonce()/generate() are used directly without Result handling in the reviewed code.",
+        "misuse_risk_notes": "Standard OS CSPRNG usage for all key/salt/nonce generation observed in these files; no custom RNG or manual seeding logic present. Correctness ultimately relies on the underlying OS RNG implementation, which is outside the scope of this source-level review.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 2,
+        "evidence_line_end": 2,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Also used in src/identity/vault.rs at lines 20 (import), 68-69 (salt fill_bytes), and 75 (nonce generation) — cited here as supplementary evidence."
+      },
+      {
+        "primitive_name": "ChaCha20Poly1305 96-bit random nonce",
+        "category": "nonce_or_iv",
+        "algorithm": "96-bit (12-byte) random nonce via ChaCha20Poly1305::generate_nonce",
+        "library_crate": "chacha20poly1305 0.10.1 (aead 0.5.2 AeadCore trait)",
+        "nonce_or_iv_size_bytes": "12 bytes / 96 bits — const NONCE_LEN: usize = 12 (vault.rs:29)",
+        "key_generation": "N/A (nonce, not a key) — generated via ChaCha20Poly1305::generate_nonce(&mut OsRng) (vault.rs:75), i.e. randomly, not counter-based.",
+        "key_storage": "Stored in plaintext in the vault file immediately after the 16-byte salt (vault.rs:89, format documented at vault.rs:6); read back in unseal() (vault.rs:100).",
+        "key_rotation_or_distribution": "N/A / tidak ada — freshly random on every seal() call, no reuse across calls observed.",
+        "misuse_risk_notes": "Random (not counter-based) 96-bit nonce generation. Since the AEAD key is also re-derived per seal() call from a fresh random Argon2id salt, there is no code path in this file where the same key is reused across multiple encryptions — the scenario where random-nonce birthday-bound collision risk would matter most for a single key. No misuse-resistant (e.g. synthetic-IV) construction is used, consistent with this being a single-use-key-per-encryption design rather than a persistent-key/many-messages design.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 75,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "Vault binary layout / raw secret-key serialization",
+        "category": "key_serialization",
+        "algorithm": "Fixed-offset byte concatenation, no ASN.1/PEM/other standard encoding",
+        "library_crate": "n/a (hand-written, std only)",
+        "input_output_desc": "seal(): plaintext = Ed25519 sk (32B) || X25519 sk (32B) (vault.rs:61-64) -> vault file = salt(16B) || nonce(12B) || ciphertext+tag(80B) = 108B total (VAULT_SIZE, vault.rs:26, assembled at vault.rs:87-90). unseal() reverses this via fixed offsets (vault.rs:99-101, 119-122).",
+        "key_storage": "No header, no magic bytes, no version field, no format identifier by explicit design — documented at vault.rs:1-14 and reiterated at vault.rs:130-131, both referencing an internal requirement labeled 'SEC-05' whose definition is not present in these three files.",
+        "error_handling": "read_vault() maps any byte-length mismatch on try_into::<[u8;VAULT_SIZE]>() to Error::Decryption rather than a distinct 'malformed file' error, to keep failure modes ambiguous (vault.rs:139-141).",
+        "misuse_risk_notes": "No format versioning means any future change to PLAINTEXT_LEN or field order would be a breaking, silent change with no migration path detectable in this file. No integrity/authenticity check exists on the salt or nonce themselves in isolation (only the ciphertext is authenticated via the Poly1305 tag as part of the AEAD construction) — salt/nonce are consumed as-is from the file, validated only by length.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 31,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  "verified": {
+    "module": "identity",
+    "verified_claims": [
+      {
+        "original_claim": "IdentityKey wraps an Ed25519 keypair (VerifyingKey + SigningKey) documented as the long-term identity, with #[derive(ZeroizeOnDrop)] and the verifying key excluded from zeroization via #[zeroize(skip)].",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 6,
+        "evidence_line_end": 15,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "NoiseKey wraps an X25519 keypair used for the Noise_IK DH handshake; kept as a separate struct from IdentityKey because Ed25519 and X25519 use different scalar spaces (per code comment).",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 49,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "KeyBundle aggregates IdentityKey + NoiseKey as the complete per-user key material; KeyBundle::generate() builds a fresh bundle by calling IdentityKey::generate() and NoiseKey::generate(). Struct also derives ZeroizeOnDrop.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 89,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "The identity module consists of exactly two public submodules: keypair and vault (no other submodules declared).",
+        "evidence_file": "src/identity/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 2,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "mod.rs is exactly these 2 lines, nothing else."
+      },
+      {
+        "original_claim": "IdentityKey::generate() creates a fresh Ed25519 keypair via SigningKey::generate(&mut OsRng), i.e. CSPRNG-based key generation.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 18,
+        "evidence_line_end": 22,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "IdentityKey::from_secret_bytes(bytes: [u8;32]) reconstructs the signing key from a raw 32-byte secret and re-derives the verifying key.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 24,
+        "evidence_line_end": 28,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Raw Ed25519 secret bytes are exposed only through a pub(crate)-scoped secret_bytes() function, restricting export of the secret outside the identity module.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 30,
+        "evidence_line_end": 33,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "NoiseKey::generate() creates a fresh X25519 keypair via X25519Secret::random_from_rng(OsRng), CSPRNG-based.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 51,
+        "evidence_line_end": 56,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Line 51 is the 'impl NoiseKey {' opener; the generate() body proper is lines 52-56. Minor, not a factual error — content matches."
+      },
+      {
+        "original_claim": "Raw X25519 secret bytes are exposed only through pub(crate) secret_bytes(); its doc comment says the purpose is vault serialization and the snow (Noise) builder, but no snow/handshake usage of this function is present anywhere in these three files — only the vault serialization use (vault.rs) is actually observable here.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 64,
+        "evidence_line_end": 67,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Confirmed via grep: 'snow' appears only in this doc comment across the three files; no other snow/sign/verify usage found."
+      },
+      {
+        "original_claim": "IdentityKey, NoiseKey and KeyBundle all derive ZeroizeOnDrop so secret fields are wiped from memory on drop; the public/verifying fields are explicitly excluded from zeroization via #[zeroize(skip)] since they are not secret.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 10,
+        "evidence_line_end": 76,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "vault.rs documents a fixed 108-byte on-disk vault layout: 16-byte Argon2id salt + 12-byte ChaCha20 nonce + 64-byte ciphertext (32B Ed25519 sk + 32B X25519 sk) + 16-byte Poly1305 tag, with explicitly no header, magic bytes, version, or app-identifying string by design.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 31,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "seal() assembles the on-disk vault by concatenating salt || nonce || (ciphertext+tag) into a fixed [u8; VAULT_SIZE] array.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 87,
+        "evidence_line_end": 90,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "unseal() parses the vault by splitting at fixed offsets (SALT_LEN, then NONCE_LEN) and treats the remainder as ciphertext+tag.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 99,
+        "evidence_line_end": 101,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "write_vault()/read_vault() perform plain std::fs::write / std::fs::read; no explicit file-permission hardening (e.g. restricting access mode) is present in this file.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 132,
+        "evidence_line_end": 142,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "seal(bundle, passphrase) flow: build 64-byte plaintext (Ed25519 sk || X25519 sk) -> generate random 16-byte salt -> derive 256-bit key via Argon2id -> generate random 96-bit nonce -> ChaCha20Poly1305 encrypt -> concatenate salt||nonce||ciphertext+tag into VAULT_SIZE array.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 58,
+        "evidence_line_end": 93,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "unseal(vault, passphrase) flow: split stored salt/nonce/ciphertext -> re-derive key via Argon2id with stored salt -> ChaCha20Poly1305 decrypt+verify tag -> validate plaintext length equals 64 -> split back into 32-byte Ed25519 and X25519 secrets -> reconstruct KeyBundle.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 95,
+        "evidence_line_end": 128,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "derive_key() maps any Argon2 hash_password_into failure to Error::KeyDerivation.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 49,
+        "evidence_line_end": 56,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "seal() maps ChaCha20Poly1305 encryption failure to Error::Encryption.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 78,
+        "evidence_line_end": 81,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "unseal() maps AEAD decrypt/tag-verification failure to Error::Decryption; the preceding code comment states this ambiguity between 'wrong passphrase' and 'vault corrupt' is intentional to prevent an oracle attack.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 95,
+        "evidence_line_end": 112,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "unseal() also returns Error::Decryption if the decrypted plaintext length does not equal the expected 64 bytes (PLAINTEXT_LEN).",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 114,
+        "evidence_line_end": 116,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "read_vault() maps a wrong-sized file (try_into::<[u8;VAULT_SIZE]>() failure) to Error::Decryption rather than a distinct format/size error, per an inline comment stating this keeps the error 'ambiguous'.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 137,
+        "evidence_line_end": 142,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "write_vault() and read_vault() map filesystem I/O failures to Error::Io.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 132,
+        "evidence_line_end": 139,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "No key-rotation mechanism exists in these files, either for the passphrase-derived vault encryption key or for the long-term Ed25519/X25519 identity keys — every seal() call re-derives a key from a freshly random salt, but there is no scheduled/triggered rotation logic.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 39,
+        "evidence_line_end": 93,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "These three files (keypair.rs, vault.rs, mod.rs) contain no signing/verification function calls and no Noise_IK handshake logic — only Ed25519/X25519 key generation, in-memory storage, and vault-level AEAD encryption of the raw secrets are implemented here; the actual use of these keys in the Noise protocol or for message signing is out of scope of this module.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 119,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Grep for sign(/verify(/Signature across all three files returned no matches."
+      },
+      {
+        "original_claim": "The vault format's deliberate lack of magic bytes/version field (justified in comments as 'SEC-05 compliance' / plausible deniability) means the code has no way to detect or migrate an old/incompatible vault layout if PLAINTEXT_LEN or field order ever changes.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 14,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "The ciphertext-length sanity check after encryption uses debug_assert_eq! rather than a runtime check, so it is compiled out entirely in release builds and provides no production safeguard.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 83,
+        "evidence_line_end": 84,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "A code comment claims the chosen Argon2id parameters (19 MiB memory, t=2, p=1) take '~100ms' to unlock on 'modern hardware'. No benchmark, timing test, or measurement exists in these files to substantiate this figure.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 33,
+        "evidence_line_end": 38,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test identity_key_roundtrip verifies that an Ed25519 IdentityKey survives a secret_bytes() -> from_secret_bytes() round trip with an identical resulting public key.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 95,
+        "evidence_line_end": 101,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test noise_key_roundtrip verifies that an X25519 NoiseKey survives a secret_bytes() -> from_secret_bytes() round trip with an identical resulting public key.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 103,
+        "evidence_line_end": 109,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test keybundle_keys_are_independent asserts that the Ed25519 identity public key bytes differ from the X25519 noise public key bytes within the same KeyBundle.",
+        "evidence_file": "src/identity/keypair.rs",
+        "evidence_line_start": 111,
+        "evidence_line_end": 118,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test seal_unseal_roundtrip verifies that seal() -> unseal() preserves both the Ed25519 and X25519 public keys, and that the sealed vault is exactly VAULT_SIZE (108) bytes.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 148,
+        "evidence_line_end": 160,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test wrong_passphrase_returns_error verifies that unseal() returns an Err when given an incorrect passphrase.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 162,
+        "evidence_line_end": 167,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test vault_looks_random verifies that two seal() calls with the same bundle and passphrase produce different vault byte arrays (non-determinism from random salt/nonce).",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 169,
+        "evidence_line_end": 177,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test tampered_vault_returns_error verifies that flipping a single ciphertext byte causes unseal() to fail, demonstrating the AEAD tag detects tampering.",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 179,
+        "evidence_line_end": 186,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test vault_has_no_magic_bytes only checks that two seal() calls produce different first-16-byte (salt) prefixes; the test's own inline comment admits no stronger 'no magic bytes' property is actually asserted ('Tidak ada assertion spesifik yang bisa dibuat selain bukan constant').",
+        "evidence_file": "src/identity/vault.rs",
+        "evidence_line_start": 188,
+        "evidence_line_end": 198,
+        "verdict": "CONFIRMED"
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "ChaCha20-Poly1305 AEAD (vault encryption)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Argon2id password-based key derivation",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Ed25519 identity keypair (signing/verifying key)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "X25519 Noise keypair (Diffie-Hellman key agreement)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "OsRng (CSPRNG for key/salt/nonce generation)",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "ChaCha20Poly1305 96-bit random nonce",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Vault binary layout / raw secret-key serialization",
+        "verdict": "CONFIRMED",
+        "corrections": "Minor framing nuance only, not a factual error: vault.rs:130-131 ('Filename dipilih oleh caller — ini sengaja agar aplikasi bisa pakai nama generik (SEC-05)') is about the generic on-disk filename, not a restatement of the 'no header/magic bytes/version in the byte layout' point from lines 1-14. Both do cite 'SEC-05' as claimed, so the citation itself is accurate, but calling it a 'reiteration' of the no-magic-bytes property slightly overstates what those two lines say."
+      }
+    ]
+  }
+}

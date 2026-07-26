@@ -1,0 +1,840 @@
+{
+  "module": "tui",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "Screen flow is an explicit finite-state enum: Splash → Unlock/Create → Init → Main, matching the module doc-comment.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 4,
+        "evidence_symbol": "enum Screen",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "enum Screen defines the five top-level screens (Splash, Unlock, Create, Init, Main) that gate both rendering (ui.rs render()) and key dispatch (handle_key).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 60,
+        "evidence_line_end": 66,
+        "evidence_symbol": "Screen",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Within Screen::Main, a Mode enum (Browsing, AddContact, InRoom) further gates keybinding dispatch inside handle_main_key.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 636,
+        "evidence_line_end": 726,
+        "evidence_symbol": "handle_main_key",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "Keyboard input is read on a dedicated OS thread (blocking crossterm::event::read(), filtered to KeyEventKind::Press) and forwarded to the async event loop via an unbounded mpsc channel, rather than being polled inside tokio::select! directly.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 439,
+        "evidence_line_end": 451,
+        "evidence_symbol": "spawn_input_thread",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "The main event loop is a single tokio::select! over four sources: the keyboard channel, the session-event channel, the Tor-bootstrap channel, and a 100ms tick interval.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 334,
+        "evidence_line_end": 411,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "Starting a session (Enter on a selected contact) aborts any previous conn_task, opens fresh SessionCmd/SessionEvent channels, and spawns a tokio task that calls transport::establish(...) then session::run_session(conn, role, local_sk, Some(peer_pk), o_rx, e_tx).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 868,
+        "evidence_line_end": 926,
+        "evidence_symbol": "start_connection",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "RoomState enum (None, Connecting, Handshaking, Open, PeerLeft, Closed) tracks connection lifecycle and is transitioned exclusively via handle_session_event reacting to SessionEvent::StateChanged/PeerLeft/Error/Notice.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1013,
+        "evidence_line_end": 1059,
+        "evidence_symbol": "handle_session_event",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "leave_room aborts the background connection task, drops the SessionCmd/SessionEvent channels, and clears the in-memory message list, explicitly noting to the user 'Riwayat dibuang' (history discarded).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 995,
+        "evidence_line_end": 1011,
+        "evidence_symbol": "leave_room",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Chat messages exist only in App.messages: Vec<ChatLine> for the lifetime of a room; there is no on-disk persistence of chat history in this file — messages.clear() runs both when a new room starts and when a room is left.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 176,
+        "evidence_line_end": 176,
+        "evidence_symbol": "messages field / clear() at 895, 1009",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "messages.clear() also called at line 895 (start_connection) and 1009 (leave_room)."
+      },
+      {
+        "category": "auth",
+        "claim": "try_unlock reads vault bytes from disk then calls vault::unseal with the raw passphrase bytes; on failure it distinguishes an unreadable vault file ('Vault tidak terbaca.') from a failed unseal ('Passphrase salah atau vault rusak.') but the unseal-failure message does not itself distinguish wrong-passphrase from corrupted-ciphertext.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 559,
+        "evidence_line_end": 581,
+        "evidence_symbol": "try_unlock",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Underlying vault::unseal algorithm was not read in this task (identity/vault.rs out of scope), so whether this message discipline is deliberate anti-oracle design cannot be confirmed here."
+      },
+      {
+        "category": "auth",
+        "claim": "create_vault generates a brand-new KeyBundle::generate(), seals it via vault::seal with the entered passphrase, and writes the sealed bytes to app.vault_path; the UI requires the passphrase to be entered twice and compares them with a plain String != check before proceeding.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 583,
+        "evidence_line_end": 592,
+        "evidence_symbol": "create_vault",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Confirmation compare is at line 522 (app.pass_confirm != app.pass_input) inside handle_create_key (497-546); this is a local same-process UX check, not a remote-auth comparison."
+      },
+      {
+        "category": "auth",
+        "claim": "Passphrase input is accumulated in plain String fields (pass_input, pass_confirm), pushed one char at a time, and reset via .clear() after use in several branches; String::clear() truncates length without guaranteeing the freed heap bytes are zeroed, and no Zeroize/ZeroizeOnDrop wrapper is applied to these fields in this file.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 165,
+        "evidence_line_end": 166,
+        "evidence_symbol": "pass_input / pass_confirm",
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM",
+        "notes": ".clear() call sites: 482, 487, 524-525, 530-531. This is a factual API-behavior observation, not a claim of exploitability."
+      },
+      {
+        "category": "identity",
+        "claim": "SelfKeys.noise_sk: [u8; 32] (the Noise/X25519 static secret) is stored as a plain byte array on App.keys with no visible Zeroize/ZeroizeOnDrop in this file, and the same static secret is read fresh from app.keys and reused for every new connection attempt.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 38,
+        "evidence_symbol": "SelfKeys",
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM",
+        "notes": "Reuse point: start_connection line 908 (let local_sk = keys.noise_sk;). Whether the underlying vault/keypair modules apply zeroization elsewhere cannot be confirmed from this file."
+      },
+      {
+        "category": "identity",
+        "claim": "Contact fingerprint is computed by contacts::fingerprint(ed25519_pub, noise_pub), binding both the Ed25519 identity key and the X25519 Noise key into one displayed string; a code comment states this fingerprint 'HARUS' bind both keys because it is what the user manually verifies out-of-band.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 286,
+        "evidence_line_end": 286,
+        "evidence_symbol": "contacts::fingerprint",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Same call pattern also at mod.rs:907 and ui.rs:495-497 (comment) /497 (call). Fingerprint hash algorithm itself is not visible in these two files."
+      },
+      {
+        "category": "storage",
+        "claim": "The contacts file path is derived deterministically from the vault file's stem plus a '-contacts' suffix and stored in the same directory as the vault.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 594,
+        "evidence_line_end": 600,
+        "evidence_symbol": "contacts_file_path",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "A 32-byte contacts_key is derived once at unlock/create time via contacts::derive_contacts_key(&bundle) and passed to contacts::load_contacts/save_contacts as the key argument for the on-disk contacts store.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 182,
+        "evidence_line_end": 182,
+        "evidence_symbol": "contacts_key field",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM",
+        "notes": "Derivation call sites: 569, 587. Whether/how the store is encrypted with this key is implemented in the contacts module, not visible in tui/mod.rs."
+      },
+      {
+        "category": "storage",
+        "claim": "On unlock, contacts loaded from disk are merged with any contacts passed in at startup, de-duplicated by ed25519_pub equality (startup contacts inserted at front only if not already present), then immediately re-persisted to disk.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 602,
+        "evidence_line_end": 615,
+        "evidence_symbol": "load_contacts_into",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "persist_contacts failure only raises a non-blocking warning notification ('Peringatan: gagal menyimpan kontak ke disk.'); there is no retry and the in-memory contact list is not rolled back, so UI state and disk state can silently diverge.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 617,
+        "evidence_line_end": 623,
+        "evidence_symbol": "persist_contacts",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "load_contacts_into silently ignores a failed contacts::load_contacts call via an `if let Ok(disk) = ...` pattern, falling back to only the startup-supplied contacts with no user-facing error message.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 602,
+        "evidence_line_end": 606,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Global Ctrl+C is checked first in handle_key (before any screen-specific dispatch) and immediately terminates the TUI loop from any screen without explicitly aborting an in-flight app.conn_task or notifying the peer session; the same unconditional-quit pattern applies to Esc on Splash/Unlock/Create/Init and to q/Esc while browsing contacts.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 459,
+        "evidence_line_end": 461,
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM",
+        "notes": "Additional Esc-quit sites: 479 (Unlock), 499 (Create), 550 (Init), 655 (Browsing q/Esc). Actual task cleanup on process exit depends on tokio runtime shutdown behavior not visible in this file."
+      },
+      {
+        "category": "error_handling",
+        "claim": "handle_session_event treats SessionEvent::Notice as non-fatal (only shows a warning + system chat line, room state untouched, per an explicit code comment) while SessionEvent::Error forces RoomState::Closed and shows an error notification plus a system chat line.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1048,
+        "evidence_line_end": 1057,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "logging",
+        "claim": "There is no file or structured logging in this module; user-visible status is only an ephemeral in-memory Notification (levels Error/Warn/Success/Info). Success notices auto-dismiss after 30 ticks (~3s at 100ms/tick) and Info after 40 ticks (~4s), while Error/Warn persist until replaced.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 121,
+        "evidence_line_end": 141,
+        "evidence_symbol": "Notification",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "ui",
+        "claim": "The terminal must be at least 80x24 characters (MIN_WIDTH/MIN_HEIGHT); below that, render() replaces the entire screen with a size-warning card via render_too_small instead of any interactive UI.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 41,
+        "evidence_line_end": 49,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "ui",
+        "claim": "Chat scrolling and 'Mode Light' recency dimming (last BLUR_KEEP_RECENT=3 messages stay unblurred) both depend on estimate_wrapped_lines, which the code's own 'ponytail' comment documents as a char-count/effective-width approximation of ratatui's real word-boundary wrap, not an exact replication — long-word-heavy text can make the scroll/dim estimate diverge from actual rendered line counts.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 756,
+        "evidence_line_end": 767,
+        "evidence_symbol": "estimate_wrapped_lines",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "BLUR_KEEP_RECENT defined at mod.rs:212; used at ui.rs:583 and 609."
+      },
+      {
+        "category": "ui",
+        "claim": "'Mode Light' can be scoped locally ([L], nothing sent to peer) or synced ([B], sends SessionCmd::Blur(true) to the peer session) via a modal prompt; toggling off only re-sends SessionCmd::Blur(false) if the mode had previously been synced.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 730,
+        "evidence_line_end": 774,
+        "evidence_symbol": "handle_blur_prompt_key / toggle_blur",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "ui",
+        "claim": "Reply quoting clips the quoted text to QUOTE_MAX=40 characters with a trailing ellipsis before prefixing it to the outgoing message text via format_reply; the composite text is what actually gets sent as SessionCmd::Text.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 861,
+        "evidence_line_end": 866,
+        "evidence_symbol": "format_reply",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Send path: send_message, lines 976-993, SessionCmd::Text at line 988."
+      },
+      {
+        "category": "ui",
+        "claim": "Message search (Ctrl+S) is a case-insensitive substring match over each message's text using to_lowercase().contains(...), recomputed on every keystroke; an empty query yields zero matches by design.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 813,
+        "evidence_line_end": 823,
+        "evidence_symbol": "search_messages",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "The invite-code popup splits the invite string into fixed 44-byte chunks of its raw bytes for display (invite.as_bytes().chunks(44)) and decodes each chunk with str::from_utf8(..).unwrap_or(\"\") — a chunk boundary that split a multi-byte UTF-8 codepoint would silently render as empty text for that chunk; this only affects the on-screen popup, since copy_invite's clipboard path copies the original, unchunked String.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 899,
+        "evidence_line_end": 905,
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM",
+        "notes": "copy_invite (clipboard) is at src/tui/mod.rs:625-634."
+      },
+      {
+        "category": "data_flow",
+        "claim": "ChatLine.time is stamped with chrono::Local::now() at the moment a message is pushed into the local `messages` Vec (for both own and peer messages); the struct's own doc comment explicitly notes this is local UI time, not a timestamp carried over the wire/protocol.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 92,
+        "evidence_line_end": 108,
+        "evidence_symbol": "ChatLine",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test blur_prompt_local_activates_without_sending verifies that pressing 'l' in the Mode Light prompt enables blur locally, leaves blur_synced false, closes the prompt, and sends nothing on the SessionCmd channel.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1074,
+        "evidence_line_end": 1084,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test blur_prompt_both_sends_command verifies that pressing 'b' in the Mode Light prompt enables blur, sets blur_synced true, and sends SessionCmd::Blur(true) on the channel.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1087,
+        "evidence_line_end": 1096,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test blur_prompt_esc_cancels verifies that pressing Esc while the Mode Light prompt is open closes the prompt without enabling blur.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1099,
+        "evidence_line_end": 1106,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test toggle_blur_off_sends_command_when_synced verifies that toggling off an active+synced Mode Light disables both flags and sends SessionCmd::Blur(false).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1109,
+        "evidence_line_end": 1119,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test format_reply_clips_long_quote verifies a 50-character quote is truncated with an ellipsis while the reply body still appears intact after it.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1121,
+        "evidence_line_end": 1127,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test format_reply_keeps_short_quote_intact verifies a short quote ('halo') is not truncated or ellipsized.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1129,
+        "evidence_line_end": 1134,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test search_messages_case_insensitive verifies substring search matches regardless of case ('dunia' matches 'Halo Dunia') and that empty or no-match queries return an empty result vector.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1136,
+        "evidence_line_end": 1146,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test estimate_wrapped_lines_short_text_is_one_line verifies that short text ('halo') at width 80 estimates to exactly 1 line.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 998,
+        "evidence_line_end": 1001,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test estimate_wrapped_lines_long_text_spans_multiple_lines verifies that a 200-character string at width 80 (effective width 76 after the 4-char prefix allowance) estimates to 3 lines, documenting the ceil(len/effective_width) formula.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 1003,
+        "evidence_line_end": 1008,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test estimate_wrapped_lines_zero_width_does_not_panic verifies the estimator does not panic/divide-by-zero when width is 0 (falls back to an effective width of 1 via .max(1)), returning 4 for a 4-character string.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 1010,
+        "evidence_line_end": 1013,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "The #[cfg(test)] modules in both files cover only pure logic helpers (Mode Light toggle/prompt, reply formatting, message search, wrap-line estimation); no test in these two files exercises vault unlock/create, contact add/delete/persist-to-disk, or the network session-establishment path (start_connection, handle_session_event) — those are only reachable through manual or integration-level exercising outside these files.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1061,
+        "evidence_line_end": 1147,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM",
+        "notes": "Based on absence within the two test modules read (mod.rs:1061-1147, ui.rs:994-1014); other test files elsewhere in the crate were not reviewed in this task."
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "Ed25519 identity public key extraction",
+        "category": "signature",
+        "algorithm": "Ed25519 public key bytes (bundle.identity.public_key().to_bytes())",
+        "library_crate": "ed25519-dalek 2.2.0 (per resolved Cargo.lock) — not directly imported in tui/mod.rs; accessed only via crate::identity::keypair::KeyBundle",
+        "key_size_bits": "256 (ed25519_pub: [u8; 32], struct field at mod.rs:36)",
+        "function_in_system": "build_self_keys() extracts the identity public key to populate SelfKeys.ed25519_pub, used downstream for the fingerprint and invite-code encoding shown in the TUI",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 281,
+        "evidence_line_end": 292,
+        "key_generation": "KeyBundle::generate() called once at create_vault (mod.rs:584); generation internals (RNG, curve ops) not visible in this file",
+        "key_storage": "Public key held in-memory as a plain [u8;32] on App.keys (SelfKeys); the corresponding Ed25519 secret key itself is never read or stored by this file (only the public key is extracted here)",
+        "key_rotation_or_distribution": "Tidak ada rotasi terlihat di file ini — identity key is long-lived per vault, shared with peers via the invite code",
+        "error_handling": "No fallible path around key extraction in this file; upstream failures are handled generically at vault::unseal (try_unlock, mod.rs:559-581)",
+        "misuse_risk_notes": "Only public-key bytes are handled in this file, so no direct secret-exposure risk from this code path. Signing/verification logic and any domain-separation for Ed25519 signatures are not present in tui/mod.rs and could not be assessed.",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "Noise/X25519 static keypair (secret + public)",
+        "category": "key_agreement",
+        "algorithm": "X25519 static Diffie-Hellman keypair, later consumed by a Noise-pattern handshake inside crate::session::run_session (not visible in this file); the pattern name (e.g. Noise_IK) is not spelled out anywhere in tui/mod.rs or tui/ui.rs",
+        "library_crate": "x25519-dalek 2.0.1 (per resolved Cargo.lock) — not directly imported in tui/mod.rs; accessed only via crate::identity::keypair::KeyBundle.noise",
+        "key_size_bits": "256 (noise_sk: [u8;32], noise_pub: [u8;32]; struct fields at mod.rs:34-35)",
+        "function_in_system": "local_sk (=keys.noise_sk) and peer_pk (=contact.noise_pub) are passed into session::run_session at start_connection to drive the peer handshake/session in the session module",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 38,
+        "key_generation": "Generated as part of KeyBundle::generate() at create_vault (mod.rs:584); generation internals not visible in this file",
+        "key_storage": "noise_sk held as a plain [u8;32] array field on App.keys (SelfKeys) for the app's lifetime; no Zeroize/ZeroizeOnDrop derive is visible on SelfKeys in this file",
+        "key_rotation_or_distribution": "Tidak ada rotasi terlihat di file ini — the same static secret (keys.noise_sk) is re-read from App.keys and reused for every connection attempt (start_connection, mod.rs:908)",
+        "error_handling": "No fallible path around key extraction/passing in this file itself",
+        "misuse_risk_notes": "Static-key reuse across multiple sessions is expected/by-design for a Noise static key, not inherently a flaw, but this file shows no rotation mechanism. noise_sk is not wrapped in a zeroizing type here, so it is not scrubbed from memory on drop within this file's code. Nonce handling, handshake pattern correctness, and domain separation all live in the session module and were out of scope for this review.",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "Identity vault seal/unseal (passphrase-derived)",
+        "category": "password_hashing",
+        "algorithm": "Not verified from tui/mod.rs — only opaque calls to vault::read_vault/vault::unseal/vault::seal/vault::write_vault are visible. Project-level CLAUDE.md states Argon2id + ChaCha20-Poly1305 for the vault, but that was not confirmed by code read in this task (identity/vault.rs was not part of the assigned files).",
+        "library_crate": "Candidates from resolved Cargo.lock: argon2 0.5.3, chacha20poly1305 0.10.1 — NOT confirmed as used here from these two files alone",
+        "key_size_bits": "Unknown from this file",
+        "nonce_or_iv_size_bytes": "Unknown from this file",
+        "tag_size_bytes": "Unknown from this file",
+        "function_in_system": "try_unlock() unseals an existing vault with app.pass_input bytes; create_vault() seals a freshly generated KeyBundle with app.pass_input bytes and writes it to disk",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 559,
+        "evidence_line_end": 592,
+        "key_generation": "Passphrase is supplied interactively via TUI keystrokes into pass_input: String (mod.rs:165) — a user-chosen passphrase, not a randomly generated key",
+        "key_storage": "Passphrase held as a plaintext String in App.pass_input/pass_confirm during entry, cleared via String::clear() after use (mod.rs:482, 487, 524-531); clear() truncates length but does not guarantee the freed heap bytes are zeroed, and no Zeroize wrapper is visible on these fields in this file",
+        "key_rotation_or_distribution": "Tidak ada rotasi terlihat di file ini",
+        "error_handling": "Errors are collapsed to generic user-facing strings: 'Vault tidak terbaca.' for a read failure (mod.rs:563), 'Passphrase salah atau vault rusak.' for an unseal failure (mod.rs:577), 'Gagal membuat vault.' for a seal/write failure (mod.rs:538) — original error detail is discarded via Err(_) matches in all three cases",
+        "misuse_risk_notes": "Passphrase strings are not wrapped in a zeroizing type in this file. Algorithm-level misuse risk (KDF cost parameters, nonce management, AEAD tag verification) cannot be assessed from tui/mod.rs since the vault primitive implementation lives in identity::vault, which was outside this review's assigned scope.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Contacts store symmetric key (derive_contacts_key)",
+        "category": "KDF",
+        "algorithm": "Not verified from tui/mod.rs — contacts::derive_contacts_key(&bundle) is an opaque call; its implementation was not part of the files read for this task",
+        "library_crate": "Unconfirmed from these two files; blake2 0.10.6 appears in the resolved Cargo.lock as a candidate but this is not established by tui/mod.rs or tui/ui.rs",
+        "key_size_bits": "256 (contacts_key: Option<[u8; 32]>, mod.rs:182)",
+        "function_in_system": "Derived once at unlock/create time from the identity KeyBundle; passed as the key argument to contacts::load_contacts/save_contacts for the on-disk contacts store",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 182,
+        "evidence_line_end": 182,
+        "key_generation": "contacts::derive_contacts_key(&bundle) called at try_unlock (mod.rs:569) and create_vault (mod.rs:587); derivation internals not visible in this file",
+        "key_storage": "Held in-memory as Option<[u8;32]> on the App struct for the session's lifetime; no Zeroize is visible in this file",
+        "key_rotation_or_distribution": "Tidak ada rotasi terlihat di file ini — the same derived key is reused for every load/save of the contacts file during the run",
+        "error_handling": "load_contacts failure is silently ignored (if let Ok(disk) = ... at mod.rs:605, Err path falls through with no notification); save_contacts failure only raises a warning notification (mod.rs:620-622), no retry",
+        "misuse_risk_notes": "Whether load_contacts/save_contacts use this key with an AEAD (nonce handling, key reuse across repeated saves) cannot be assessed from tui/mod.rs since the contacts module implementation was outside this review's assigned scope.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Identity fingerprint (contacts::fingerprint)",
+        "category": "hash",
+        "algorithm": "Not verified from tui/mod.rs/ui.rs — opaque call contacts::fingerprint(ed25519_pub, noise_pub); blake2 0.10.6 appears in the resolved Cargo.lock as a candidate hash crate but is not confirmed by the two files read",
+        "library_crate": "Unconfirmed from these files (candidate: blake2 0.10.6)",
+        "input_output_desc": "Input: 32-byte Ed25519 public key + 32-byte X25519 Noise public key; Output: a String fingerprint, later chunked into 8-char groups joined by ' · ' for full display (ui.rs format_fingerprint, 982-988) and truncated to 6 chars for the header (ui.rs format_fingerprint_short, 990-992)",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 286,
+        "evidence_line_end": 286,
+        "error_handling": "Infallible as called in this file — no error handling wraps contacts::fingerprint()",
+        "misuse_risk_notes": "The fingerprint is explicitly used for manual out-of-band verification by the user (ui.rs comment, lines 495-497: it 'HARUS' bind both keys because it's what the user compares out-of-band). This file only formats/displays the value; the hash algorithm's collision resistance and domain separation between the two 32-byte inputs cannot be assessed since contacts::fingerprint's implementation is outside this review's scope.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "primitive_name": "Key-generation entropy source (KeyBundle::generate)",
+        "category": "CSPRNG",
+        "algorithm": "Not verified from tui/mod.rs — opaque call KeyBundle::generate(); the RNG source is not visible in this file. rand 0.8.6 appears in the resolved Cargo.lock as a candidate.",
+        "library_crate": "Unconfirmed from these files (candidate: rand 0.8.6)",
+        "function_in_system": "Called once when creating a brand-new identity vault (create_vault, mod.rs:583-592) to produce a fresh Ed25519 + X25519 KeyBundle",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 584,
+        "evidence_line_end": 584,
+        "error_handling": "No error path visible in this file — the call as used here is not a Result",
+        "misuse_risk_notes": "RNG quality/seeding and reuse cannot be assessed from tui/mod.rs since KeyBundle::generate()'s internals were outside this review's assigned scope.",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      }
+    ]
+  },
+  "verified": {
+    "module": "tui",
+    "verified_claims": [
+      {
+        "original_claim": "Screen flow is an explicit finite-state enum: Splash → Unlock/Create → Init → Main, matching the module doc-comment.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 4,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Lines 1-4 are the module doc-comment ('//! Alur layar: Splash → Unlock/Create → Init → Main'), which does match the actual enum Screen's variant order. However the evidence_symbol 'enum Screen' is mislabeled for this line range — the enum itself is defined at lines 60-66 (see next claim), not at lines 1-4.",
+        "corrected_status": "IMPLEMENTED",
+        "reviewer_notes": "Substance of the claim is true; only the evidence_symbol/line pairing is imprecise (doc-comment cited under an enum-definition label)."
+      },
+      {
+        "original_claim": "enum Screen defines the five top-level screens (Splash, Unlock, Create, Init, Main) that gate both rendering (ui.rs render()) and key dispatch (handle_key).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 60,
+        "evidence_line_end": 66,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Within Screen::Main, a Mode enum (Browsing, AddContact, InRoom) further gates keybinding dispatch inside handle_main_key.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 636,
+        "evidence_line_end": 726,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Keyboard input is read on a dedicated OS thread (blocking crossterm::event::read(), filtered to KeyEventKind::Press) and forwarded to the async event loop via an unbounded mpsc channel, rather than being polled inside tokio::select! directly.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 439,
+        "evidence_line_end": 451,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "The main event loop is a single tokio::select! over four sources: the keyboard channel, the session-event channel, the Tor-bootstrap channel, and a 100ms tick interval.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 334,
+        "evidence_line_end": 411,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Starting a session (Enter on a selected contact) aborts any previous conn_task, opens fresh SessionCmd/SessionEvent channels, and spawns a tokio task that calls transport::establish(...) then session::run_session(conn, role, local_sk, Some(peer_pk), o_rx, e_tx).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 868,
+        "evidence_line_end": 926,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "RoomState enum (None, Connecting, Handshaking, Open, PeerLeft, Closed) tracks connection lifecycle and is transitioned exclusively via handle_session_event reacting to SessionEvent::StateChanged/PeerLeft/Error/Notice.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1013,
+        "evidence_line_end": 1059,
+        "verdict": "CORRECTED",
+        "corrected_claim": "RoomState enum (None, Connecting, Handshaking, Open, PeerLeft, Closed, at lines 76-84) is transitioned in handle_session_event (1013-1059) but NOT exclusively there: start_connection directly sets app.room = RoomState::Connecting at line 893, and leave_room directly sets app.room = RoomState::None at line 1006, both outside handle_session_event.",
+        "corrected_status": "PARTIAL",
+        "reviewer_notes": "The 'exclusively' qualifier is factually wrong; two other functions mutate app.room directly."
+      },
+      {
+        "original_claim": "leave_room aborts the background connection task, drops the SessionCmd/SessionEvent channels, and clears the in-memory message list, explicitly noting to the user 'Riwayat dibuang' (history discarded).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 995,
+        "evidence_line_end": 1011,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Chat messages exist only in App.messages: Vec<ChatLine> for the lifetime of a room; there is no on-disk persistence of chat history in this file — messages.clear() runs both when a new room starts and when a room is left.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 176,
+        "evidence_line_end": 176,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "messages.clear() confirmed at line 895 (start_connection) and line 1009 (leave_room)."
+      },
+      {
+        "original_claim": "try_unlock reads vault bytes from disk then calls vault::unseal with the raw passphrase bytes; on failure it distinguishes an unreadable vault file ('Vault tidak terbaca.') from a failed unseal ('Passphrase salah atau vault rusak.') but the unseal-failure message does not itself distinguish wrong-passphrase from corrupted-ciphertext.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 559,
+        "evidence_line_end": 581,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "create_vault generates a brand-new KeyBundle::generate(), seals it via vault::seal with the entered passphrase, and writes the sealed bytes to app.vault_path; the UI requires the passphrase to be entered twice and compares them with a plain String != check before proceeding.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 583,
+        "evidence_line_end": 592,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Confirmation compare verified at line 522 inside handle_create_key (497-546)."
+      },
+      {
+        "original_claim": "Passphrase input is accumulated in plain String fields (pass_input, pass_confirm), pushed one char at a time, and reset via .clear() after use in several branches; String::clear() truncates length without guaranteeing the freed heap bytes are zeroed, and no Zeroize/ZeroizeOnDrop wrapper is applied to these fields in this file.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 165,
+        "evidence_line_end": 166,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": ".clear() call sites verified at 482, 487, 524, 525, 530, 531."
+      },
+      {
+        "original_claim": "SelfKeys.noise_sk: [u8; 32] (the Noise/X25519 static secret) is stored as a plain byte array on App.keys with no visible Zeroize/ZeroizeOnDrop in this file, and the same static secret is read fresh from app.keys and reused for every new connection attempt.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 38,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Reuse point confirmed at line 908 (let local_sk = keys.noise_sk;) inside start_connection."
+      },
+      {
+        "original_claim": "Contact fingerprint is computed by contacts::fingerprint(ed25519_pub, noise_pub), binding both the Ed25519 identity key and the X25519 Noise key into one displayed string; a code comment states this fingerprint 'HARUS' bind both keys because it is what the user manually verifies out-of-band.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 286,
+        "evidence_line_end": 286,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Also confirmed at mod.rs:907 and ui.rs:495-497 (comment)/497 (call)."
+      },
+      {
+        "original_claim": "The contacts file path is derived deterministically from the vault file's stem plus a '-contacts' suffix and stored in the same directory as the vault.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 594,
+        "evidence_line_end": 600,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "A 32-byte contacts_key is derived once at unlock/create time via contacts::derive_contacts_key(&bundle) and passed to contacts::load_contacts/save_contacts as the key argument for the on-disk contacts store.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 182,
+        "evidence_line_end": 182,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Derivation call sites verified at 569 (try_unlock) and 587 (create_vault)."
+      },
+      {
+        "original_claim": "On unlock, contacts loaded from disk are merged with any contacts passed in at startup, de-duplicated by ed25519_pub equality (startup contacts inserted at front only if not already present), then immediately re-persisted to disk.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 602,
+        "evidence_line_end": 615,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "persist_contacts failure only raises a non-blocking warning notification ('Peringatan: gagal menyimpan kontak ke disk.'); there is no retry and the in-memory contact list is not rolled back, so UI state and disk state can silently diverge.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 617,
+        "evidence_line_end": 623,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "load_contacts_into silently ignores a failed contacts::load_contacts call via an `if let Ok(disk) = ...` pattern, falling back to only the startup-supplied contacts with no user-facing error message.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 602,
+        "evidence_line_end": 606,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Global Ctrl+C is checked first in handle_key (before any screen-specific dispatch) and immediately terminates the TUI loop from any screen without explicitly aborting an in-flight app.conn_task or notifying the peer session; the same unconditional-quit pattern applies to Esc on Splash/Unlock/Create/Init and to q/Esc while browsing contacts.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 459,
+        "evidence_line_end": 461,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Esc-quit sites verified at 479 (Unlock), 499 (Create), 550 (Init), 655 (Browsing q/Esc); none of these paths abort conn_task."
+      },
+      {
+        "original_claim": "handle_session_event treats SessionEvent::Notice as non-fatal (only shows a warning + system chat line, room state untouched, per an explicit code comment) while SessionEvent::Error forces RoomState::Closed and shows an error notification plus a system chat line.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1048,
+        "evidence_line_end": 1057,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "There is no file or structured logging in this module; user-visible status is only an ephemeral in-memory Notification (levels Error/Warn/Success/Info). Success notices auto-dismiss after 30 ticks (~3s at 100ms/tick) and Info after 40 ticks (~4s), while Error/Warn persist until replaced.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 121,
+        "evidence_line_end": 141,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "The terminal must be at least 80x24 characters (MIN_WIDTH/MIN_HEIGHT); below that, render() replaces the entire screen with a size-warning card via render_too_small instead of any interactive UI.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 41,
+        "evidence_line_end": 49,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Chat scrolling and 'Mode Light' recency dimming (last BLUR_KEEP_RECENT=3 messages stay unblurred) both depend on estimate_wrapped_lines, which the code's own 'ponytail' comment documents as a char-count/effective-width approximation of ratatui's real word-boundary wrap, not an exact replication — long-word-heavy text can make the scroll/dim estimate diverge from actual rendered line counts.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 756,
+        "evidence_line_end": 767,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Minor imprecision in the claim's own note: BLUR_KEEP_RECENT is used literally only at ui.rs:583; line 609 uses the derived variable keep_clear_from, not the constant token directly. Does not affect the core claim."
+      },
+      {
+        "original_claim": "'Mode Light' can be scoped locally ([L], nothing sent to peer) or synced ([B], sends SessionCmd::Blur(true) to the peer session) via a modal prompt; toggling off only re-sends SessionCmd::Blur(false) if the mode had previously been synced.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 730,
+        "evidence_line_end": 774,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Reply quoting clips the quoted text to QUOTE_MAX=40 characters with a trailing ellipsis before prefixing it to the outgoing message text via format_reply; the composite text is what actually gets sent as SessionCmd::Text.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 861,
+        "evidence_line_end": 866,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Send path confirmed at send_message, lines 976-993, SessionCmd::Text at line 988."
+      },
+      {
+        "original_claim": "Message search (Ctrl+S) is a case-insensitive substring match over each message's text using to_lowercase().contains(...), recomputed on every keystroke; an empty query yields zero matches by design.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 813,
+        "evidence_line_end": 823,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "The invite-code popup splits the invite string into fixed 44-byte chunks of its raw bytes for display (invite.as_bytes().chunks(44)) and decodes each chunk with str::from_utf8(..).unwrap_or(\"\") — a chunk boundary that split a multi-byte UTF-8 codepoint would silently render as empty text for that chunk; this only affects the on-screen popup, since copy_invite's clipboard path copies the original, unchunked String.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 899,
+        "evidence_line_end": 905,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "copy_invite (clipboard) confirmed at src/tui/mod.rs:625-634, copies invite.clone() unchunked."
+      },
+      {
+        "original_claim": "ChatLine.time is stamped with chrono::Local::now() at the moment a message is pushed into the local `messages` Vec (for both own and peer messages); the struct's own doc comment explicitly notes this is local UI time, not a timestamp carried over the wire/protocol.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 92,
+        "evidence_line_end": 108,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test blur_prompt_local_activates_without_sending verifies that pressing 'l' in the Mode Light prompt enables blur locally, leaves blur_synced false, closes the prompt, and sends nothing on the SessionCmd channel.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1074,
+        "evidence_line_end": 1084,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test blur_prompt_both_sends_command verifies that pressing 'b' in the Mode Light prompt enables blur, sets blur_synced true, and sends SessionCmd::Blur(true) on the channel.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1087,
+        "evidence_line_end": 1096,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test blur_prompt_esc_cancels verifies that pressing Esc while the Mode Light prompt is open closes the prompt without enabling blur.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1099,
+        "evidence_line_end": 1106,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test toggle_blur_off_sends_command_when_synced verifies that toggling off an active+synced Mode Light disables both flags and sends SessionCmd::Blur(false).",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1109,
+        "evidence_line_end": 1119,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test format_reply_clips_long_quote verifies a 50-character quote is truncated with an ellipsis while the reply body still appears intact after it.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1121,
+        "evidence_line_end": 1127,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test format_reply_keeps_short_quote_intact verifies a short quote ('halo') is not truncated or ellipsized.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1129,
+        "evidence_line_end": 1134,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test search_messages_case_insensitive verifies substring search matches regardless of case ('dunia' matches 'Halo Dunia') and that empty or no-match queries return an empty result vector.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1136,
+        "evidence_line_end": 1146,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test estimate_wrapped_lines_short_text_is_one_line verifies that short text ('halo') at width 80 estimates to exactly 1 line.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 998,
+        "evidence_line_end": 1001,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test estimate_wrapped_lines_long_text_spans_multiple_lines verifies that a 200-character string at width 80 (effective width 76 after the 4-char prefix allowance) estimates to 3 lines, documenting the ceil(len/effective_width) formula.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 1003,
+        "evidence_line_end": 1008,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test estimate_wrapped_lines_zero_width_does_not_panic verifies the estimator does not panic/divide-by-zero when width is 0 (falls back to an effective width of 1 via .max(1)), returning 4 for a 4-character string.",
+        "evidence_file": "src/tui/ui.rs",
+        "evidence_line_start": 1010,
+        "evidence_line_end": 1013,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "The #[cfg(test)] modules in both files cover only pure logic helpers (Mode Light toggle/prompt, reply formatting, message search, wrap-line estimation); no test in these two files exercises vault unlock/create, contact add/delete/persist-to-disk, or the network session-establishment path (start_connection, handle_session_event) — those are only reachable through manual or integration-level exercising outside these files.",
+        "evidence_file": "src/tui/mod.rs",
+        "evidence_line_start": 1061,
+        "evidence_line_end": 1147,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Full test modules read in both files (mod.rs:1061-1147 and ui.rs:994-1014); confirmed no vault/contacts/session-establishment tests present in either."
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "Ed25519 identity public key extraction",
+        "verdict": "CONFIRMED",
+        "corrections": "build_self_keys (mod.rs:281-292) matches exactly: ed_pub = bundle.identity.public_key().to_bytes() at line 282. Struct field ed25519_pub confirmed at mod.rs:36 (not 34-38 range broadly — field itself is precisely line 36). KeyBundle::generate() call confirmed at mod.rs:584."
+      },
+      {
+        "primitive_name": "Noise/X25519 static keypair (secret + public)",
+        "verdict": "CONFIRMED",
+        "corrections": "SelfKeys struct fields confirmed: noise_sk at mod.rs:34, noise_pub at mod.rs:35 (matches claimed 'struct fields at mod.rs:34-35'). Reuse point confirmed at start_connection mod.rs:908 (let local_sk = keys.noise_sk;) and mod.rs:909 (peer_pk = contact.noise_pub), consumed by session::run_session at line 918."
+      },
+      {
+        "primitive_name": "Identity vault seal/unseal (passphrase-derived)",
+        "verdict": "CONFIRMED",
+        "corrections": "Honestly scoped as NEEDS_CONFIRMATION/LOW since algorithm internals live in identity::vault, outside these two files — this framing is accurate. try_unlock/create_vault call sites (mod.rs:559-592) verified exactly as described. Error message line citations verified: 'Vault tidak terbaca.' at 563, 'Passphrase salah atau vault rusak.' at 577, 'Gagal membuat vault.' at 538 (inside handle_create_key, not create_vault itself, but the citation of line 538 is correct)."
+      },
+      {
+        "primitive_name": "Contacts store symmetric key (derive_contacts_key)",
+        "verdict": "CONFIRMED",
+        "corrections": "contacts_key: Option<[u8; 32]> confirmed at mod.rs:182. Derivation call sites confirmed at try_unlock (mod.rs:569) and create_vault (mod.rs:587). Appropriately scoped as NEEDS_CONFIRMATION since contacts module internals are out of scope."
+      },
+      {
+        "primitive_name": "Identity fingerprint (contacts::fingerprint)",
+        "verdict": "CONFIRMED",
+        "corrections": "Call site confirmed at mod.rs:286. Display formatting confirmed exactly at ui.rs: format_fingerprint (982-988) and format_fingerprint_short (990-992). 'HARUS' comment confirmed verbatim at ui.rs:495-496, call at ui.rs:497."
+      },
+      {
+        "primitive_name": "Key-generation entropy source (KeyBundle::generate)",
+        "verdict": "CONFIRMED",
+        "corrections": "Call site confirmed at mod.rs:584 inside create_vault. Appropriately scoped as NEEDS_CONFIRMATION/LOW since RNG internals are not visible in tui/mod.rs."
+      }
+    ]
+  }
+}

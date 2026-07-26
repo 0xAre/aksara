@@ -1,0 +1,660 @@
+{
+  "module": "session",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "SessionState memodelkan siklus hidup room sebagai enum 4 varian: Connecting, Handshaking, Active, Closed.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 19,
+        "evidence_line_end": 25,
+        "evidence_symbol": "SessionState",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Varian SessionState::Connecting dideklarasikan tapi tidak pernah dikirim sebagai event dari dalam run_session pada file ini — hanya Handshaking, Active, dan Closed yang dikirim lewat channel events.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 21,
+        "evidence_symbol": "SessionState::Connecting",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM",
+        "notes": "Kemungkinan Connecting di-set oleh caller sebelum memanggil run_session; caller tidak dibaca dalam audit ini. Bukti event yang benar-benar dikirim: baris 107 (Handshaking), 161 (Active), 277 (Closed)."
+      },
+      {
+        "category": "architecture",
+        "claim": "Varian SessionEvent::Error dideklarasikan untuk 'error fatal' tapi tidak pernah dikonstruksi/dikirim di dalam run_session pada file ini; kegagalan handshake sebaliknya dikembalikan lewat Result<(), Error> fungsi (Error::InvalidKey, Error::ConnectionClosed, Error::IdentityMismatch), bukan lewat channel events.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 82,
+        "evidence_line_end": 83,
+        "evidence_symbol": "SessionEvent::Error",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "HIGH",
+        "notes": "Fakta 'tidak pernah dikirim dalam file ini' pasti benar (HIGH); apakah caller menerjemahkan Err menjadi SessionEvent::Error tidak dapat dipastikan tanpa membaca caller."
+      },
+      {
+        "category": "architecture",
+        "claim": "Pembacaan frame dipindahkan ke tokio::spawn task terpisah dan dikomunikasikan lewat channel internal RxFrame, secara eksplisit karena read_frame melakukan dua read_exact berurutan yang tidak cancel-safe di dalam tokio::select!.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 166,
+        "evidence_line_end": 190,
+        "evidence_symbol": "reader task / RxFrame",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "tokio::io::split(stream) dipakai untuk mendapatkan handle baca (rd) dan tulis (wr) yang independen, bekerja generik untuk TcpStream (LAN) maupun arti DataStream (Tor) lewat bound generic S.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 111,
+        "evidence_line_end": 111,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "Loop aktif sesi memakai tokio::select! dengan 3 cabang: penerimaan SessionCmd dari UI, tick keepalive, dan penerimaan RxFrame dari task pembaca; komentar kode menegaskan seluruh cabang select di sini cancel-safe (recv, tick).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 198,
+        "evidence_line_end": 271,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "SessionCmd::Text diserialisasi sebagai 1 byte tag TYPE_TEXT (0x00) diikuti byte UTF-8 teks, sebelum dienkripsi.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 203,
+        "evidence_line_end": 209,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "SessionCmd::Blur(on) diserialisasi sebagai persis 2 byte: [TYPE_BLUR(0x01), on as u8].",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 210,
+        "evidence_line_end": 210,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Keepalive ping adalah payload plaintext 1 byte [TYPE_PING(0x02)] yang dienkripsi dan dikirim setiap tick interval; di sisi penerima TYPE_PING dicocokkan dan diabaikan (tidak ada balasan otomatis, tidak diteruskan ke UI).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 232,
+        "evidence_line_end": 264,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Setelah dekripsi berhasil, dispatch berdasarkan byte pertama plaintext: TYPE_TEXT -> SessionEvent::Message via String::from_utf8_lossy; TYPE_BLUR hanya diproses jika panjang payload >= 2 byte -> SessionEvent::PeerBlur(pt[1]==0x01); byte tipe tak dikenal diabaikan tanpa dianggap fatal.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 256,
+        "evidence_line_end": 266,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "packet_format",
+        "claim": "Format payload plaintext: 1 byte tag jenis di depan lalu body sesuai jenis. Tiga tag terdefinisi: TYPE_TEXT=0x00, TYPE_BLUR=0x01, TYPE_PING=0x02.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 36,
+        "evidence_line_end": 41,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "packet_format",
+        "claim": "Framing pada kabel (panjang frame, MAX_FRAME_LEN) didelegasikan ke crate::transport::frame (read_frame/write_frame/MAX_FRAME_LEN) yang diimpor tapi tidak didefinisikan di file ini; nilai batas ukuran frame aktual tidak bisa dipastikan dari session/mod.rs saja.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 15,
+        "evidence_line_end": 15,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW",
+        "notes": "Perlu baca src/transport/frame.rs untuk memastikan nilai MAX_FRAME_LEN — di luar cakupan file yang diaudit."
+      },
+      {
+        "category": "limitation",
+        "claim": "Komentar kode dan test menyatakan batas ukuran pesan Noise transport adalah 65535 byte; payload yang melebihi batas ini membuat session.encrypt gagal, dan kegagalan itu ditangani sebagai SessionEvent::Notice non-fatal (sesi tetap hidup), bukan mematikan sesi.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 212,
+        "evidence_line_end": 224,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Dikonfirmasi lewat test oversized_message_does_not_kill_session, baris 409-457 (payload 70.000 byte)."
+      },
+      {
+        "category": "identity",
+        "claim": "run_session menerima local_noise_sk: [u8; 32] dan peer_noise_pk: Option<[u8; 32]> — representasi kunci statis Noise 256-bit (32 byte) sebagai array byte mentah.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 96,
+        "evidence_line_end": 97,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Untuk Role::Initiator, peer_noise_pk wajib berisi nilai (Some); jika None, run_session mengembalikan Err(Error::InvalidKey) sebelum handshake dimulai.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 119,
+        "evidence_line_end": 119,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Untuk Role::Responder, jika peer_noise_pk (kontak yang diharapkan) berisi nilai, responder membandingkannya dengan hs.remote_static() dari pesan handshake pertama; ketidakcocokan (atau remote static key tidak ada) menghasilkan Err(Error::IdentityMismatch) — komentar kode secara eksplisit menyebut ini 'fail closed' untuk mencegah impersonation.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 145,
+        "evidence_line_end": 151,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Dikonfirmasi test responder_rejects_unknown_peer, baris 502-553."
+      },
+      {
+        "category": "auth",
+        "claim": "Jika responder memanggil run_session dengan peer_noise_pk=None (kontak belum dikenal), tidak ada pengecekan identitas peer sama sekali di jalur kode ini — verifikasi identitas sepenuhnya bergantung pada caller memberikan peer_noise_pk yang benar.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 145,
+        "evidence_line_end": 151,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM",
+        "notes": "Bisa jadi desain trust-on-first-use yang disengaja; tidak dapat dipastikan tanpa membaca pemanggil (mis. logika contacts)."
+      },
+      {
+        "category": "auth",
+        "claim": "Komentar fungsi menyatakan pola Noise_IK: untuk initiator, peer_noise_pk (static key responder) WAJIB diketahui sebelum handshake (pola IK mengasumsikan initiator sudah tahu kunci publik responder), sedangkan responder baru mempelajari static key initiator selama handshake sehingga verifikasi tambahan (baris 145-151) diperlukan di sisi responder saja.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 88,
+        "evidence_line_end": 90,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "MEDIUM",
+        "notes": "Interpretasi properti Noise_IK ini berasal dari komentar dokumentasi fungsi, bukan diverifikasi lewat pembacaan modul crypto::handshake."
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "KEEPALIVE_INTERVAL adalah 30 detik pada build non-test, dan 5 milidetik pada build #[cfg(test)]; komentar kode menjelaskan sengaja TIDAK memakai tokio::time::start_paused karena clock palsu memajukan waktu setiap runtime dianggap idle (termasuk saat menunggu handshake TCP), yang membuat urutan event tidak deterministik antar platform.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 59,
+        "evidence_line_end": 68,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Doc-comment pada test keepalive_ping_is_not_delivered_as_message menyatakan 'KEEPALIVE_INTERVAL sudah 50 ms di build test', padahal konstanta #[cfg(test)] yang sebenarnya didefinisikan sebagai Duration::from_millis(5) (5 ms, bukan 50 ms) — komentar dan kode tidak konsisten.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 68,
+        "evidence_line_end": 68,
+        "status": "INCONSISTENT",
+        "confidence": "HIGH",
+        "notes": "Bandingkan baris 68 (const, 5 ms) dengan baris 460-461 (doc-comment test, mengklaim 50 ms). Tidak memengaruhi kebenaran test karena test memakai konstanta KEEPALIVE_INTERVAL langsung (baris 488), tapi dokumentasi menyesatkan."
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "Tick pertama tokio::time::interval yang selalu selesai seketika sengaja 'dihabiskan' lewat keepalive.tick().await sebelum masuk loop utama, supaya sesi tidak langsung mengirim ping tepat saat baru menjadi Active; MissedTickBehavior diset ke Delay.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 192,
+        "evidence_line_end": 196,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Kegagalan session.encrypt() saat mengirim pesan chat (mis. payload melampaui batas Noise) tidak mematikan sesi — SessionEvent::Notice('Pesan terlalu besar untuk dikirim.') dikirim dan loop `continue`; hanya kegagalan I/O pada write_frame setelah enkripsi berhasil yang menghentikan loop (`break`).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 212,
+        "evidence_line_end": 227,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Kegagalan session.decrypt() pada frame masuk membuat loop utama langsung `break` (komentar: 'dekripsi gagal -> putus (fail closed)'); sesudahnya fungsi tetap mengirim SessionEvent::StateChanged(Closed) dan mengembalikan Ok(()) — bukan Err, dan tanpa mengirim SessionEvent::Error yang berbeda dari penutupan normal.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 253,
+        "evidence_line_end": 279,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "UI tidak dapat membedakan 'sesi ditutup karena dekripsi gagal (potensi gangguan/tampering)' dari penutupan lain lewat channel events saja, selain event PeerLeft yang khusus untuk EOF bersih (baris 246-249)."
+      },
+      {
+        "category": "error_handling",
+        "claim": "Deteksi koneksi mati selama sesi aktif sepenuhnya bergantung pada kegagalan write_frame (baik saat kirim pesan chat maupun ping keepalive), bukan pada ping yang tak terbalas — dinyatakan eksplisit dalam komentar sebagai keterbatasan yang disengaja (ponytail note).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 54,
+        "evidence_line_end": 58,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "HIGH",
+        "notes": "Komentar menyebut upgrade path bila dibutuhkan: batas 'tak ada frame masuk selama N detik' di sisi reader — belum diimplementasikan di file ini."
+      },
+      {
+        "category": "error_handling",
+        "claim": "reader.abort() dipanggil eksplisit setelah loop select utama selesai, karena men-drop channel frames_tx/frames saja tidak akan membangunkan task pembaca yang sedang menunggu I/O dari peer yang diam.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 273,
+        "evidence_line_end": 275,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "logging",
+        "claim": "File ini tidak mengimpor atau memakai crate logging apa pun (mis. log::, tracing::); seluruh pelaporan status/diagnostik ke UI dilakukan lewat channel SessionEvent (UnboundedSender<SessionEvent>).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 10,
+        "evidence_line_end": 16,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "File ini tidak berisi logika penyimpanan persisten (disk/DB) — plaintext pesan masuk hanya diteruskan sebagai event in-memory (SessionEvent::Message/PeerBlur) ke UI lewat mpsc channel, dan buffer plaintext lokal (payload, pt) adalah Vec<u8> biasa tanpa pembungkus zeroize.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 253,
+        "evidence_line_end": 266,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH",
+        "notes": "Tidak ditemukan pemanggilan zeroize di buffer plaintext lokal ini; setelah keluar scope, memori dilepas lewat drop biasa Rust (tidak dijamin di-overwrite nol)."
+      },
+      {
+        "category": "ui",
+        "claim": "SessionEvent (StateChanged, Message, PeerBlur, PeerLeft, Notice, Error) adalah satu-satunya antarmuka keluar dari run_session ke lapisan UI lewat UnboundedSender<SessionEvent> — seluruh status dan konten sesi mengalir lewat channel ini.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 70,
+        "evidence_line_end": 84,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test lan_session_message_roundtrip: integration test 2 task run_session nyata di atas TCP loopback (127.0.0.1), handshake Noise_IK penuh, lalu memverifikasi pengiriman pesan terenkripsi dua arah (client->server dan server->client) lewat SessionCmd::Text / SessionEvent::Message.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 302,
+        "evidence_line_end": 358,
+        "evidence_symbol": "lan_session_message_roundtrip",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test blur_toggle_roundtrip: memverifikasi byte tag TYPE_BLUR roundtrip lewat enkripsi/dekripsi end-to-end — initiator mengirim SessionCmd::Blur(true), responder menerima SessionEvent::PeerBlur(true).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 363,
+        "evidence_line_end": 404,
+        "evidence_symbol": "blur_toggle_roundtrip",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test oversized_message_does_not_kill_session: mengirim teks 70.000 byte (melampaui batas pesan Noise ~65535), menegaskan initiator menerima SessionEvent::Notice berisi 'terlalu besar' (bukan Error/putus), lalu memverifikasi pesan normal berikutnya tetap terkirim — membuktikan sesi tetap hidup setelah kegagalan encrypt.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 409,
+        "evidence_line_end": 457,
+        "evidence_symbol": "oversized_message_does_not_kill_session",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test keepalive_ping_is_not_delivered_as_message: menunggu 3x KEEPALIVE_INTERVAL tanpa trafik chat, lalu mengirim pesan asli, dan menegaskan pesan pertama yang muncul di event stream responder adalah pesan asli — membuktikan frame TYPE_PING difilter dan tidak bocor sebagai SessionEvent::Message.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 462,
+        "evidence_line_end": 498,
+        "evidence_symbol": "keepalive_ping_is_not_delivered_as_message",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "Test responder_rejects_unknown_peer: responder diberi peer_noise_pk yang salah (bukan kunci client sebenarnya); test menegaskan run_session di sisi responder mengembalikan Err(Error::IdentityMismatch), memverifikasi pengecekan identitas fail-closed pada baris 145-151.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 502,
+        "evidence_line_end": 553,
+        "evidence_symbol": "responder_rejects_unknown_peer",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "Enkripsi/dekripsi pesan sesi (session.encrypt / session.decrypt di atas EncryptedSession hasil handshake)",
+        "category": "AEAD",
+        "algorithm": "Algoritma AEAD konkret TIDAK disebutkan literal di file session/mod.rs — dipanggil lewat method session.encrypt()/session.decrypt() pada nilai bertipe hasil HandshakeSession::into_transport() (didefinisikan di crate::crypto::handshake, di luar cakupan file yang dibaca). Overhead 16 byte terlihat konsisten pada alokasi buffer ciphertext (payload.len()+16 di baris 212, dan 1+16 di baris 233 untuk ping), sesuai tag AEAD 128-bit; snow 0.10.0 dengan pola Noise_IK umumnya default ke ChaCha20-Poly1305 (chacha20poly1305 0.10.1 ada di Cargo.lock), tapi ini TIDAK diverifikasi langsung dari file ini.",
+        "library_crate": "snow (dipanggil tidak langsung lewat crate::crypto::handshake::HandshakeSession, diimpor baris 13; tidak ada `use snow::` langsung di file ini)",
+        "crate_version": "snow 0.10.0 (sesuai daftar versi ter-resolve yang diberikan; identitas AEAD konkret di baliknya tidak terverifikasi dari file session/mod.rs)",
+        "key_size_bits": "Tidak terlihat di file ini — kunci transport dikelola internal oleh tipe hasil hs.into_transport() (baris 133, 157), dibungkus variabel `session` (baris 165)",
+        "nonce_or_iv_size_bytes": "Tidak terlihat di file ini — pengelolaan nonce/counter sepenuhnya internal pada tipe transport dari crypto::handshake, tidak ada kode nonce eksplisit di session/mod.rs",
+        "tag_size_bytes": "16 (disimpulkan dari alokasi buffer: payload.len()+16 pada baris 212, dan array [0u8; 1+16] pada baris 233 — bukan konstanta bernama eksplisit, melainkan literal 16 pada alokasi)",
+        "associated_data_desc": "Tidak terlihat penggunaan associated data (AAD) eksplisit pada pemanggilan session.encrypt(&payload, &mut ct) (baris 216) maupun session.decrypt(&frame, &mut pt) (baris 254) — signature yang dipanggil hanya menerima buffer input dan output.",
+        "key_generation": "Tidak di file ini — kunci transport dihasilkan sebagai hasil handshake Noise_IK lewat hs.into_transport() (baris 133 untuk initiator, 157 untuk responder), bukan dibangkitkan langsung di session/mod.rs",
+        "key_storage": "Disimpan sebagai variabel lokal mutable `session: EncryptedSession` (baris 164-165), hidup selama loop aktif (baris 198-271). Komentar modul (baris 5-8) menyatakan bahwa saat variabel ini di-drop di akhir fungsi (baris 279, terjadi implisit lewat scope Rust normal — tidak ada pemanggilan drop()/zeroize() eksplisit di file ini), 'snow menghapus key transport secara internal'. Klaim zeroization ini TIDAK dapat diverifikasi dari file session/mod.rs saja karena implementasi Drop untuk tipe EncryptedSession/transport berada di luar file ini.",
+        "key_rotation_or_distribution": "Tidak ada — satu transport key dipakai sepanjang sesi (dari handshake selesai sampai session di-drop); tidak ada mekanisme rotasi kunci yang terlihat di file ini",
+        "error_handling": "Kegagalan encrypt() untuk pesan chat (mis. payload melebihi batas Noise) ditangkap dan dikirim sebagai SessionEvent::Notice, sesi TETAP hidup (baris 216-224, `continue`). Kegagalan encrypt() untuk ping keepalive langsung `break` loop (baris 240-241). Kegagalan decrypt() pada frame masuk menyebabkan loop `break` — dikomentari eksplisit 'fail closed' (baris 254, 267).",
+        "misuse_risk_notes": "(1) Nonce/counter management sepenuhnya internal ke tipe transport dari snow, tidak terlihat di file ini, sehingga risiko nonce reuse tidak bisa dievaluasi hanya dari session/mod.rs. (2) Tidak ada AAD eksplisit dipakai untuk memisahkan domain TYPE_TEXT/TYPE_BLUR/TYPE_PING — pemisahan jenis pesan terjadi SETELAH dekripsi lewat byte tag pertama pada plaintext (baris 256-266), bukan bagian dari proses autentikasi AEAD itu sendiri. (3) File ini tidak meng-import crate zeroize (dicek pada daftar import baris 10-16) walau zeroize 1.9.0 ter-resolve di Cargo.lock — jaminan penghapusan kunci transport saat sesi ditutup bergantung sepenuhnya pada perilaku eksternal (snow/crypto::handshake) yang tidak diverifikasi di sini. (4) Buffer plaintext hasil decrypt (`pt`, baris 253) dialokasikan sebesar frame.len() penuh (termasuk overhead tag) dan tidak di-zeroize setelah dipakai — bukan indikasi kerentanan pasti, hanya catatan bahwa sisa plaintext bisa tertinggal di memori heap setelah scope berakhir.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 164,
+        "evidence_line_end": 279,
+        "function_in_system": "Enkripsi pesan keluar (baris 212-224), enkripsi ping keepalive (baris 233-241), dekripsi frame masuk (baris 253-268), drop/zeroization sesi di akhir fungsi (baris 279)",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "Handshake Noise_IK (key agreement) yang diorkestrasi dari run_session",
+        "category": "key_agreement",
+        "algorithm": "Noise_IK, pola 2 pesan sesuai komentar kode: initiator mengirim '-> e, es, s, ss' (baris 122) lalu membaca '<- e, ee, se' (baris 127-131); responder membaca '<- e, es, s, ss' (baris 138-143, dikomentari '<- e, es, s, ss') lalu mengirim '-> e, ee, se' (baris 153-155). Mekanisme ECDH konkret (mis. X25519) berada di dalam crate::crypto::handshake::HandshakeSession, TIDAK terlihat di file session/mod.rs.",
+        "library_crate": "snow (via crate::crypto::handshake::HandshakeSession, diimpor baris 13)",
+        "crate_version": "snow 0.10.0",
+        "key_size_bits": "256 bit / 32 byte — local_noise_sk: [u8; 32] (baris 96) dan peer_noise_pk: Option<[u8; 32]> (baris 97), dinyatakan eksplisit pada signature run_session",
+        "nonce_or_iv_size_bytes": "Tidak terlihat di file ini (bagian dari internal handshake Noise di crypto::handshake)",
+        "tag_size_bytes": "Tidak terlihat di file ini",
+        "associated_data_desc": "Tidak berlaku / tidak terlihat di file ini",
+        "key_generation": "Tidak di file ini — local_noise_sk diterima sebagai parameter run_session, dibangkitkan di tempat lain (kemungkinan modul identity::keypair, tidak dibaca dalam audit ini)",
+        "key_storage": "local_noise_sk diterima by-value sebagai [u8; 32] pada parameter fungsi (baris 96); tidak ada pembungkus zeroize-on-drop yang terlihat untuk parameter ini di file session/mod.rs",
+        "key_rotation_or_distribution": "Tidak ada rotasi di file ini — satu pasang kunci statis dipakai untuk satu kali handshake per pemanggilan run_session",
+        "error_handling": "Initiator: peer_noise_pk wajib ada, jika None -> Error::InvalidKey (baris 119). Kegagalan baca frame handshake dengan n==0 (EOF) -> Error::ConnectionClosed (baris 128-130 untuk initiator, 140-142 untuk responder). Responder memverifikasi hs.remote_static() terhadap peer_noise_pk yang diharapkan; jika tidak cocok atau tidak ada -> Error::IdentityMismatch, fail closed (baris 145-151).",
+        "misuse_risk_notes": "Verifikasi identitas peer (baris 145-151) hanya dijalankan bila peer_noise_pk == Some(..); bila None (kontak belum dikenal), tidak ada pengecekan identitas sama sekali pada level file ini — autentikasi peer bergantung sepenuhnya pada caller yang menyediakan peer_noise_pk yang benar. Enkripsi lewat Noise_IK di sini TIDAK otomatis berarti peer sudah terautentikasi terhadap kontak yang diharapkan, kecuali peer_noise_pk diberikan dan cocok.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 117,
+        "evidence_line_end": 159,
+        "function_in_system": "run_session, blok handshake Role::Initiator (baris 117-134) dan Role::Responder (baris 135-158)",
+        "status": "PARTIAL",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "Representasi kunci Noise sebagai array byte mentah pada boundary fungsi (local_noise_sk, peer_noise_pk)",
+        "category": "key_serialization",
+        "algorithm": "Representasi byte mentah [u8; 32] (bukan format terstruktur seperti PEM/DER/base64); tidak ada (de)serialisasi eksplisit di file ini selain lewatnya array by-value/by-reference antar fungsi.",
+        "library_crate": "Tidak ada crate serialisasi dipakai langsung di file ini (mis. serde/base64/hex) — murni tipe primitif Rust [u8; 32]",
+        "crate_version": "Tidak berlaku",
+        "key_size_bits": "256 bit / 32 byte, sesuai deklarasi tipe pada baris 96-97",
+        "nonce_or_iv_size_bytes": "Tidak berlaku",
+        "tag_size_bytes": "Tidak berlaku",
+        "associated_data_desc": "Tidak berlaku",
+        "key_generation": "Tidak di file ini",
+        "key_storage": "local_noise_sk disimpan sebagai parameter lokal fungsi run_session (baris 96), diteruskan by-reference ke HandshakeSession::new_initiator/new_responder (baris 120, 136); tidak ada wrapper zeroize::Zeroize / ZeroizeOnDrop yang terlihat pada tipe [u8;32] ini di file session/mod.rs — walau crate zeroize 1.9.0 ter-resolve di Cargo.lock, file ini sendiri tidak meng-import atau memakainya",
+        "key_rotation_or_distribution": "Tidak ada di file ini",
+        "error_handling": "Ketiadaan peer_noise_pk untuk initiator ditangani via Error::InvalidKey (baris 119)",
+        "misuse_risk_notes": "Karena local_noise_sk berupa [u8;32] polos (bukan tipe secret/zeroizing) pada parameter fungsi ini, setelah run_session selesai penanganan memorinya bergantung pada drop biasa Rust (dealokasi, TIDAK dijamin di-overwrite nol) kecuali zeroization ditangani di tempat lain (mis. tipe pemanggil sebelum memanggil run_session, tidak dibaca dalam audit ini) — file session/mod.rs sendiri tidak memberi jaminan zeroization eksplisit untuk parameter ini.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 96,
+        "evidence_line_end": 97,
+        "function_in_system": "Signature run_session (parameter local_noise_sk, peer_noise_pk)",
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "MEDIUM"
+      }
+    ]
+  },
+  "verified": {
+    "module": "session",
+    "verified_claims": [
+      {
+        "original_claim": "SessionState memodelkan siklus hidup room sebagai enum 4 varian: Connecting, Handshaking, Active, Closed.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 19,
+        "evidence_line_end": 25,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "SessionState::Connecting dideklarasikan tapi tidak pernah dikirim sebagai event dari dalam run_session pada file ini.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 21,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Grep 'Connecting' di seluruh file hanya menemukan baris 3 (doc comment lifecycle) dan baris 21 (deklarasi varian) — tidak pernah dipakai dalam events.send(). Event yang benar-benar dikirim terverifikasi di baris 107 (Handshaking), 161 (Active), 277 (Closed), persis seperti disebut auditor."
+      },
+      {
+        "original_claim": "SessionEvent::Error dideklarasikan untuk 'error fatal' tapi tidak pernah dikonstruksi/dikirim di dalam run_session; kegagalan dikembalikan lewat Result<(), Error>.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 82,
+        "evidence_line_end": 83,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Grep 'SessionEvent::Error' di seluruh file hanya muncul sekali, di baris 442 dalam test (memastikan varian ini TIDAK diterima, bukan mengirimkannya). Tidak ada events.send(SessionEvent::Error(...)) di run_session."
+      },
+      {
+        "original_claim": "Pembacaan frame dipindahkan ke tokio::spawn task terpisah, dikomunikasikan lewat channel RxFrame, karena read_frame tidak cancel-safe di dalam tokio::select!.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 166,
+        "evidence_line_end": 190,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "tokio::io::split(stream) dipakai untuk handle baca/tulis independen, generik untuk TcpStream maupun arti DataStream lewat bound generic S.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 111,
+        "evidence_line_end": 111,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 111 berisi pemanggilan split; klaim 'generik TcpStream/arti DataStream' didukung komentar baris 109-110 dan bound generic S pada signature (baris 105)."
+      },
+      {
+        "original_claim": "Loop aktif memakai tokio::select! dengan 3 cabang (SessionCmd, tick keepalive, RxFrame); komentar kode menegaskan seluruh cabang select di sini cancel-safe (recv, tick).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 198,
+        "evidence_line_end": 271,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Loop aktif (baris 198-271, `loop { tokio::select! { ... } }`) memang memakai 3 cabang: outgoing.recv() (200), keepalive.tick() (232), frames.recv() (243) — bagian ini akurat. Tapi komentar yang menegaskan 'semua arm select di sini cancel-safe (`recv`, `tick`)' berada di baris 175, SEBELUM loop dimulai (dalam blok komentar baris 167-175 yang menjelaskan kenapa read_frame dipindah ke task terpisah) — bukan di dalam rentang baris 198-271 yang dikutip sebagai evidence.",
+        "corrected_status": "IMPLEMENTED",
+        "reviewer_notes": "Struktur 3-cabang select benar dan lengkap di 198-271; hanya rujukan baris untuk 'komentar cancel-safe' yang meleset satu blok ke atas (baris 172-175, bukan di dalam 198-271)."
+      },
+      {
+        "original_claim": "SessionCmd::Text diserialisasi sebagai 1 byte tag TYPE_TEXT (0x00) diikuti byte UTF-8 teks, sebelum dienkripsi.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 203,
+        "evidence_line_end": 209,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "SessionCmd::Blur(on) diserialisasi sebagai persis 2 byte: [TYPE_BLUR(0x01), on as u8].",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 210,
+        "evidence_line_end": 210,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Keepalive ping adalah payload plaintext 1 byte [TYPE_PING] yang dienkripsi & dikirim tiap tick; penerima mencocokkan TYPE_PING dan mengabaikannya (tanpa balasan otomatis, tanpa diteruskan ke UI).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 232,
+        "evidence_line_end": 264,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Setelah dekripsi berhasil, dispatch berdasarkan byte pertama: TYPE_TEXT -> Message via from_utf8_lossy; TYPE_BLUR hanya jika panjang >=2 -> PeerBlur(pt[1]==0x01); byte tak dikenal diabaikan tanpa fatal.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 256,
+        "evidence_line_end": 266,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Format payload plaintext: 1 byte tag di depan lalu body. Tiga tag: TYPE_TEXT=0x00, TYPE_BLUR=0x01, TYPE_PING=0x02.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 36,
+        "evidence_line_end": 41,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Framing pada kabel (MAX_FRAME_LEN dsb) didelegasikan ke crate::transport::frame, diimpor tapi tidak didefinisikan di file ini.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 15,
+        "evidence_line_end": 15,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Komentar & test menyatakan batas pesan Noise 65535 byte; kegagalan encrypt akibat itu ditangani sebagai SessionEvent::Notice non-fatal, sesi tetap hidup.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 212,
+        "evidence_line_end": 224,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "run_session menerima local_noise_sk: [u8; 32] dan peer_noise_pk: Option<[u8; 32]> — kunci statis Noise 256-bit sebagai array byte mentah.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 96,
+        "evidence_line_end": 97,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Untuk Role::Initiator, peer_noise_pk wajib Some; jika None -> Err(Error::InvalidKey) sebelum handshake dimulai.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 119,
+        "evidence_line_end": 119,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Untuk Role::Responder, jika peer_noise_pk berisi nilai, dibandingkan dengan hs.remote_static(); ketidakcocokan/absen -> Err(Error::IdentityMismatch), 'fail closed' secara eksplisit di komentar.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 145,
+        "evidence_line_end": 151,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Jika responder memanggil run_session dengan peer_noise_pk=None, tidak ada pengecekan identitas peer sama sekali di jalur kode ini.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 145,
+        "evidence_line_end": 151,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Blok `if let Some(expected) = peer_noise_pk` sepenuhnya dilewati saat None; tidak ada jalur verifikasi lain di file ini."
+      },
+      {
+        "original_claim": "Komentar fungsi menyatakan pola Noise_IK: initiator wajib tahu peer_noise_pk sebelum handshake (pola IK mengasumsikan initiator sudah tahu kunci publik responder), responder baru mempelajari static key initiator selama handshake sehingga verifikasi tambahan diperlukan hanya di sisi responder.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 88,
+        "evidence_line_end": 90,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Baris 88-90 hanya menyatakan: 'peer_noise_pk untuk initiator WAJIB (static key responder yang dituju). Untuk responder, jika Some, dipakai memverifikasi bahwa remote static key cocok dengan kontak yang diharapkan (fail closed bila tidak cocok).' Frasa 'pola IK mengasumsikan initiator sudah tahu kunci publik responder' dan 'responder baru mempelajari static key initiator selama handshake' TIDAK tertulis literal di baris ini — itu adalah pengetahuan umum protokol Noise_IK yang ditambahkan auditor sebagai penjelasan, bukan isi komentar file session/mod.rs.",
+        "corrected_status": "DOCUMENTED_ONLY",
+        "reviewer_notes": "Substansi (peer_noise_pk wajib utk initiator, dipakai verifikasi opsional di responder) akurat, tapi rasionalisasi protokol Noise_IK di baliknya adalah interpretasi auditor, bukan kutipan dari file."
+      },
+      {
+        "original_claim": "KEEPALIVE_INTERVAL 30 detik (non-test), 5 milidetik (#[cfg(test)]); komentar menjelaskan sengaja tidak memakai start_paused karena clock palsu tidak deterministik antar platform.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 59,
+        "evidence_line_end": 68,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Doc-comment test keepalive_ping_is_not_delivered_as_message menyatakan 'KEEPALIVE_INTERVAL sudah 50 ms di build test', padahal konstanta sebenarnya 5 ms — komentar dan kode tidak konsisten.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 68,
+        "evidence_line_end": 68,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 68: from_millis(5). Doc comment di baris 460 memang literal berbunyi '`KEEPALIVE_INTERVAL` sudah 50 ms di build test' — inkonsistensi terverifikasi."
+      },
+      {
+        "original_claim": "Tick pertama interval yang selesai seketika sengaja 'dihabiskan' lewat keepalive.tick().await sebelum loop utama; MissedTickBehavior diset Delay.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 192,
+        "evidence_line_end": 196,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Kegagalan session.encrypt() saat kirim pesan chat tidak mematikan sesi (Notice + continue); hanya kegagalan I/O write_frame setelah enkripsi berhasil yang break loop.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 212,
+        "evidence_line_end": 227,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Kegagalan session.decrypt() pada frame masuk langsung break ('fail closed'); sesudahnya tetap kirim StateChanged(Closed) dan return Ok(()), bukan Err, tanpa event Error terpisah.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 253,
+        "evidence_line_end": 279,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Deteksi koneksi mati selama sesi aktif sepenuhnya bergantung pada kegagalan write_frame, bukan ping tak terbalas — dinyatakan eksplisit sebagai keterbatasan disengaja (komentar ponytail).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 54,
+        "evidence_line_end": 58,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "reader.abort() dipanggil eksplisit setelah loop select selesai, karena drop channel saja tidak membangunkan task pembaca yang menunggu I/O dari peer diam.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 273,
+        "evidence_line_end": 275,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "File ini tidak mengimpor/memakai crate logging (log::/tracing::); seluruh pelaporan status ke UI lewat channel SessionEvent.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 10,
+        "evidence_line_end": 16,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Grep 'log::' dan 'tracing::' di seluruh file: nihil hasil."
+      },
+      {
+        "original_claim": "File ini tidak berisi storage persisten — plaintext masuk hanya diteruskan sebagai event in-memory ke UI; buffer plaintext lokal (payload, pt) adalah Vec<u8> biasa tanpa zeroize.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 253,
+        "evidence_line_end": 266,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Buffer `pt` (hasil decrypt, baris 253: `let mut pt = vec![0u8; frame.len()];`) memang plain Vec<u8> tanpa zeroize, dan penyaluran ke UI di rentang 256-266 murni lewat events.send() in-memory — bagian ini akurat untuk rentang baris 253-266. Tapi buffer `payload` (untuk pesan KELUAR, dibangun via `Vec::with_capacity` dan `p.push`/`extend_from_slice`) sebenarnya berada di baris 205-211, DI LUAR rentang evidence 253-266 yang dikutip — bukan berarti klaimnya salah (payload juga plain Vec<u8> tanpa zeroize), hanya kutipan barisnya tidak mencakup lokasi variabel itu.",
+        "corrected_status": "NOT_FOUND",
+        "reviewer_notes": "Grep 'zeroize' di seluruh file: nihil hasil, jadi kesimpulan 'tanpa zeroize' tetap benar untuk kedua buffer (payload maupun pt); hanya rentang baris yang dikutip tidak mencakup lokasi definisi `payload`."
+      },
+      {
+        "original_claim": "SessionEvent (StateChanged, Message, PeerBlur, PeerLeft, Notice, Error) adalah satu-satunya antarmuka keluar dari run_session ke UI lewat UnboundedSender<SessionEvent>.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 70,
+        "evidence_line_end": 84,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test lan_session_message_roundtrip: integration test 2 task run_session di TCP loopback, handshake Noise_IK penuh, verifikasi pesan dua arah lewat SessionCmd::Text/SessionEvent::Message.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 302,
+        "evidence_line_end": 358,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test blur_toggle_roundtrip: verifikasi byte tag TYPE_BLUR roundtrip end-to-end — initiator SessionCmd::Blur(true), responder terima SessionEvent::PeerBlur(true).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 363,
+        "evidence_line_end": 404,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test oversized_message_does_not_kill_session: kirim 70.000 byte, verifikasi SessionEvent::Notice 'terlalu besar' (bukan Error), lalu pesan normal berikutnya tetap terkirim.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 409,
+        "evidence_line_end": 457,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test keepalive_ping_is_not_delivered_as_message: tunggu 3x KEEPALIVE_INTERVAL tanpa trafik, lalu kirim pesan asli; pesan pertama di event stream adalah pesan asli, bukan ping.",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 462,
+        "evidence_line_end": 498,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test responder_rejects_unknown_peer: responder diberi peer_noise_pk salah; run_session responder mengembalikan Err(Error::IdentityMismatch).",
+        "evidence_file": "src/session/mod.rs",
+        "evidence_line_start": 502,
+        "evidence_line_end": 553,
+        "verdict": "CONFIRMED"
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "Enkripsi/dekripsi pesan sesi (session.encrypt / session.decrypt di atas EncryptedSession hasil handshake)",
+        "verdict": "CONFIRMED",
+        "corrections": "Semua field terverifikasi cocok dengan kode: buffer ciphertext payload.len()+16 (baris 212) dan 1+16 untuk ping (baris 233) memang tidak diberi konstanta bernama, murni literal 16; tidak ada `use snow::` langsung (hanya via crate::crypto::handshake::HandshakeSession, baris 13); tidak ada parameter AAD pada pemanggilan session.encrypt(&payload,&mut ct) baris 216 maupun session.decrypt(&frame,&mut pt) baris 254; hs.into_transport() muncul persis di baris 133 (initiator) dan 157 (responder); tidak ada import zeroize di file ini (grep nihil). Tidak ada kesalahan faktual ditemukan."
+      },
+      {
+        "primitive_name": "Handshake Noise_IK (key agreement) yang diorkestrasi dari run_session",
+        "verdict": "CONFIRMED",
+        "corrections": "Baris untuk cabang Initiator (117-134) dan Responder (135-159) terverifikasi cocok, termasuk sub-referensi: komentar '-> e, es, s, ss' baris 122, pembacaan EOF-check initiator baris 128-130; komentar '<- e, es, s, ss' baris 138 + pembacaan 139-143 untuk responder; verifikasi identitas baris 145-151; komentar '-> e, ee, se' baris 153 + penulisan 154-155. Error::InvalidKey baris 119 dan Error::ConnectionClosed baris 128-130 (initiator)/140-142 (responder) juga cocok persis. Tidak ada kesalahan faktual signifikan; hanya catatan kecil bahwa sub-kutipan '<- e, ee, se (baris 127-131)' untuk initiator tidak menyertakan baris komentar itu sendiri (ada di baris 126, satu baris sebelum rentang yang dikutip) — tidak material terhadap kebenaran klaim."
+      },
+      {
+        "primitive_name": "Representasi kunci Noise sebagai array byte mentah pada boundary fungsi (local_noise_sk, peer_noise_pk)",
+        "verdict": "CONFIRMED",
+        "corrections": "Signature run_session baris 96-97 cocok persis: local_noise_sk: [u8; 32], peer_noise_pk: Option<[u8; 32]>. Diteruskan by-reference ke HandshakeSession::new_initiator (baris 120) dan new_responder (baris 136), sesuai klaim. Tidak ada crate serialisasi (serde/base64/hex) dipakai langsung di file ini, dan tidak ada wrapper zeroize pada tipe ini — keduanya terverifikasi lewat pembacaan penuh file dan grep."
+      }
+    ]
+  }
+}

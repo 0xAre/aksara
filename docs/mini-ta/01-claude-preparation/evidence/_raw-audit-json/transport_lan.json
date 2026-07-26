@@ -1,0 +1,726 @@
+{
+  "module": "transport_lan",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "Modul mDNS discovery: responder mengiklankan service `_aksara._tcp.local.` (const SERVICE_TYPE) dengan TXT record berisi fingerprint Ed25519 (`fp=<hex>`); initiator browse service yang sama dan mencocokkan fingerprint dengan kontak dikenal sebelum dial ke alamat:port yang diiklankan.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 21,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Yang diiklankan via mDNS hanya fingerprint Ed25519 (identitas yang sudah dikenal kontak); X25519 Noise key TIDAK diiklankan, sehingga mDNS tidak membocorkan material handshake.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 11,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Ini pernyataan negatif (apa yang TIDAK dikirim) — diverifikasi dari struct props di advertise() (baris 90) yang hanya berisi pasangan (\"fp\", fingerprint), tidak ada field kunci X25519."
+      },
+      {
+        "category": "limitation",
+        "claim": "Komentar modul mengakui adanya metadata leak level LAN (kehadiran identitas dapat diamati pihak lain di LAN yang sama) sebagai trade-off yang 'dapat diterima untuk M1'; disebutkan pengerasan (hardening) menyusul di rilis berikutnya.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 12,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "MAX_LABEL_LEN=32 byte dipilih sebagai margin aman: DNS label dibatasi ≤63 byte, dan crate mdns-sd 0.20.0 (menurut komentar) menegakkan batas ini lewat assert! internal saat encode paket — jika terlampaui, thread mDNS_daemon akan panic (bukan error Result yang bisa ditangani).",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 23,
+        "evidence_line_end": 27,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "MEDIUM",
+        "notes": "Klaim perilaku internal mdns-sd (assert! yang panic) berasal dari komentar source project sendiri, bukan dari pembacaan langsung source crate mdns-sd 0.20.0 dalam audit ini — tidak diverifikasi independen."
+      },
+      {
+        "category": "data_flow",
+        "claim": "fn safe_label(s: &str) -> String memendekkan string ke ≤ MAX_LABEL_LEN (32) dengan iterasi per-char (bukan byte mentah), berhenti sebelum melebihi batas agar tidak pernah memotong karakter UTF-8 multi-byte di tengah.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 33,
+        "evidence_line_end": 42,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "fn is_lan_dialable(ip) menolak alamat IPv4 loopback, unspecified (0.0.0.0), dan link-local (169.254.x/APIPA); seluruh alamat IPv6 ditolak (di-skip) karena discovery LAN difokuskan ke IPv4 saja.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 50,
+        "evidence_line_end": 55,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "fn local_lan_ips() mengenumerasi interface jaringan lokal via if_addrs::get_if_addrs(), memfilter dengan is_lan_dialable; jika enumerasi gagal, fungsi diam-diam mengembalikan Vec kosong (unwrap_or_default) tanpa error eksplisit.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 58,
+        "evidence_line_end": 68,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "struct DiscoveredPeer { fingerprint: String, addr: SocketAddr } merepresentasikan peer hasil resolve mDNS; fingerprint disimpan sebagai String hex mentah, bukan tipe kunci kriptografi yang terstruktur.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 71,
+        "evidence_line_end": 74,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "fn new_daemon() membuat ServiceDaemon (mdns-sd) baru, membungkus error menjadi Error::Mdns(e.to_string()).",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 77,
+        "evidence_line_end": 79,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "packet_format",
+        "claim": "fn advertise() membangun hostname `{safe_label(fingerprint)}.local.` dan instance name safe_label(fingerprint) sebagai DNS label pendek; fingerprint lengkap (64 hex char) tetap dibawa utuh di TXT record properti \"fp\" dan itulah yang dipakai untuk matching saat browse.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 82,
+        "evidence_line_end": 90,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "advertise() lebih memilih mengiklankan hanya IP LAN nyata hasil local_lan_ips() (join CSV) daripada enable_addr_auto() yang menyiarkan semua interface termasuk link-local 169.254.x adapter virtual (WSL/Hyper-V/Bluetooth); fallback ke enable_addr_auto() hanya bila enumerasi IP kosong/gagal.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 92,
+        "evidence_line_end": 110,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "fn spawn_browse() menjalankan std::thread::spawn terpisah untuk mengonsumsi event mDNS browse (blocking receiver.recv()), agar tidak memblokir runtime async tokio; thread berhenti saat channel tx ditutup oleh konsumer atau saat receiver mDNS berhenti mengirim event.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 120,
+        "evidence_line_end": 155,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Dalam loop browse, hanya ServiceEvent::ServiceResolved yang ditangani; peer tanpa properti TXT \"fp\" (get_property_val_str(\"fp\") = None) dilewati (continue) tanpa dikirim ke konsumer.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 126,
+        "evidence_line_end": 132,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Untuk setiap alamat yang diiklankan peer (info.get_addresses()), difilter ulang dengan is_lan_dialable (defense-in-depth terhadap peer versi lama yang mungkin masih menyiarkan alamat non-dialable via enable_addr_auto) sebelum dikirim sebagai DiscoveredPeer{fingerprint, addr} ke channel tx.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 133,
+        "evidence_line_end": 149,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Seluruh operasi mdns-sd fallible di lan.rs (ServiceDaemon::new, ServiceInfo::new, daemon.register, daemon.browse) diseragamkan melalui pola .map_err(|e| Error::Mdns(e.to_string())), mengubah error asli mdns-sd menjadi String di dalam varian Error::Mdns.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 78,
+        "evidence_line_end": 123,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Pola berulang di baris 78, 100, 109, 113, 123."
+      },
+      {
+        "category": "testing",
+        "claim": "#[test] safe_label_truncates_full_fingerprint_below_dns_limit: menguji fingerprint hex 64 karakter dipendekkan safe_label ke panjang ≤ MAX_LABEL_LEN (32) dan < 64.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 161,
+        "evidence_line_end": 168,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[test] safe_label_leaves_short_input_untouched: menguji safe_label(\"abc123\") mengembalikan string identik tanpa perubahan karena sudah di bawah batas.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 170,
+        "evidence_line_end": 173,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[test] lan_dialable_accepts_private_rejects_linklocal_and_loopback: menguji is_lan_dialable menerima IPv4 privat (192.168.94.99, 10.0.0.5) dan menolak link-local APIPA (169.254.157.99), loopback IPv4, unspecified IPv4, serta loopback IPv6.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 176,
+        "evidence_line_end": 187,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[test] safe_label_never_splits_multibyte_char: menguji input 17 karakter 'é' (2 byte/char, total 34 byte) dipotong safe_label tanpa memecah karakter multi-byte, hasil tetap ≤ MAX_LABEL_LEN dan valid pada is_char_boundary.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 190,
+        "evidence_line_end": 197,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Doc-comment modul transport menyatakan roadmap: M1 = LAN (mDNS + direct TCP), M2 = Tor onion service via arti-client, dengan strategi fallback LAN-first → Tor.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 4,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "const LAN_AUTO_TIMEOUT: Duration = 3 detik — batas waktu percobaan LAN sebelum fallback ke Tor, sesuai komentar mengacu ke PRD.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 24,
+        "evidence_line_end": 25,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "enum Role { Initiator, Responder } merepresentasikan peran dalam handshake Noise_IK; komentar menyatakan peran ditentukan deterministik dari perbandingan fingerprint agar kedua sisi tidak sama-sama mendial.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 27,
+        "evidence_line_end": 33,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Klaim tentang Noise_IK sendiri (algoritma handshake) tidak diverifikasi di 3 file ini — hanya disebut di komentar; implementasi Noise_IK berada di modul crypto yang tidak diaudit di sini."
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "fn role_from_fp(my_fp, target_fp) menentukan Role::Initiator jika my_fp < target_fp (perbandingan string leksikografis biasa Rust &str), selain itu Role::Responder.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 101,
+        "evidence_line_end": 107,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Perbandingan memakai operator `<` bawaan &str (byte-wise), bukan perbandingan constant-time. Risiko timing side-channel dinilai rendah di sini karena kedua fingerprint yang dibandingkan bukan rahasia (sudah saling diketahui via kontak), tetapi ini bukan hal yang dipastikan aman secara umum — tidak ada penjelasan eksplisit di kode soal ini."
+      },
+      {
+        "category": "architecture",
+        "claim": "enum LanMode { Auto, Listen(u16), Dial(SocketAddr), Off } — Auto: role dari fingerprint + discovery mDNS; Listen/Dial: paksa role untuk testing; Off: lewati LAN sepenuhnya (untuk kontak onion-only), ditandai #[allow(dead_code)] dengan catatan 'belum di-wire ke UI' (default app pakai Auto).",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 35,
+        "evidence_line_end": 48,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "enum Conn { Tcp(TcpStream), Tor(DataStream) } membungkus dua jenis koneksi transport dan mendelegasikan AsyncRead/AsyncWrite (poll_read/poll_write/poll_flush/poll_shutdown) ke variant aktif; ditandai #[allow(clippy::large_enum_variant)] dengan alasan Conn dibuat sekali per sesi sehingga boxing dianggap tidak perlu.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 50,
+        "evidence_line_end": 99,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "fn establish() mengorkestrasi koneksi: role ditentukan dari LanMode/perbandingan fingerprint; tor_available = tor.is_some() && onion.is_some(); LAN dicoba dulu (kecuali LanMode::Off) dengan timeout LAN_AUTO_TIMEOUT HANYA jika LanMode::Auto dan Tor tersedia — pada mode LAN-only, tunggu tanpa batas waktu (sampai pengguna Esc, menurut komentar) sampai peer masuk.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 118,
+        "evidence_line_end": 155,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "Jika LAN gagal dan Tor tidak tersedia, establish() langsung mengembalikan error LAN asli (bukan fallback dipaksakan); jika Tor tersedia, lanjut ke tahap Tor dengan role sama: Initiator memanggil tor_dial_with_retry, Responder memanggil tor.accept_timeout(TOR_ACCEPT_TIMEOUT) dan mengembalikan Error::ConnectionClosed bila tidak ada koneksi masuk.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 148,
+        "evidence_line_end": 171,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "fn tor_dial_with_retry melakukan retry dial ke onion address peer dengan delay tetap TOR_DIAL_RETRY_DELAY=8 detik antar percobaan, sampai total timeout TOR_DIAL_TOTAL_TIMEOUT=120 detik; komentar menjelaskan ini mengakomodasi keterlambatan propagasi onion descriptor (~1-3 menit setelah bootstrap Tor).",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 109,
+        "evidence_line_end": 197,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "fn try_lan mendispatch berdasarkan LanMode: Dial→TcpStream::connect(addr); Listen→bind port lalu accept satu koneksi; Auto→lan_auto(); Off→langsung Err(Error::ConnectionClosed); opsional dibungkus tokio::time::timeout jika parameter timeout diberikan, mengonversi timeout menjadi Error::ConnectionClosed.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 201,
+        "evidence_line_end": 227,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "lan_auto() jalur Responder: bind TcpListener ephemeral di 0.0.0.0:0, ambil port lokal, panggil lan::advertise(daemon, my_fp, port), accept koneksi masuk pertama, lalu shutdown daemon mDNS (daemon.shutdown(), error diabaikan via let _ =).",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 229,
+        "evidence_line_end": 239,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "lan_auto() jalur Initiator: spawn browse mDNS, loop menerima kandidat peer, filter fingerprint==target_fp, dedupe alamat yang sudah dicoba via HashSet<SocketAddr>, coba TcpStream::connect ke tiap alamat baru — lanjut ke alamat berikutnya jika gagal (menyimpan last_err), bukan menyerah di percobaan pertama; berhenti sukses saat connect berhasil (lalu shutdown daemon) atau channel tertutup (kembalikan last_err atau Error::ConnectionClosed).",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 240,
+        "evidence_line_end": 274,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "transport/mod.rs dan lan.rs mereferensikan varian Error::Io, Error::Mdns, Error::Tor, Error::ConnectionClosed, Error::FrameTooLarge dari crate::error::Error, tetapi definisi enum Error tidak berada di 3 file yang diaudit sehingga daftar varian lengkap serta implementasi Display/std::error::Error-nya tidak dapat dipastikan dari sini.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 21,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "category": "packet_format",
+        "claim": "Format frame di kabel: [2-byte big-endian length][payload]. Doc-comment modul menyatakan batas 2 byte = 65535 byte per frame, kebetulan sama persis dengan batas maksimum satu pesan Noise (spec Noise=65535), sehingga 1 frame = 1 Noise message tanpa fragmentasi di layer ini.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 9,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "MEDIUM",
+        "notes": "Bagian yang diverifikasi langsung dari kode: const MAX_FRAME_LEN=65535 dan penegakannya oleh write_frame/read_frame (lihat claim terpisah). Klaim padanan 'frame = satu Noise message' adalah asersi komentar; frame.rs sendiri TIDAK melakukan enkripsi/dekripsi Noise apa pun — hanya framing byte mentah generik di atas AsyncRead/AsyncWrite. Verifikasi bahwa payload benar-benar selalu berupa satu ciphertext Noise message berada di luar 3 file yang diaudit (kemungkinan di modul session/crypto)."
+      },
+      {
+        "category": "packet_format",
+        "claim": "pub const MAX_FRAME_LEN: usize = 65535 — ukuran maksimum payload satu frame, persis batas atas nilai u16.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 16,
+        "evidence_line_end": 16,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "async fn write_frame(w, payload) menolak payload.len() > MAX_FRAME_LEN dengan Error::FrameTooLarge; jika lolos, menulis 2-byte big-endian length ((payload.len() as u16).to_be_bytes()) lalu payload, lalu flush().",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 19,
+        "evidence_line_end": 31,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "async fn read_frame(r, buf) membaca 2-byte length header via read_exact; UnexpectedEof saat membaca header ditafsirkan sebagai koneksi ditutup bersih dan mengembalikan Ok(0) (bukan error) — dikonsumsi pemanggil sebagai 'peer keluar dari room'. Error IO lain dibungkus Error::Io. Jika panjang yang dideklarasikan (u16::from_be_bytes) melebihi kapasitas buf, dikembalikan Error::FrameTooLarge sebelum membaca payload. Selanjutnya read_exact membaca persis len byte ke buf.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 37,
+        "evidence_line_end": 56,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Komentar di atas test read_frame_yang_dibatalkan_merusak_sinkronisasi_stream menyatakan read_frame TIDAK cancel-safe: jika future-nya dibatalkan (mis. kalah dalam tokio::select!) di tengah pembacaan payload, byte yang sudah terkonsumsi hilang bersama future, sehingga pembacaan berikutnya menafsirkan sisa payload lama sebagai header panjang baru — stream desync dan rusak. Ini disebut sebagai alasan session::run_session wajib menjalankan pembacaan frame di task terpisah, bukan sebagai arm tokio::select!.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 97,
+        "evidence_line_end": 104,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "HIGH",
+        "notes": "Perilaku non-cancel-safe ini didemonstrasikan langsung oleh test di baris 105-141 (bukan sekadar diklaim di komentar) — lihat claim testing terkait. Klaim tentang session::run_session sendiri tidak diverifikasi karena file session.rs tidak termasuk dalam 3 file yang diaudit."
+      },
+      {
+        "category": "testing",
+        "claim": "#[tokio::test] frame_roundtrip: menguji write_frame lalu read_frame lewat tokio::io::duplex(4096) menghasilkan kembali payload persis sama (b\"halo dunia terenkripsi\").",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 62,
+        "evidence_line_end": 72,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[tokio::test] multiple_frames_in_order: menguji dua write_frame berurutan (\"satu\", \"dua\") dibaca kembali dengan read_frame dua kali secara berurutan dan batas payload benar (tidak tercampur).",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 86,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[tokio::test] eof_returns_zero: menguji bila sisi penulis (a) di-drop, read_frame pada sisi pembaca (b) mengembalikan Ok(0), bukan Err.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 88,
+        "evidence_line_end": 95,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[tokio::test] read_frame_yang_dibatalkan_merusak_sinkronisasi_stream: mensimulasikan pembatalan read_frame (via tokio::time::timeout 50ms saat separuh payload 300-byte terkirim), lalu mengirim sisa payload + satu frame kedua utuh (\"frame kedua\"); test mengasersi pembacaan berikutnya TIDAK menghasilkan \"frame kedua\" yang utuh (baik Err maupun payload salah dihitung sebagai 'rusak'), membuktikan read_frame bukan cancel-safe.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 105,
+        "evidence_line_end": 141,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "testing",
+        "claim": "#[tokio::test] oversized_payload_rejected: menguji write_frame dengan payload sepanjang MAX_FRAME_LEN+1 byte mengembalikan Err(Error::FrameTooLarge).",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 143,
+        "evidence_line_end": 151,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "Fingerprint Ed25519 (hex string, diperlakukan opaque)",
+        "category": "other",
+        "algorithm": "Ed25519 — disebut hanya di komentar sebagai sumber fingerprint (hex 64 char = 32 byte pubkey); tidak ada pemanggilan API pembangkitan/verifikasi tanda tangan di 3 file yang diaudit.",
+        "library_crate": "ed25519-dalek 2.2.0 (versi ter-resolve project menurut Cargo.lock) — TIDAK dipanggil/di-import di src/transport/lan.rs, mod.rs, atau frame.rs; fingerprint di sini hanya berupa &str/String biasa.",
+        "key_size_bits": "Tidak dapat dipastikan dari file ini secara langsung — komentar advertise() menyebut 'Fingerprint Ed25519 hex panjangnya 64 char' (lan.rs baris 84-86), konsisten dengan representasi hex dari digest/pubkey 32 byte (256 bit), tetapi derivasi/format pastinya tidak terlihat di 3 file yang diaudit.",
+        "nonce_or_iv_size_bytes": "n/a",
+        "tag_size_bytes": "n/a",
+        "function_in_system": "Dipakai sebagai identifier untuk (a) TXT record mDNS agar initiator bisa mencocokkan peer dengan kontak dikenal (lan.rs baris 90, 128-131, 142-145), dan (b) penentuan Role::Initiator/Responder via perbandingan string leksikografis my_fp < target_fp (mod.rs baris 101-107). BUKAN dipakai untuk operasi verifikasi tanda tangan kriptografis di modul ini.",
+        "key_generation": "Tidak terlihat di 3 file yang diaudit — kemungkinan dibangkitkan di modul identity (di luar cakupan audit ini).",
+        "key_storage": "Tidak terlihat di 3 file yang diaudit.",
+        "key_rotation_or_distribution": "Tidak ada mekanisme rotasi terlihat di 3 file yang diaudit.",
+        "error_handling": "n/a untuk operasi kriptografi — error yang ada di sekitar fingerprint hanya error mDNS/DNS-label (Error::Mdns) yang muncul karena label DNS terlalu panjang, bukan error dari operasi Ed25519.",
+        "misuse_risk_notes": "(1) role_from_fp (mod.rs 101-107) membandingkan fingerprint pakai operator `<` bawaan &str (byte-wise, non-constant-time) — bukan operasi kriptografi rahasia, dan risiko timing side-channel dinilai rendah karena kedua fingerprint sudah publik/diketahui kedua pihak, namun tidak ada penjelasan eksplisit di kode soal pertimbangan ini. (2) Fingerprint diiklankan sebagai plaintext di TXT record mDNS yang dapat diamati siapa pun di LAN yang sama (lan.rs baris 90) — file sendiri mengakui ini sebagai metadata/presence leak yang diterima untuk M1 (lan.rs baris 9-12), bukan kebocoran material handshake X25519. (3) Tidak ada zeroization (ZeroizeOnDrop) terlihat di 3 file ini untuk fingerprint karena fingerprint bukan rahasia (data publik identitas), sehingga zeroize memang tidak relevan di sini.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 5,
+        "evidence_line_end": 90,
+        "evidence_line_end_alt": null,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  "verified": {
+    "module": "transport_lan",
+    "verified_claims": [
+      {
+        "original_claim": "Modul mDNS discovery: responder mengiklankan _aksara._tcp.local. dengan TXT fp=<hex>; initiator browse dan cocokkan fingerprint sebelum dial.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 21,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Yang diiklankan via mDNS hanya fingerprint Ed25519; X25519 Noise key TIDAK diiklankan.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 11,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Komentar modul mengakui metadata leak level LAN sebagai trade-off yang 'dapat diterima untuk M1', pengerasan menyusul.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 12,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "MAX_LABEL_LEN=32 dipilih sebagai margin aman terhadap batas 63 byte DNS label; komentar menyebut mdns-sd menegakkan lewat assert! internal yang panic bila terlampaui.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 23,
+        "evidence_line_end": 27,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn safe_label memendekkan string ke ≤32 dengan iterasi per-char, berhenti sebelum memotong karakter UTF-8 multi-byte.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 33,
+        "evidence_line_end": 42,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn is_lan_dialable menolak loopback, unspecified, link-local IPv4; seluruh IPv6 ditolak.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 50,
+        "evidence_line_end": 55,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn local_lan_ips enumerasi via if_addrs::get_if_addrs, filter is_lan_dialable, gagal → Vec kosong via unwrap_or_default.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 58,
+        "evidence_line_end": 68,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "struct DiscoveredPeer { fingerprint: String, addr: SocketAddr }.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 71,
+        "evidence_line_end": 74,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn new_daemon() membuat ServiceDaemon baru, membungkus error ke Error::Mdns(e.to_string()).",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 77,
+        "evidence_line_end": 79,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn advertise() membangun hostname/instance name via safe_label(fingerprint); fingerprint lengkap dibawa di TXT 'fp' untuk matching saat browse.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 82,
+        "evidence_line_end": 90,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "advertise() memilih IP LAN nyata via local_lan_ips() daripada enable_addr_auto(); fallback ke enable_addr_auto() bila enumerasi kosong/gagal.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 92,
+        "evidence_line_end": 110,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn spawn_browse() menjalankan thread terpisah (blocking recv) agar tidak memblokir runtime async; berhenti saat tx ditutup atau receiver mDNS berhenti mengirim event.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 120,
+        "evidence_line_end": 155,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Hanya ServiceEvent::ServiceResolved ditangani; peer tanpa TXT 'fp' dilewati (continue).",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 126,
+        "evidence_line_end": 132,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Alamat peer difilter ulang dengan is_lan_dialable (defense-in-depth) sebelum dikirim sebagai DiscoveredPeer ke channel tx.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 133,
+        "evidence_line_end": 149,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Operasi mdns-sd fallible diseragamkan via .map_err(|e| Error::Mdns(e.to_string())), berulang di baris 78, 100, 109, 113, 123.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 78,
+        "evidence_line_end": 123,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Diverifikasi via grep: pola persis muncul di kelima baris yang disebut (78, 100, 109, 113, 123)."
+      },
+      {
+        "original_claim": "#[test] safe_label_truncates_full_fingerprint_below_dns_limit: fingerprint 64-char dipendekkan ke ≤32 dan <64.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 161,
+        "evidence_line_end": 168,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[test] safe_label_leaves_short_input_untouched: safe_label(\"abc123\") == \"abc123\".",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 170,
+        "evidence_line_end": 173,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[test] lan_dialable_accepts_private_rejects_linklocal_and_loopback: terima IPv4 privat, tolak APIPA/loopback/unspecified/loopback IPv6.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 176,
+        "evidence_line_end": 187,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[test] safe_label_never_splits_multibyte_char: 17x 'é' (34 byte) dipotong tanpa memecah char, hasil ≤32 dan valid char boundary.",
+        "evidence_file": "src/transport/lan.rs",
+        "evidence_line_start": 190,
+        "evidence_line_end": 197,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Doc-comment modul transport: M1=LAN(mDNS+TCP), M2=Tor via arti-client, fallback LAN-first→Tor.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 4,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "const LAN_AUTO_TIMEOUT: Duration = 3 detik, batas percobaan LAN sebelum fallback Tor.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 24,
+        "evidence_line_end": 25,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "enum Role { Initiator, Responder }; komentar: peran deterministik dari perbandingan fingerprint.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 27,
+        "evidence_line_end": 33,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn role_from_fp: Role::Initiator jika my_fp < target_fp (operator < bawaan &str), selain itu Role::Responder.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 101,
+        "evidence_line_end": 107,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "enum LanMode { Auto, Listen(u16), Dial(SocketAddr), Off }, Off ditandai #[allow(dead_code)] dengan catatan belum di-wire ke UI.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 35,
+        "evidence_line_end": 48,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "enum Conn { Tcp(TcpStream), Tor(DataStream) } mendelegasikan poll_read/write/flush/shutdown; #[allow(clippy::large_enum_variant)] dengan alasan Conn dibuat sekali per sesi.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 50,
+        "evidence_line_end": 99,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn establish(): role dari LanMode/fingerprint; tor_available = tor.is_some() && onion.is_some(); LAN dicoba dulu, timeout LAN_AUTO_TIMEOUT hanya jika Auto dan Tor tersedia; LAN-only tunggu tanpa batas waktu.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 118,
+        "evidence_line_end": 155,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Jika LAN gagal dan Tor tidak tersedia, kembalikan error LAN asli; jika Tor tersedia, lanjut: Initiator→tor_dial_with_retry, Responder→accept_timeout(TOR_ACCEPT_TIMEOUT) atau Error::ConnectionClosed.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 148,
+        "evidence_line_end": 171,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fn tor_dial_with_retry melakukan retry dial ke onion address dengan delay tetap TOR_DIAL_RETRY_DELAY=8s sampai total timeout TOR_DIAL_TOTAL_TIMEOUT=120s; komentar menjelaskan alasan propagasi onion descriptor (~1-3 menit).",
+        "corrected_claim": "Klaim faktual (delay 8s, total timeout 120s, alasan propagasi descriptor) akurat, tapi evidence_line_start=109/end=197 SALAH sebagai satu blok kontinu: rentang itu justru mencakup seluruh fn establish() (baris 118-172) yang tidak terkait tor_dial_with_retry. Lokasi yang benar: const TOR_DIAL_TOTAL_TIMEOUT/TOR_DIAL_RETRY_DELAY/TOR_ACCEPT_TIMEOUT di baris 109-116; doc-comment + fn tor_dial_with_retry sendiri di baris 174-197 (deklarasi fn di baris 180, isi retry-loop baris 186-196).",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 109,
+        "evidence_line_end": 197,
+        "verdict": "CORRECTED",
+        "reviewer_notes": "Isi klaim tidak fabrikasi -- hanya rentang baris yang diberikan tidak presisi/menyesatkan karena melompati fungsi lain yang tidak terkait."
+      },
+      {
+        "original_claim": "fn try_lan mendispatch berdasarkan LanMode (Dial/Listen/Auto/Off), opsional dibungkus tokio::time::timeout yang dikonversi ke Error::ConnectionClosed.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 201,
+        "evidence_line_end": 227,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "lan_auto() jalur Responder: bind ephemeral port, advertise, accept satu koneksi, shutdown daemon (error diabaikan).",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 229,
+        "evidence_line_end": 239,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "lan_auto() jalur Initiator: browse, filter fingerprint, dedupe via HashSet<SocketAddr>, coba tiap alamat baru, lanjut ke berikutnya jika gagal (simpan last_err), berhenti sukses (shutdown daemon) atau channel tertutup.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 240,
+        "evidence_line_end": 274,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "transport/mod.rs dan lan.rs mereferensikan varian Error::Io, Error::Mdns, Error::Tor, Error::ConnectionClosed, Error::FrameTooLarge dari crate::error::Error; definisi enum Error tidak berada di 3 file yang diaudit.",
+        "corrected_claim": "transport/mod.rs mereferensikan Error::Io (baris 210, 263), Error::Tor (baris 158, 161), Error::ConnectionClosed (baris 168, 217, 224, 269); transport/lan.rs mereferensikan Error::Mdns (baris 78, 100, 109, 113, 123). Error::FrameTooLarge TIDAK muncul sama sekali di mod.rs atau lan.rs -- varian ini hanya direferensikan di src/transport/frame.rs (baris 24, 51, 150). Definisi lengkap enum Error memang tidak berada di 3 file yang diaudit, itu bagian yang benar.",
+        "evidence_file": "src/transport/mod.rs",
+        "evidence_line_start": 21,
+        "evidence_line_end": 21,
+        "verdict": "CORRECTED",
+        "reviewer_notes": "Diverifikasi via grep di kedua file: Error::FrameTooLarge nihil di mod.rs maupun lan.rs, hanya ada di frame.rs. Sisa varian yang disebut memang benar direferensikan (walau tidak semuanya di kedua file -- Mdns hanya di lan.rs, Io/Tor/ConnectionClosed hanya di mod.rs)."
+      },
+      {
+        "original_claim": "Format frame: [2-byte big-endian length][payload]; batas 2 byte=65535 sama dengan batas maksimum Noise message, 1 frame=1 Noise message tanpa fragmentasi.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 9,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "pub const MAX_FRAME_LEN: usize = 65535.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 16,
+        "evidence_line_end": 16,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "async fn write_frame menolak payload>MAX_FRAME_LEN dengan Error::FrameTooLarge; jika lolos tulis 2-byte BE length lalu payload lalu flush().",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 19,
+        "evidence_line_end": 31,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "async fn read_frame: UnexpectedEof saat baca header→Ok(0); error IO lain→Error::Io; panjang > buf.len()→Error::FrameTooLarge sebelum baca payload; read_exact membaca persis len byte.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 37,
+        "evidence_line_end": 56,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Komentar di atas test cancel-safety menyatakan read_frame TIDAK cancel-safe, alasan session::run_session wajib pakai task terpisah bukan arm select!.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 97,
+        "evidence_line_end": 104,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[tokio::test] frame_roundtrip: write_frame lalu read_frame via tokio::io::duplex menghasilkan payload identik.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 62,
+        "evidence_line_end": 72,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[tokio::test] multiple_frames_in_order: dua write_frame berurutan dibaca kembali dua kali berurutan, batas payload benar.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 86,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[tokio::test] eof_returns_zero: penulis di-drop, read_frame pembaca mengembalikan Ok(0).",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 88,
+        "evidence_line_end": 95,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[tokio::test] read_frame_yang_dibatalkan_merusak_sinkronisasi_stream: simulasi pembatalan via timeout 50ms saat separuh payload 300-byte terkirim, membuktikan stream desync/rusak.",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 105,
+        "evidence_line_end": 141,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "#[tokio::test] oversized_payload_rejected: write_frame dengan payload MAX_FRAME_LEN+1 byte mengembalikan Err(Error::FrameTooLarge).",
+        "evidence_file": "src/transport/frame.rs",
+        "evidence_line_start": 143,
+        "evidence_line_end": 151,
+        "verdict": "CONFIRMED"
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "Fingerprint Ed25519 (hex string, diperlakukan opaque)",
+        "verdict": "CONFIRMED",
+        "corrections": "Semua field akurat: dikonfirmasi via grep bahwa tidak ada import/pemanggilan ed25519-dalek atau x25519-dalek di lan.rs/mod.rs/frame.rs -- 'Ed25519'/'X25519' hanya muncul di komentar (lan.rs baris 5, 9-10, 84, 163). Tipe fingerprint memang &str/String biasa di seluruh 3 file (DiscoveredPeer.fingerprint: String; my_fp/target_fp: &str). Komentar '64 char' dikonfirmasi persis di lan.rs baris 85. Fungsi dalam sistem (TXT matching lan.rs 90/128-131/142-145; role_from_fp mod.rs 101-107), misuse_risk_notes (perbandingan non-constant-time via operator < bawaan &str, plaintext di TXT record lan.rs 90, pengakuan metadata leak lan.rs 9-12) semuanya sesuai kode. Tidak ada fabrikasi ditemukan."
+      }
+    ]
+  }
+}

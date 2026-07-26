@@ -1,0 +1,399 @@
+{
+  "module": "transport_tor",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "TorContext menyatukan client arti-client yang sudah bootstrap, handle onion service yang berjalan (_service), alamat .onion sendiri, dan channel penerima stream masuk (incoming) dalam satu struct.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 40,
+        "evidence_symbol": "TorContext",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "comm_model",
+        "claim": "Doc-comment modul menyatakan Tor transport dipakai sebagai layer defense-in-depth: Tor menyembunyikan lokasi jaringan, sedangkan Noise_IK (di layer atas, di luar file ini) yang mengamankan konten dan autentikasi identitas.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 4,
+        "evidence_line_end": 7,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "MEDIUM",
+        "notes": "Ini klaim dari komentar dokumentasi, bukan kode yang dapat diverifikasi di file ini sendiri — pembungkusan Noise_IK terjadi di modul lain yang tidak dibaca dalam audit ini."
+      },
+      {
+        "category": "packet_format",
+        "claim": "TOR_VIRTUAL_PORT bernilai 9999, dipakai sebagai nomor port virtual protokol saat initiator connect ke onion peer; bukan port OS nyata yang di-bind.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 27,
+        "evidence_line_end": 29,
+        "evidence_symbol": "TOR_VIRTUAL_PORT",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "launch() mengonfigurasi TorClientConfig dengan cache_dir dan state_dir terpisah (dibungkus CfgPath) yang diberikan caller, sebelum client di-build dan di-bootstrap.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 51,
+        "evidence_line_end": 56,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Komentar menyatakan state_dir menyimpan key onion persisten sehingga alamat .onion stabil antar-run, namun mekanisme penyimpanan/rotasi key onion itu sendiri berada di dalam crate arti-client/tor-hsservice dan tidak terlihat di file ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 3,
+        "evidence_line_end": 4,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW",
+        "notes": "Tidak ada kode di file ini yang menunjukkan format penyimpanan key atau adanya rotasi — klaim persistensi hanya berasal dari komentar, implementasinya di dependency eksternal (tor-hsservice 0.43.0) yang tidak diaudit di sini."
+      },
+      {
+        "category": "architecture",
+        "claim": "TorClient::create_bootstrapped(config).await dipanggil langsung tanpa dibungkus timeout eksplisit di file ini; komentar modul hanya menyebut proses ini lambat (~30-60 detik).",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 58,
+        "evidence_line_end": 60,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Tidak ada retry atau timeout eksplisit di sekitar pemanggilan TorClient::create_bootstrapped pada file ini — jika bootstrap Tor menggantung, launch() berpotensi menggantung tanpa batas dari sisi caller.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 60,
+        "status": "NOT_FOUND",
+        "confidence": "MEDIUM",
+        "notes": "Hanya menilai apa yang terlihat di file ini; tidak diverifikasi apakah arti-client sendiri punya timeout internal."
+      },
+      {
+        "category": "identity",
+        "claim": "Onion service dikonfigurasi via OnionServiceConfigBuilder dengan nickname yang di-parse dari string input; kegagalan parse nickname atau build config dikembalikan sebagai Error::Tor.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 62,
+        "evidence_line_end": 69,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "client.launch_onion_service(svc_cfg) mengembalikan Option; bila None (onion service dinonaktifkan di config), launch() mengembalikan Err(Error::Tor(\"onion service disabled di config\")).",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 71,
+        "evidence_line_end": 74,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "Alamat .onion diambil via service.onion_address() (Option, error bila belum tersedia) lalu di-render lengkap tanpa redaksi memakai display_unredacted() dari trait safelog::DisplayRedacted, disimpan sebagai String di field onion_address.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 76,
+        "evidence_line_end": 80,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "Accept loop dijalankan di task tokio::spawn terpisah: rend_stream dibungkus handle_rend_requests() lalu di-pin, setiap StreamRequest yang masuk diproses satu per satu dalam loop while-let.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 82,
+        "evidence_line_end": 96,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "packet_format",
+        "claim": "Setiap request rendezvous yang diterima di-accept dengan mengirim Tor RELAY cell CONNECTED kosong (Connected::new_empty()) untuk menandai stream berhasil dibuka.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 87,
+        "evidence_line_end": 87,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Bila req.accept() sukses, DataStream dikirim ke channel mpsc unbounded (in_tx); bila in_tx.send gagal (consumer/receiver sudah drop), loop accept dihentikan via break. Bila req.accept() gagal (Err(_)), error itu diabaikan sepenuhnya (continue) tanpa logging apa pun.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 87,
+        "evidence_line_end": 95,
+        "evidence_symbol": "TorContext::launch",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "logging",
+        "claim": "Tidak ditemukan pemanggilan logging/tracing apa pun (mis. log::, tracing::, eprintln!) di seluruh file ini; semua error hanya dikonversi ke Error::Tor(String) via .to_string() lalu di-propagate, atau di-drop diam-diam pada accept loop.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 122,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "data_flow",
+        "claim": "connect() sebagai sisi initiator memanggil self.client.connect((onion_host.to_string(), port)).await untuk membuka DataStream keluar ke peer onion, error di-map ke Error::Tor.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 107,
+        "evidence_line_end": 112,
+        "evidence_symbol": "TorContext::connect",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "session_mgmt",
+        "claim": "accept_timeout() mengunci Mutex pada receiver 'incoming', lalu membungkus rx.recv() dengan tokio::time::timeout(timeout, ...); hasilnya di-flatten dengan .ok().flatten() sehingga caller TIDAK BISA membedakan antara 'waktu habis' dan 'channel sudah tertutup' — keduanya sama-sama mengembalikan None.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 117,
+        "evidence_line_end": 120,
+        "evidence_symbol": "TorContext::accept_timeout",
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Semua jalur error di file ini (config storage, build client, parse nickname, build svc config, launch onion service, ambil onion address, connect) dikonversi via .to_string() menjadi satu varian Error::Tor(String) yang sama, sehingga tipe/struktur error asli dari arti-client/tor-hsservice hilang di titik ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 56,
+        "evidence_line_end": 111,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Baris konversi error tersebar di 56, 60, 66, 69, 73, 74, 78, 111."
+      },
+      {
+        "category": "limitation",
+        "claim": "Doc-comment modul menyebut 'fallback LAN-first ke Tor', tetapi tidak ada logika pemilihan/fallback LAN-vs-Tor yang diimplementasikan di file ini — file ini hanya berisi primitif sisi Tor (bootstrap, hosting onion, connect, accept).",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 5,
+        "evidence_line_end": 7,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH",
+        "notes": "Logika fallback kemungkinan ada di modul transport lain (mis. transport/mod.rs) yang tidak termasuk cakupan audit ini."
+      },
+      {
+        "category": "testing",
+        "claim": "Tidak ditemukan blok #[test] maupun #[cfg(test)] di file ini — tidak ada unit test untuk TorContext::launch, connect, atau accept_timeout dalam file ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 122,
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Doc-comment menyatakan TorContext dibuat sekali saat startup bila flag CLI '--tor' aktif, tapi parsing/pengecekan flag tersebut tidak ada di file ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 10,
+        "evidence_line_end": 10,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW",
+        "notes": "Klaim berasal dari komentar saja; wiring flag CLI berada di luar file yang diaudit."
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "Tidak ada primitif kriptografi yang dipanggil langsung di file ini",
+        "category": "other",
+        "algorithm": "N/A — tidak ada import/pemakaian langsung AEAD/hash/KDF/password-hashing/signature/key-agreement/MAC/CSPRNG/zeroize di src/transport/tor.rs. Manajemen kunci onion service Tor v3 (yang menurut spesifikasi publik Tor berbasis ed25519) sepenuhnya didelegasikan ke internal crate tor-hsservice/arti-client dan tidak terlihat/terverifikasi dari kode di file ini.",
+        "library_crate": "arti-client 0.43.0, tor-hsservice 0.43.0, tor-cell 0.43.0, safelog 0.8.2 (semua dipakai hanya untuk orkestrasi client/onion-service/error, bukan pemanggilan primitif kripto eksplisit)",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 122,
+        "function_in_system": "Bootstrap Tor client, hosting onion service, accept/connect stream — seluruhnya operasi jaringan/orkestrasi, bukan operasi kriptografi langsung",
+        "key_generation": "tidak ada di file ini — kalau ada pembangkitan/pemuatan key onion, terjadi di dalam tor-hsservice saat launch_onion_service dipanggil (baris 71-74), implementasinya tidak terbaca dari file ini",
+        "key_storage": "tidak ada di file ini — hanya path 'state_dir' diteruskan ke TorClientConfig (baris 51-56); format penyimpanan key aktual tidak terlihat",
+        "key_rotation_or_distribution": "tidak ada indikasi rotasi key di file ini",
+        "error_handling": "Semua error dari arti-client/tor-hsservice di-map ke Error::Tor(String) via .to_string(), lihat baris 56, 60, 66, 69, 73, 74, 78, 111",
+        "misuse_risk_notes": "Karena tidak ada primitif kripto yang tampak langsung di file ini, analisis nonce-reuse/key-reuse/domain-separation/zeroization tidak bisa dilakukan dari file ini saja — perlu audit terpisah pada crate tor-hsservice/arti-client itu sendiri (di luar cakupan file yang diberikan).",
+        "status": "NOT_FOUND",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  "verified": {
+    "module": "transport_tor",
+    "verified_claims": [
+      {
+        "original_claim": "TorContext menyatukan client arti-client yang sudah bootstrap, handle onion service yang berjalan (_service), alamat .onion sendiri, dan channel penerima stream masuk (incoming) dalam satu struct.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 32,
+        "evidence_line_end": 40,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Struct field persis: client: Arc<TorClient<PreferredRuntime>>, _service: Arc<RunningOnionService>, pub onion_address: String, incoming: Mutex<mpsc::UnboundedReceiver<DataStream>>."
+      },
+      {
+        "original_claim": "Doc-comment modul menyatakan Tor transport dipakai sebagai layer defense-in-depth: Tor menyembunyikan lokasi jaringan, sedangkan Noise_IK (di layer atas, di luar file ini) yang mengamankan konten dan autentikasi identitas.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 4,
+        "evidence_line_end": 7,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Teks asli baris 6-7: '(defense-in-depth: Tor menyembunyikan jaringan, Noise mengamankan konten + autentikasi identitas)'. Kata 'lokasi' di klaim adalah parafrase interpretatif, bukan kutipan literal, tapi tidak mengubah makna. Status DOCUMENTED_ONLY sudah tepat karena ini hanya isi komentar."
+      },
+      {
+        "original_claim": "TOR_VIRTUAL_PORT bernilai 9999, dipakai sebagai nomor port virtual protokol saat initiator connect ke onion peer; bukan port OS nyata yang di-bind.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 27,
+        "evidence_line_end": 29,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "pub const TOR_VIRTUAL_PORT: u16 = 9999; dengan doc-comment persis seperti diklaim."
+      },
+      {
+        "original_claim": "launch() mengonfigurasi TorClientConfig dengan cache_dir dan state_dir terpisah (dibungkus CfgPath) yang diberikan caller, sebelum client di-build dan di-bootstrap.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 51,
+        "evidence_line_end": 56,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "builder.storage().cache_dir(CfgPath::new(...)).state_dir(CfgPath::new(...)) lalu builder.build() -> config, semuanya sebelum TorClient::create_bootstrapped(config) di baris 58-60."
+      },
+      {
+        "original_claim": "Komentar menyatakan state_dir menyimpan key onion persisten sehingga alamat .onion stabil antar-run, namun mekanisme penyimpanan/rotasi key onion itu sendiri berada di dalam crate arti-client/tor-hsservice dan tidak terlihat di file ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 3,
+        "evidence_line_end": 4,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Doc-comment: 'Setiap peer menjalankan satu onion service persisten (alamat stabil, disimpan di state dir arti)'. Tidak ada kode format penyimpanan key di file ini, jadi NEEDS_CONFIRMATION/LOW sudah tepat."
+      },
+      {
+        "original_claim": "TorClient::create_bootstrapped(config).await dipanggil langsung tanpa dibungkus timeout eksplisit di file ini; komentar modul hanya menyebut proses ini lambat (~30-60 detik).",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 58,
+        "evidence_line_end": 60,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 9 (di luar rentang kutipan tapi masih komentar modul yang sama) berbunyi 'bootstrap Tor lambat (~30-60 dtk)', cocok dengan klaim."
+      },
+      {
+        "original_claim": "Tidak ada retry atau timeout eksplisit di sekitar pemanggilan TorClient::create_bootstrapped pada file ini — jika bootstrap Tor menggantung, launch() berpotensi menggantung tanpa batas dari sisi caller.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 9,
+        "evidence_line_end": 60,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Tidak ditemukan tokio::time::timeout atau logika retry di sekitar baris 58-60 maupun di seluruh fungsi launch()."
+      },
+      {
+        "original_claim": "Onion service dikonfigurasi via OnionServiceConfigBuilder dengan nickname yang di-parse dari string input; kegagalan parse nickname atau build config dikembalikan sebagai Error::Tor.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 62,
+        "evidence_line_end": 69,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "nickname.parse().map_err(...Error::Tor(format!(...)))? diikuti .build().map_err(...Error::Tor(e.to_string()))?."
+      },
+      {
+        "original_claim": "client.launch_onion_service(svc_cfg) mengembalikan Option; bila None (onion service dinonaktifkan di config), launch() mengembalikan Err(Error::Tor(\"onion service disabled di config\")).",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 71,
+        "evidence_line_end": 74,
+        "verdict": "CORRECTED",
+        "corrected_claim": "client.launch_onion_service(svc_cfg) sebetulnya mengembalikan Result<Option<(...)>, _> — bukan Option secara langsung. Error dari Result di-map ke Error::Tor via .map_err() di baris 73, baru kemudian lapisan Option-nya di-unwrap via .ok_or_else(|| Error::Tor(\"onion service disabled di config\".into()))? di baris 74. Kesimpulan akhirnya (None -> Err dengan pesan tsb) tetap benar, hanya deskripsi tipe return-nya kurang presisi.",
+        "reviewer_notes": "Perbedaan minor pada tipe return, tidak mengubah perilaku yang dijelaskan."
+      },
+      {
+        "original_claim": "Alamat .onion diambil via service.onion_address() (Option, error bila belum tersedia) lalu di-render lengkap tanpa redaksi memakai display_unredacted() dari trait safelog::DisplayRedacted, disimpan sebagai String di field onion_address.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 76,
+        "evidence_line_end": 80,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "service.onion_address().ok_or_else(...)?.display_unredacted().to_string(); import 'use safelog::DisplayRedacted as _;' di baris 18 mengonfirmasi trait-nya."
+      },
+      {
+        "original_claim": "Accept loop dijalankan di task tokio::spawn terpisah: rend_stream dibungkus handle_rend_requests() lalu di-pin, setiap StreamRequest yang masuk diproses satu per satu dalam loop while-let.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 82,
+        "evidence_line_end": 96,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "tokio::spawn(async move { let mut streams = Box::pin(handle_rend_requests(rend_stream)); while let Some(req) = streams.next().await { ... } });"
+      },
+      {
+        "original_claim": "Setiap request rendezvous yang diterima di-accept dengan mengirim Tor RELAY cell CONNECTED kosong (Connected::new_empty()) untuk menandai stream berhasil dibuka.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 87,
+        "evidence_line_end": 87,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "match req.accept(Connected::new_empty()).await { ... } — Connected diimpor dari tor_cell::relaycell::msg::Connected (baris 20)."
+      },
+      {
+        "original_claim": "Bila req.accept() sukses, DataStream dikirim ke channel mpsc unbounded (in_tx); bila in_tx.send gagal (consumer/receiver sudah drop), loop accept dihentikan via break. Bila req.accept() gagal (Err(_)), error itu diabaikan sepenuhnya (continue) tanpa logging apa pun.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 87,
+        "evidence_line_end": 95,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Ok(ds) => { if in_tx.send(ds).is_err() { break; } }, Err(_) => continue, — tidak ada pemanggilan logging apa pun di cabang Err."
+      },
+      {
+        "original_claim": "Tidak ditemukan pemanggilan logging/tracing apa pun (mis. log::, tracing::, eprintln!) di seluruh file ini; semua error hanya dikonversi ke Error::Tor(String) via .to_string() lalu di-propagate, atau di-drop diam-diam pada accept loop.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 122,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Dipindai seluruh 122 baris, tidak ada log::/tracing::/println!/eprintln! di mana pun."
+      },
+      {
+        "original_claim": "connect() sebagai sisi initiator memanggil self.client.connect((onion_host.to_string(), port)).await untuk membuka DataStream keluar ke peer onion, error di-map ke Error::Tor.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 107,
+        "evidence_line_end": 112,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Kode persis cocok baris demi baris."
+      },
+      {
+        "original_claim": "accept_timeout() mengunci Mutex pada receiver 'incoming', lalu membungkus rx.recv() dengan tokio::time::timeout(timeout, ...); hasilnya di-flatten dengan .ok().flatten() sehingga caller TIDAK BISA membedakan antara 'waktu habis' dan 'channel sudah tertutup' — keduanya sama-sama mengembalikan None.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 117,
+        "evidence_line_end": 120,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "let mut rx = self.incoming.lock().await; tokio::time::timeout(timeout, rx.recv()).await.ok().flatten() — Err(Elapsed)->None via .ok(), dan Ok(None) (channel closed)->Some(None)->None via .flatten(). Kedua kasus sama-sama None, sesuai klaim."
+      },
+      {
+        "original_claim": "Semua jalur error di file ini (config storage, build client, parse nickname, build svc config, launch onion service, ambil onion address, connect) dikonversi via .to_string() menjadi satu varian Error::Tor(String) yang sama, sehingga tipe/struktur error asli dari arti-client/tor-hsservice hilang di titik ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 56,
+        "evidence_line_end": 111,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Enam dari delapan titik yang disebut memang mengonversi error asli via .to_string() menjadi Error::Tor(String): baris 56 (config build), 60 (create_bootstrapped), 69 (svc_cfg build), 73 (launch_onion_service), dan 111 (connect). Baris 66 memakai format!(\"nickname tidak valid: {e}\") — bukan pemanggilan literal .to_string(), meski hasil akhirnya sama-sama String. Baris 74 dan 78 BUKAN konversi dari error asli sama sekali — keduanya adalah Option::ok_or_else(...) dengan pesan string statis yang di-.into(); pada titik itu tidak ada 'error asli' library yang hilang karena API arti (launch_onion_service dan onion_address()) sudah mengembalikan None secara langsung, bukan Err. Kesimpulan umum bahwa semua error akhirnya bermuara ke satu varian Error::Tor(String) yang sama tetap benar.",
+        "reviewer_notes": "Generalisasi mekanisme '.to_string()' untuk seluruh 8 baris kurang presisi; lihat rincian per baris di corrected_claim."
+      },
+      {
+        "original_claim": "Doc-comment modul menyebut 'fallback LAN-first ke Tor', tetapi tidak ada logika pemilihan/fallback LAN-vs-Tor yang diimplementasikan di file ini — file ini hanya berisi primitif sisi Tor (bootstrap, hosting onion, connect, accept).",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 5,
+        "evidence_line_end": 7,
+        "verdict": "REFUTED",
+        "corrected_claim": "Doc-comment modul (baris 1-10 seluruhnya, termasuk baris 5-7 yang dikutip) SAMA SEKALI TIDAK menyebutkan frasa 'fallback LAN-first ke Tor' atau kata 'LAN' dalam bentuk apa pun. Baris 5-7 hanya berbunyi: 'menghubungi onion responder lewat sirkuit Tor; semua tetap dibungkus Noise_IK di layer atas (defense-in-depth: Tor menyembunyikan jaringan, Noise mengamankan konten + autentikasi identitas).' Premis kutipan ini fabrikasi. Terlepas dari itu, bagian kesimpulan yang berdiri sendiri — bahwa file ini tidak berisi logika pemilihan/fallback LAN-vs-Tor dan hanya berisi primitif sisi Tor — memang akurat, tapi tidak didukung oleh isi baris 5-7 seperti yang diklaim.",
+        "reviewer_notes": "Ini contoh evidence yang dikutip tidak berisi apa yang diklaim; sebaiknya diperlakukan sebagai temuan fabrikasi meski kesimpulan turunannya kebetulan benar."
+      },
+      {
+        "original_claim": "Tidak ditemukan blok #[test] maupun #[cfg(test)] di file ini — tidak ada unit test untuk TorContext::launch, connect, atau accept_timeout dalam file ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 122,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Dipindai seluruh file, tidak ada #[test] atau #[cfg(test)]."
+      },
+      {
+        "original_claim": "Doc-comment menyatakan TorContext dibuat sekali saat startup bila flag CLI '--tor' aktif, tapi parsing/pengecekan flag tersebut tidak ada di file ini.",
+        "evidence_file": "src/transport/tor.rs",
+        "evidence_line_start": 10,
+        "evidence_line_end": 10,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 10 persis: 'dibuat sekali saat startup bila flag `--tor` aktif.' Tidak ada kode parsing flag CLI di file ini."
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "Tidak ada primitif kriptografi yang dipanggil langsung di file ini",
+        "verdict": "CORRECTED",
+        "corrections": "Klaim inti (tidak ada import/pemakaian AEAD/hash/KDF/password-hashing/signature/key-agreement/MAC/CSPRNG/zeroize secara langsung di src/transport/tor.rs) terkonfirmasi benar — daftar import di file (arti_client, futures, safelog, tokio, tor_cell, tor_hsservice, tor_rtcompat, crate::error::Error) memang tidak memuat crate kripto apa pun. Namun field 'error_handling' pada entri ini mewarisi kesalahan yang sama dengan klaim error_handling di atas: tidak semua dari baris 56/60/66/69/73/74/78/111 memakai '.to_string()' — baris 66 memakai format!(), dan baris 74/78 adalah Option::ok_or_else dengan pesan statis (bukan konversi error asli). Selain itu key_generation/key_storage/key_rotation/misuse_risk_notes semuanya akurat menyatakan tidak ada indikasi apa pun di file ini."
+      }
+    ]
+  }
+}

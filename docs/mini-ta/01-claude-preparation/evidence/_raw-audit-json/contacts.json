@@ -1,0 +1,685 @@
+{
+  "module": "contacts",
+  "extracted": {
+    "claims": [
+      {
+        "category": "architecture",
+        "claim": "Modul contacts menyediakan tiga fungsi utama: fingerprint identitas (BLAKE2s atas kedua public key), invite code (encode/decode base64 dari kedua public key + onion opsional), dan penyimpanan kontak terenkripsi (ChaCha20Poly1305) ke file.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 14,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "architecture",
+        "claim": "Struct Contact menyimpan nickname (String), ed25519_pub ([u8;32], identitas/fingerprint), noise_pub ([u8;32], X25519 static key untuk Noise_IK), dan onion (Option<String>, None berarti kontak LAN-only).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 30,
+        "evidence_line_end": 37,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "Komentar modul (baris 11-14) menyatakan contact store hidup di RAM saja dan 'tidak dipersist ke disk' di M1, dengan persistensi terenkripsi disebut sebagai follow-up M1.x/M2 — namun file yang sama sudah mengimplementasikan persistensi terenkripsi penuh ke disk (save_contacts/load_contacts, ChaCha20Poly1305) di baris 94-198. Dokumentasi tampak tidak sinkron dengan implementasi aktual.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 11,
+        "evidence_line_end": 198,
+        "status": "INCONSISTENT",
+        "confidence": "HIGH",
+        "notes": "Kemungkinan komentar ditulis sebelum fitur persistensi ditambahkan dan belum diperbarui."
+      },
+      {
+        "category": "storage",
+        "claim": "Komentar modul (baris 9) menyatakan 'Onion address akan ditambahkan di M2' (future tense), tetapi kode yang sama sudah mendukung onion address secara penuh: field Contact.onion, parameter onion di encode_invite/decode_invite, dan test terkait onion — bukan fitur yang belum ada.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 8,
+        "evidence_line_end": 9,
+        "status": "INCONSISTENT",
+        "confidence": "MEDIUM",
+        "notes": "Cross-check dengan baris 36, 59-68, 215-225 yang menunjukkan onion sudah terimplementasi."
+      },
+      {
+        "category": "packet_format",
+        "claim": "Format invite code adalah base64(ed25519_pub[32] || noise_pub[32]) memakai alphabet URL-safe tanpa padding, dengan onion address opsional di-append sebagai suffix '@xxxx.onion'; tidak ada magic prefix (byte penanda format) yang disengaja.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 56,
+        "evidence_line_end": 68,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "packet_format",
+        "claim": "decode_invite memvalidasi: split di karakter '@' pertama untuk memisahkan bagian kunci dari onion, men-decode base64, lalu mewajibkan hasil decode persis 64 byte — gagal salah satunya menghasilkan Error::InvalidInvite.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 92,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "Format file kontak terenkripsi di disk adalah [12 byte nonce][ciphertext+tag], tanpa magic bytes header, sesuai komentar section 'Persistensi terenkripsi'.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 94,
+        "evidence_line_end": 100,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "Sebelum dienkripsi, daftar kontak diserialisasi ke format teks baris-per-kontak: '<hex ed25519_pub> <hex noise_pub> <onion-atau-tanda-dash> <nickname>\\n', dipisah spasi (maks 4 field via splitn(4, ' ')).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 114,
+        "evidence_line_end": 128,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "storage",
+        "claim": "Nickname kontak di-strip dari karakter newline ('\\n', '\\r') sebelum diserialisasi, untuk mencegah nickname yang mengandung newline merusak parsing baris format flat-text (record/line injection).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 118,
+        "evidence_line_end": 118,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "identity",
+        "claim": "fingerprint() = hex(BLAKE2s256(ed25519_pub || noise_pub || \"aksara-fingerprint-v1\")), menghasilkan string 64 karakter hex (256-bit digest). Kedua public key WAJIB diserap bersama untuk mencegah serangan invite susun-ulang: penyerang yang mengambil ed25519_pub korban dan menggabungkannya dengan noise_pub miliknya sendiri akan menghasilkan fingerprint yang berbeda dari fingerprint asli korban.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 39,
+        "evidence_line_end": 54,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "auth",
+        "claim": "Invite code TIDAK ditandatangani/diautentikasi secara kriptografis oleh file ini — dinyatakan eksplisit di komentar (baris 43: 'Invite code tidak ditandatangani'). Verifikasi keaslian invite bergantung pada perbandingan fingerprint di luar aplikasi (out-of-band), bukan pada mekanisme dalam file ini.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 42,
+        "evidence_line_end": 47,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "notes": "Ini bukan klaim bahwa sistem aman/tidak aman secara keseluruhan, hanya deskripsi mekanisme yang ada di file ini."
+      },
+      {
+        "category": "identity",
+        "claim": "derive_contacts_key() menurunkan kunci enkripsi contact store dari bundle.identity.secret_bytes() (bukan dari passphrase) menggunakan BLAKE2s256, dan komentar eksplisit menyatakan ini SENGAJA bukan Argon2id karena sumbernya sudah berupa secret yang ter-unlock, bukan passphrase berentropi rendah.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 102,
+        "evidence_line_end": 112,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "save_contacts memetakan kegagalan enkripsi AEAD ke Error::Encryption, dan kegagalan std::fs::write ke Error::Io.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 174,
+        "evidence_line_end": 180,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "load_contacts memperlakukan SETIAP error dari std::fs::read (bukan hanya 'file tidak ada') sebagai kondisi 'file tidak ada' dan mengembalikan Ok(Vec::new()) — termasuk kemungkinan error izin akses (permission denied) yang seharusnya berbeda dari 'file belum pernah dibuat'.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 185,
+        "evidence_line_end": 188,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "load_contacts memperlakukan file yang lebih pendek dari C_NONCE_LEN+16 byte sebagai daftar kontak kosong (Ok(Vec::new())), bukan sebagai error korupsi — bisa menyamarkan file yang rusak/terpotong menjadi seolah 'belum ada kontak'.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 189,
+        "evidence_line_end": 191,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "Kegagalan dekripsi/verifikasi tag AEAD (baik karena kunci salah maupun ciphertext termodifikasi/corrupt) dipetakan ke Error::Decryption yang sama — file ini tidak membedakan 'kunci salah' dari 'data ditamper' pada level pesan error.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 194,
+        "evidence_line_end": 196,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "error_handling",
+        "claim": "deserialize_contacts diam-diam melewati (skip) baris yang tidak punya 4 field lengkap atau yang field hex key-nya invalid/salah panjang, tanpa melaporkan baris rusak tersebut ke caller — potensi kehilangan data kontak secara senyap jika sebagian file plaintext korup pasca-dekripsi.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 140,
+        "evidence_line_end": 167,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "category": "limitation",
+        "claim": "Alamat onion pada Contact/invite code diperlakukan sebagai string opaque tanpa validasi format (tidak ada pengecekan suffix '.onion', panjang, atau karakter valid) baik saat encode/decode invite maupun saat serialize/deserialize contacts.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 59,
+        "evidence_line_end": 163,
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM"
+      },
+      {
+        "category": "limitation",
+        "claim": "Tidak terlihat penggunaan Zeroize/ZeroizeOnDrop di file ini untuk material sensitif: Contact tidak men-derive Zeroize meski menyimpan public key (baris 30-37), derive_contacts_key mengembalikan [u8;32] polos (baris 104-112), dan buffer plaintext hasil dekripsi adalah String biasa yang tidak dibersihkan setelah dipakai (baris 197).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 104,
+        "evidence_line_end": 197,
+        "status": "NOT_FOUND",
+        "confidence": "MEDIUM",
+        "notes": "Zeroize 1.9.0 ada di dependency graph proyek, tapi tidak dipakai untuk tipe-tipe di file khusus ini; kemungkinan diterapkan di modul identity yang tidak dibaca di sini."
+      },
+      {
+        "category": "comm_model",
+        "claim": "Komentar (baris 40) menyatakan fingerprint 'dipakai untuk matching saat discovery dan untuk menentukan role handshake' — klaim penggunaan ini hanya berupa deskripsi di komentar dan tidak ditunjukkan/dieksekusi di file contacts/mod.rs itu sendiri (kemungkinan dipakai di modul transport/tui lain).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 41,
+        "status": "DOCUMENTED_ONLY",
+        "confidence": "LOW",
+        "notes": "Butuh cross-check ke modul transport/discovery untuk konfirmasi pemakaian aktual."
+      },
+      {
+        "category": "identity",
+        "claim": "derive_contacts_key memanggil bundle.identity.secret_bytes() dari KeyBundle (didefinisikan di crate::identity::keypair, tidak dibaca dalam audit ini) — bentuk/panjang persis dari secret_bytes() (mis. apakah itu Ed25519 seed 32-byte atau representasi lain) tidak dapat dikonfirmasi hanya dari file contacts/mod.rs.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 27,
+        "evidence_line_end": 106,
+        "status": "NEEDS_CONFIRMATION",
+        "confidence": "LOW"
+      },
+      {
+        "category": "testing",
+        "claim": "Test invite_roundtrip_lan_only memverifikasi encode_invite lalu decode_invite mengembalikan ed25519_pub dan noise_pub yang identik dengan input, dan onion bernilai None saat tidak diberikan.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 204,
+        "evidence_line_end": 213,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "invite_roundtrip_lan_only"
+      },
+      {
+        "category": "testing",
+        "claim": "Test invite_roundtrip_with_onion memverifikasi round-trip encode/decode invite ketika onion address disertakan, memastikan onion ikut terbawa balik dengan benar.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 215,
+        "evidence_line_end": 225,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "invite_roundtrip_with_onion"
+      },
+      {
+        "category": "testing",
+        "claim": "Test invite_rejects_garbage memverifikasi decode_invite mengembalikan Err untuk string yang bukan base64/invite valid ('bukan-invite-yang-valid!!!').",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 227,
+        "evidence_line_end": 230,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "invite_rejects_garbage"
+      },
+      {
+        "category": "testing",
+        "claim": "Test invite_rejects_wrong_length memverifikasi decode_invite mengembalikan Err ketika string adalah base64 valid tetapi hasil decode-nya bukan tepat 64 byte (menggunakan encode dari array 10 byte).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 232,
+        "evidence_line_end": 237,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "invite_rejects_wrong_length"
+      },
+      {
+        "category": "testing",
+        "claim": "Test contacts_save_load_roundtrip memverifikasi save_contacts lalu load_contacts pada 2 kontak (salah satunya dengan nickname mengandung spasi dan onion Some, lainnya onion None) mengembalikan data yang identik setelah round-trip enkripsi/dekripsi lewat file sementara.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 239,
+        "evidence_line_end": 269,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "contacts_save_load_roundtrip"
+      },
+      {
+        "category": "testing",
+        "claim": "Test contacts_load_missing_file_is_empty memverifikasi load_contacts pada path yang tidak ada file-nya mengembalikan Ok dengan Vec kosong (bukan Err).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 271,
+        "evidence_line_end": 276,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "contacts_load_missing_file_is_empty"
+      },
+      {
+        "category": "testing",
+        "claim": "Test contacts_wrong_key_fails memverifikasi load_contacts dengan kunci dekripsi yang berbeda dari kunci saat save_contacts menghasilkan Err (kegagalan autentikasi AEAD terdeteksi).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 278,
+        "evidence_line_end": 292,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "contacts_wrong_key_fails"
+      },
+      {
+        "category": "testing",
+        "claim": "Test fingerprint_is_64_hex_chars memverifikasi output fingerprint() selalu berupa string sepanjang 64 karakter, seluruhnya karakter hex ASCII yang valid.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 294,
+        "evidence_line_end": 299,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "fingerprint_is_64_hex_chars"
+      },
+      {
+        "category": "testing",
+        "claim": "Test fingerprint_binds_both_keys memverifikasi mengubah HANYA noise_pub (ed tetap) menghasilkan fingerprint berbeda, dan sebaliknya mengubah ed dengan noise tetap juga menghasilkan fingerprint berbeda — membuktikan kedua key terikat ke fingerprint (bukan hanya satu key yang efektif diserap).",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 303,
+        "evidence_line_end": 314,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "fingerprint_binds_both_keys"
+      },
+      {
+        "category": "testing",
+        "claim": "Test invite_has_no_obvious_prefix memverifikasi dua invite code dari pasangan identitas berbeda memiliki 4 karakter awal yang berbeda, mengonfirmasi tidak ada prefix/magic byte konstan yang mengidentifikasi format invite.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 316,
+        "evidence_line_end": 323,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH",
+        "evidence_symbol": "invite_has_no_obvious_prefix"
+      }
+    ],
+    "primitives": [
+      {
+        "primitive_name": "ChaCha20Poly1305 contact-store encryption",
+        "category": "AEAD",
+        "algorithm": "ChaCha20-Poly1305 (RFC 8439)",
+        "library_crate": "chacha20poly1305",
+        "crate_version": "0.10.1 (dependensi chacha20 0.10.0, poly1305 0.8.0, aead 0.5.2)",
+        "function_in_system": "Mengenkripsi (save_contacts) dan mendekripsi (load_contacts) seluruh isi contact store sebelum ditulis/setelah dibaca dari disk",
+        "input_output_desc": "Input plaintext = hasil serialize_contacts() (teks baris-per-kontak, hex key + onion + nickname); output = [nonce 12B][ciphertext || tag 16B] ditulis langsung ke file, tanpa Additional Associated Data (AAD) dan tanpa magic bytes header",
+        "key_size_bits": "256 bit (32 byte) — dari Key::from_slice(key) dengan key: &[u8;32] (baris 172, 193)",
+        "nonce_or_iv_size_bytes": "12 byte (96 bit) — const C_NONCE_LEN = 12 (baris 100)",
+        "tag_size_bytes": "16 byte (128 bit) — terlihat dari pengecekan panjang minimum file `C_NONCE_LEN + 16` di baris 189 (bukan named constant eksplisit, tapi konsisten dengan tag Poly1305 standar 128-bit dari crate ini)",
+        "key_generation": "Tidak dibangkitkan acak untuk enkripsi ini — diturunkan deterministik dari identity secret via derive_contacts_key() (lihat primitive KDF terkait)",
+        "key_storage": "Tidak disimpan terpisah ke disk; dihitung ulang tiap pemanggilan dari KeyBundle yang sudah ter-unlock di memori",
+        "key_rotation_or_distribution": "tidak ada mekanisme rotasi kunci di file ini",
+        "error_handling": "Gagal enkripsi -> Error::Encryption (baris 176); gagal dekripsi/verifikasi tag -> Error::Decryption (baris 196); gagal tulis file -> Error::Io (baris 180)",
+        "misuse_risk_notes": "Nonce dibangkitkan acak baru setiap save_contacts via OsRng (baris 173), bukan nonce statis/counter, sehingga risiko nonce-reuse pada kunci yang sama relatif rendah untuk skala pemakaian lokal (96-bit random). Tidak ada AAD dipakai (baris 174-176 hanya plaintext bytes) sehingga ciphertext tidak terikat ke konteks eksternal (mis. path/versi format). Kunci yang sama (diturunkan deterministik dari identity secret) dipakai berulang kali sepanjang identity tidak berubah — wajar untuk desain ini, tapi berarti kompromi identity secret otomatis membuka seluruh contact store. Tidak terlihat ZeroizeOnDrop pada buffer plaintext (String, baris 197) atau array key di file ini.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 170,
+        "evidence_line_end": 198,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "BLAKE2s256 identity fingerprint",
+        "category": "hash",
+        "algorithm": "BLAKE2s-256",
+        "library_crate": "blake2",
+        "crate_version": "0.10.6",
+        "function_in_system": "fingerprint(ed25519_pub, noise_pub) menghasilkan identifier publik untuk pencocokan invite/discovery (baris 48-54)",
+        "input_output_desc": "Input: ed25519_pub(32B) || noise_pub(32B) || domain string b\"aksara-fingerprint-v1\"; output: digest 32 byte, di-hex-encode menjadi string 64 karakter (dikonfirmasi test fingerprint_is_64_hex_chars, baris 294-299)",
+        "key_size_bits": "N/A (fungsi hash tanpa kunci rahasia)",
+        "nonce_or_iv_size_bytes": "N/A",
+        "tag_size_bytes": "digest output 32 byte / 256 bit",
+        "key_generation": "N/A — bukan kunci, ini output hash publik atas dua public key",
+        "key_storage": "N/A",
+        "key_rotation_or_distribution": "N/A",
+        "error_handling": "Tidak ada — fungsi infallible, selalu mengembalikan String",
+        "misuse_risk_notes": "Domain-separation string 'aksara-fingerprint-v1' mencegah tabrakan lintas-penggunaan BLAKE2s lain di codebase (mis. dengan kunci derivation di primitive KDF di bawah). Kedua public key WAJIB diserap bersama (komentar baris 42-47) untuk mencegah serangan invite susun-ulang. Karena ini hash atas data publik tanpa kunci rahasia (bukan MAC), fingerprint TIDAK memberi proteksi integritas terhadap pihak yang bisa memodifikasi/mengganti kedua key sekaligus — perannya hanya sebagai identifier untuk pembanding manual out-of-band.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 48,
+        "evidence_line_end": 54,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "BLAKE2s256-based contacts key derivation",
+        "category": "KDF",
+        "algorithm": "BLAKE2s-256 dipakai sebagai fungsi derivasi kunci single-shot (bukan konstruksi KDF khusus seperti HKDF)",
+        "library_crate": "blake2",
+        "crate_version": "0.10.6",
+        "function_in_system": "derive_contacts_key(bundle) menurunkan kunci ChaCha20Poly1305 32-byte untuk enkripsi contact store dari secret identity yang sudah ter-unlock (baris 104-112)",
+        "input_output_desc": "Input: bundle.identity.secret_bytes() || b\"aksara-contacts-key-v1\"; output: 32 byte (256-bit) key (baris 105-111)",
+        "key_size_bits": "256 bit (32 byte)",
+        "nonce_or_iv_size_bytes": "N/A",
+        "tag_size_bytes": "N/A",
+        "key_generation": "Deterministik dari identity secret yang sudah di-unlock, BUKAN dari passphrase — komentar (baris 102-103) eksplisit menyatakan ini sengaja bukan Argon2id karena inputnya sudah berupa key yang ter-unlock, bukan passphrase berentropi rendah",
+        "key_storage": "Tidak dipersist ke disk; dihitung ulang tiap kali derive_contacts_key dipanggil",
+        "key_rotation_or_distribution": "tidak ada di file ini",
+        "error_handling": "Tidak ada — fungsi infallible",
+        "misuse_risk_notes": "Ini hash biasa (BLAKE2s256) dipakai sebagai KDF, bukan konstruksi KDF khusus (mis. HKDF); dapat diterima karena input sudah berentropi tinggi (secret identity) dan hanya satu context string ('aksara-contacts-key-v1') dipakai untuk satu tujuan tunggal di file ini, jadi tidak ada bukti reuse/collision antar-turunan-kunci yang terlihat. Tidak terlihat pembungkusan hasil dengan Zeroize/ZeroizeOnDrop pada key [u8;32] yang dikembalikan. Bentuk pasti dari secret_bytes() (didefinisikan di modul identity, tidak dibaca dalam audit ini) tidak bisa dikonfirmasi dari file ini saja.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 104,
+        "evidence_line_end": 112,
+        "status": "IMPLEMENTED",
+        "confidence": "MEDIUM"
+      },
+      {
+        "primitive_name": "OsRng CSPRNG untuk nonce ChaCha20Poly1305",
+        "category": "CSPRNG",
+        "algorithm": "OsRng (rand crate, entropy dari OS)",
+        "library_crate": "rand",
+        "crate_version": "0.8.6",
+        "function_in_system": "Membangkitkan nonce 12-byte acak untuk tiap pemanggilan save_contacts via ChaCha20Poly1305::generate_nonce(&mut OsRng) (import baris 24, dipakai baris 173)",
+        "input_output_desc": "Output: nonce 12 byte (96 bit) acak, dipakai langsung sebagai nonce AEAD ChaCha20Poly1305",
+        "nonce_or_iv_size_bytes": "12 byte / 96 bit",
+        "key_generation": "N/A (ini generator nonce, bukan kunci)",
+        "key_storage": "N/A",
+        "key_rotation_or_distribution": "N/A",
+        "error_handling": "Tidak ada penanganan error eksplisit terlihat di sekitar pemanggilan generate_nonce — diasumsikan OsRng selalu berhasil",
+        "misuse_risk_notes": "Nonce baru dibangkitkan acak setiap save (bukan nonce statis/counter), mengurangi risiko nonce reuse pada kunci yang sama antar pemanggilan save_contacts berulang. Tetap probabilistik (bukan dijamin unik secara deterministik) sehingga secara teori ada risiko collision pada ruang nonce 96-bit jika volume penyimpanan sangat besar dengan kunci sama — namun untuk skala file kontak lokal per pengguna risikonya diabaikan.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 173,
+        "evidence_line_end": 176,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "Base64 URL-safe (no padding) invite code encoding",
+        "category": "key_serialization",
+        "algorithm": "Base64 URL_SAFE_NO_PAD (RFC 4648 §5)",
+        "library_crate": "base64",
+        "crate_version": "0.22.1",
+        "function_in_system": "encode_invite/decode_invite mengubah pasangan public key (64 byte raw) menjadi/dari string invite yang dibagikan out-of-band, dengan onion address opsional di-suffix '@host' (baris 59-92)",
+        "input_output_desc": "encode: raw[64] = ed25519_pub(32) || noise_pub(32) -> base64 URL-safe tanpa padding, lalu opsional '@onion' di-append (baris 59-68). decode: split di '@' pertama, decode base64, wajib persis 64 byte hasil decode (baris 74-92)",
+        "key_generation": "N/A — hanya encode/decode public key yang sudah ada, tidak membangkitkan kunci",
+        "key_storage": "N/A — one-shot encode/decode, tidak dipersist oleh fungsi ini",
+        "key_rotation_or_distribution": "N/A",
+        "error_handling": "Base64 invalid -> Error::InvalidInvite (baris 83); panjang hasil decode != 64 byte -> Error::InvalidInvite (baris 84-86)",
+        "misuse_risk_notes": "Invite code TIDAK ditandatangani/diautentikasi (dicatat eksplisit di komentar baris 42-47) — base64 di sini murni serialisasi transport, bukan proteksi integritas/otentikasi. Tidak ada magic prefix yang disengaja, dikonfirmasi test invite_has_no_obvious_prefix (baris 316-323), untuk menghindari fingerprinting metadata protokol oleh pengamat pasif.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 59,
+        "evidence_line_end": 92,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      },
+      {
+        "primitive_name": "Hex encoding untuk representasi key (fingerprint output & format plaintext kontak)",
+        "category": "key_serialization",
+        "algorithm": "Hex (base16) encode/decode",
+        "library_crate": "hex",
+        "crate_version": "0.4.3",
+        "function_in_system": "hex::encode dipakai untuk output fingerprint (baris 53) dan untuk menyerialisasi ed25519_pub/noise_pub tiap kontak ke format teks sebelum dienkripsi (baris 121-122); hex::decode dipakai balik di parse_key32 (baris 131) saat deserialisasi",
+        "input_output_desc": "32-byte key <-> 64 karakter hex; dipakai untuk representasi fingerprint publik maupun representasi internal (plaintext sebelum ChaCha20Poly1305) daftar kontak",
+        "key_generation": "N/A",
+        "key_storage": "N/A",
+        "key_rotation_or_distribution": "N/A",
+        "error_handling": "parse_key32 mengembalikan None (bukan error eksplisit terpisah) jika hex::decode gagal atau panjang hasil != 32 byte (baris 130-138); caller (deserialize_contacts, baris 152-154) hanya men-skip baris tersebut tanpa melaporkan korupsi ke pemanggil load_contacts",
+        "misuse_risk_notes": "Hex encoding deterministik dan reversibel penuh, tidak ada risiko kriptografis langsung dari encoding itu sendiri; risiko utamanya ada di level penanganan error (silent-skip pada data korup/invalid) yang tercatat terpisah sebagai klaim error_handling.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 114,
+        "evidence_line_end": 138,
+        "status": "IMPLEMENTED",
+        "confidence": "HIGH"
+      }
+    ]
+  },
+  "verified": {
+    "module": "contacts",
+    "verified_claims": [
+      {
+        "original_claim": "Modul contacts menyediakan tiga fungsi utama: fingerprint identitas, invite code (encode/decode base64 + onion opsional), dan penyimpanan kontak terenkripsi (ChaCha20Poly1305) ke file — evidence baris 1-14.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 1,
+        "evidence_line_end": 14,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Ketiga fungsi itu memang ada di file ini (fingerprint baris 48-54, invite encode/decode baris 59-92, penyimpanan terenkripsi baris 170-198), tapi baris 1-14 yang dikutip sebagai evidence adalah komentar modul yang untuk bagian penyimpanan justru menyatakan SEBALIKNYA: 'contact store hidup di RAM saja, tidak dipersist ke disk' (baris 11-14, catatan M1 yang sudah usang). Baris 1-14 tidak mendukung klaim 'penyimpanan kontak terenkripsi' — evidence yang tepat untuk itu ada di baris 170-198, bukan 1-14.",
+        "reviewer_notes": "Klaim benar tentang implementasi aktual, tapi rentang evidence yang diberikan justru berisi teks yang bertentangan dengan salah satu dari tiga fungsi yang diklaim."
+      },
+      {
+        "original_claim": "Struct Contact menyimpan nickname (String), ed25519_pub ([u8;32]), noise_pub ([u8;32]), dan onion (Option<String>, None = LAN-only) — evidence baris 30-37.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 30,
+        "evidence_line_end": 37,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Komentar modul (baris 11-14) menyatakan contact store hidup di RAM saja / tidak dipersist di M1, padahal file yang sama sudah mengimplementasikan persistensi terenkripsi penuh (save_contacts/load_contacts) di baris 94-198 — dokumentasi tidak sinkron dengan implementasi.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 11,
+        "evidence_line_end": 198,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 11-14 persis berisi teks 'Catatan M1: contact store hidup di RAM saja, tidak dipersist ke disk... Persistensi terenkripsi (memperluas vault) adalah follow-up M1.x/M2.' Bertentangan langsung dengan save_contacts/load_contacts di baris 170-198."
+      },
+      {
+        "original_claim": "Komentar modul (baris 9) menyatakan 'Onion address akan ditambahkan di M2' (future tense), tetapi kode sudah mendukung onion penuh (field Contact.onion, parameter onion di encode/decode_invite, test terkait) — cross-check baris 36, 59-68, 215-225.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 8,
+        "evidence_line_end": 9,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Baris 8-9 persis: '...out-of-band (bukan lewat aplikasi). Onion address akan ditambahkan di M2.' Field onion (baris 36), encode_invite/decode_invite dengan parameter onion (baris 59-68), dan test invite_roundtrip_with_onion (baris 216-225) semuanya terverifikasi ada."
+      },
+      {
+        "original_claim": "Format invite code = base64(ed25519_pub[32] || noise_pub[32]) URL-safe tanpa padding, onion opsional di-append sebagai suffix '@xxxx.onion', tanpa magic prefix disengaja — evidence baris 56-68.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 56,
+        "evidence_line_end": 68,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "decode_invite: split di karakter '@' pertama, decode base64, wajib hasil persis 64 byte — gagal salah satunya menghasilkan Error::InvalidInvite — evidence baris 74-92.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 74,
+        "evidence_line_end": 92,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Format file kontak terenkripsi di disk = [12 byte nonce][ciphertext+tag], tanpa magic bytes header, sesuai komentar section 'Persistensi terenkripsi' — evidence baris 94-100.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 94,
+        "evidence_line_end": 100,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Sebelum dienkripsi, kontak diserialisasi ke '<hex ed> <hex noise> <onion-atau-dash> <nickname>\\n', dipisah spasi (maks 4 field via splitn(4, ' ')) — evidence baris 114-128.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 114,
+        "evidence_line_end": 128,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Format flat-text-nya akurat dan sesuai serialize_contacts di baris 114-128 (fungsi ini murni menulis, tanpa splitn). Detail 'splitn(4, ' ')' bukan bagian dari baris 114-128 — itu ada di deserialize_contacts, tepatnya baris 146 (dalam rentang 140-167), sisi parsing/baca, bukan sisi serialisasi/tulis.",
+        "reviewer_notes": "Isi klaim benar secara keseluruhan tapi mencampur dua fungsi berbeda (serialize vs deserialize) di bawah satu evidence range yang hanya mencakup salah satunya."
+      },
+      {
+        "original_claim": "Nickname kontak di-strip dari '\\n'/'\\r' sebelum diserialisasi untuk mencegah record/line injection — evidence baris 118.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 118,
+        "evidence_line_end": 118,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "fingerprint() = hex(BLAKE2s256(ed25519_pub || noise_pub || \"aksara-fingerprint-v1\")), 64 karakter hex; kedua public key wajib diserap bersama mencegah serangan invite susun-ulang — evidence baris 39-54.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 39,
+        "evidence_line_end": 54,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Invite code tidak ditandatangani/diautentikasi — dinyatakan eksplisit di komentar baris 43 ('Invite code tidak ditandatangani'); verifikasi keaslian bergantung fingerprint out-of-band — evidence baris 42-47.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 42,
+        "evidence_line_end": 47,
+        "verdict": "CORRECTED",
+        "corrected_claim": "Frasa 'Invite code tidak ditandatangani' ada di baris 42, bukan baris 43 seperti disebut klaim (baris 42: 'Kedua key WAJIB ikut diserap. Invite code tidak ditandatangani, jadi kalau...'). Rentang evidence keseluruhan 42-47 sudah tepat dan mencakup baris 42; hanya sitasi baris spesifik di dalam teks klaim yang keliru.",
+        "reviewer_notes": "Substansi klaim (tidak ditandatangani, verifikasi out-of-band) sepenuhnya akurat — hanya off-by-one pada nomor baris kutipan."
+      },
+      {
+        "original_claim": "derive_contacts_key() menurunkan kunci dari bundle.identity.secret_bytes() (bukan passphrase) via BLAKE2s256; komentar eksplisit menyatakan ini sengaja bukan Argon2id — evidence baris 102-112.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 102,
+        "evidence_line_end": 112,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "save_contacts memetakan kegagalan enkripsi AEAD ke Error::Encryption, kegagalan std::fs::write ke Error::Io — evidence baris 174-180.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 174,
+        "evidence_line_end": 180,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "load_contacts memperlakukan SETIAP error dari std::fs::read sebagai 'file tidak ada' -> Ok(Vec::new()), termasuk kemungkinan permission denied — evidence baris 185-188.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 185,
+        "evidence_line_end": 188,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "load_contacts memperlakukan file lebih pendek dari C_NONCE_LEN+16 byte sebagai daftar kontak kosong, bukan error korupsi — evidence baris 189-191.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 189,
+        "evidence_line_end": 191,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Kegagalan dekripsi/verifikasi tag AEAD (kunci salah maupun data corrupt) dipetakan ke Error::Decryption yang sama, tidak dibedakan pada level pesan error — evidence baris 194-196.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 194,
+        "evidence_line_end": 196,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "deserialize_contacts diam-diam skip baris yang tidak punya 4 field lengkap atau field hex key invalid/salah panjang, tanpa melaporkan ke caller — evidence baris 140-167.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 140,
+        "evidence_line_end": 167,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Alamat onion diperlakukan sebagai string opaque tanpa validasi format (suffix '.onion', panjang, karakter valid), baik saat encode/decode invite maupun serialize/deserialize contacts — evidence baris 59-163.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 59,
+        "evidence_line_end": 163,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Tidak ada penggunaan Zeroize/ZeroizeOnDrop di file ini: Contact tidak men-derive Zeroize (baris 30-37), derive_contacts_key mengembalikan [u8;32] polos (baris 104-112), buffer plaintext String hasil dekripsi tidak dibersihkan (baris 197) — evidence baris 104-197.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 104,
+        "evidence_line_end": 197,
+        "verdict": "CONFIRMED",
+        "reviewer_notes": "Tidak ada import zeroize sama sekali di file ini (baris 16-27 hanya path/base64/blake2/chacha20poly1305/rand/crate-internal). Semua sitasi baris inline (30-37, 104-112, 197) akurat, meski rentang evidence_line_start/end luar (104-197) sendiri tidak mencakup 30-37 — masalah cakupan field, bukan fabrikasi."
+      },
+      {
+        "original_claim": "Komentar (baris 40) menyatakan fingerprint 'dipakai untuk matching saat discovery dan untuk menentukan role handshake' — hanya deskripsi komentar, tidak dieksekusi di file ini sendiri — evidence baris 40-41.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 40,
+        "evidence_line_end": 41,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "derive_contacts_key memanggil bundle.identity.secret_bytes() dari KeyBundle (didefinisikan di crate::identity::keypair, tidak dibaca di audit ini) — bentuk/panjang persis secret_bytes() tidak bisa dikonfirmasi hanya dari file ini — evidence baris 27-106.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 27,
+        "evidence_line_end": 106,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test invite_roundtrip_lan_only memverifikasi encode/decode_invite round-trip ed25519_pub & noise_pub identik, onion None saat tidak diberikan — evidence baris 204-213.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 204,
+        "evidence_line_end": 213,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test invite_roundtrip_with_onion memverifikasi round-trip encode/decode invite dengan onion disertakan, onion ikut terbawa balik dengan benar — evidence baris 215-225.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 215,
+        "evidence_line_end": 225,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test invite_rejects_garbage memverifikasi decode_invite Err untuk string bukan base64/invite valid — evidence baris 227-230.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 227,
+        "evidence_line_end": 230,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test invite_rejects_wrong_length memverifikasi decode_invite Err ketika base64 valid tapi hasil decode bukan 64 byte (encode dari array 10 byte) — evidence baris 232-237.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 232,
+        "evidence_line_end": 237,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test contacts_save_load_roundtrip memverifikasi save_contacts+load_contacts pada 2 kontak (satu nickname mengandung spasi & onion Some, lainnya onion None) identik setelah round-trip via file sementara — evidence baris 239-269.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 239,
+        "evidence_line_end": 269,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test contacts_load_missing_file_is_empty memverifikasi load_contacts pada path tidak ada mengembalikan Ok dengan Vec kosong — evidence baris 271-276.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 271,
+        "evidence_line_end": 276,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test contacts_wrong_key_fails memverifikasi load_contacts dengan kunci berbeda dari saat save menghasilkan Err — evidence baris 278-292.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 278,
+        "evidence_line_end": 292,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test fingerprint_is_64_hex_chars memverifikasi output fingerprint() selalu 64 karakter hex ASCII valid — evidence baris 294-299.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 294,
+        "evidence_line_end": 299,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test fingerprint_binds_both_keys memverifikasi mengubah HANYA noise_pub menghasilkan fingerprint berbeda, dan sebaliknya mengubah ed dengan noise tetap juga berbeda — evidence baris 303-314.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 303,
+        "evidence_line_end": 314,
+        "verdict": "CONFIRMED"
+      },
+      {
+        "original_claim": "Test invite_has_no_obvious_prefix memverifikasi dua invite dari identitas berbeda punya 4 karakter awal berbeda, tidak ada prefix/magic byte konstan — evidence baris 316-323.",
+        "evidence_file": "src/contacts/mod.rs",
+        "evidence_line_start": 316,
+        "evidence_line_end": 323,
+        "verdict": "CONFIRMED"
+      }
+    ],
+    "verified_primitives": [
+      {
+        "primitive_name": "ChaCha20Poly1305 contact-store encryption",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "BLAKE2s256 identity fingerprint",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "BLAKE2s256-based contacts key derivation",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "OsRng CSPRNG untuk nonce ChaCha20Poly1305",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Base64 URL-safe (no padding) invite code encoding",
+        "verdict": "CONFIRMED"
+      },
+      {
+        "primitive_name": "Hex encoding untuk representasi key (fingerprint output & format plaintext kontak)",
+        "verdict": "CORRECTED",
+        "corrections": "Semua sitasi baris di dalam deskripsi akurat: hex::encode untuk fingerprint di baris 53, hex::encode ed/noise_pub per kontak di baris 121-122, hex::decode via parse_key32 di baris 131, dan silent-skip caller di deserialize_contacts baris 152-154. Namun evidence_line_start/end yang diberikan (114-138) TIDAK mencakup baris 53 walau fungsi ini eksplisit disebut di deskripsi primitive — rentang evidence seharusnya mencakup juga baris 48-54 (fungsi fingerprint), atau dipecah menjadi dua rentang terpisah."
+      }
+    ]
+  }
+}
