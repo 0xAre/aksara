@@ -2,7 +2,7 @@
 
 Baca file ini DULU sebelum melanjutkan sesi. Sumber instruksi lengkap:
 `docs/mini-ta/CLAUDE_PREPARATION_BRIEF.md` (17 TAHAP, aturan anti-fabrikasi, quality gate).
-Update terakhir: TAHAP 2/3 selesai disintesis oleh Codex; sesi berikutnya mulai TAHAP 4.
+Update terakhir: TAHAP 4 dan TAHAP 9 (riset referensi, digabung) selesai. Sesi berikutnya mulai TAHAP 5 (spesifikasi protokol).
 
 ## Status per TAHAP
 
@@ -11,12 +11,12 @@ Update terakhir: TAHAP 2/3 selesai disintesis oleh Codex; sesi berikutnya mulai 
 | 1 | Tool & MCP inventory | ✅ DONE | `00_TOOL_AND_MCP_INVENTORY.md` |
 | 2 | Audit codebase | ✅ DONE | `01_CODEBASE_AUDIT.md` + `evidence/CODE_EVIDENCE_MATRIX.md` selesai. Matrix berisi 259 klaim final; verdict `CORRECTED` dipakai sebagai klaim final, verdict `REFUTED` di-drop. |
 | 3 | Audit kriptografi | ✅ DONE | `02_CRYPTO_IMPLEMENTATION_AUDIT.md` selesai. Inventaris berisi 36 primitif/entry kripto dari field `primitives` raw JSON. |
-| 4 | Justifikasi kriptografi | ⬜ PENDING | Butuh #3 selesai + referensi (#9) |
+| 4 | Justifikasi kriptografi | ✅ DONE | `03_CRYPTO_INVENTORY_NORMALIZED.md` (36 entry dikategorikan → 7 komponen inti CORE-1..7), `04_CRYPTOGRAPHIC_JUSTIFICATION.md` (15 poin/komponen), `05_CRYPTO_ALTERNATIVE_COMPARISON.md` (7 fungsi utama × maks 2 alternatif, multi-kriteria). |
 | 5 | Spesifikasi protokol | ⬜ PENDING | Butuh #2+#3 |
 | 6 | Key lifecycle | ⬜ PENDING | Butuh #2+#3 |
 | 7 | Threat model | ⬜ PENDING | Butuh #2+#3 |
 | 8 | Scope & tim | ⬜ PENDING | Nama anggota: TIDAK ADA sumber terkonfirmasi (cek 3 proposal CARAKA sibling folder, semua placeholder `[Nama X — TBD]`) → **pakai placeholder Anggota 1/2/3**, tidak perlu tanya user lagi soal ini |
-| 9 | Riset referensi MCP | ⬜ PENDING | Target 15-25 ref, ≥5 primer. MCP siap: context7, semantic-scholar, tavily, ydc-server |
+| 9 | Riset referensi MCP | ✅ DONE | Digabung ke sesi TAHAP 4. 31 referensi terverifikasi (25 standar/primer, 6 dok. library) — lihat `references/REFERENCES.bib`, `REFERENCE_MATRIX.md`, `ANNOTATED_BIBLIOGRAPHY.md`, `MCP_RESEARCH_LOG.md`. `semantic-scholar` rate-limited setelah 1 query sukses; `tavily` gagal total (HTTP 432, kuota habis) — riset dialihkan penuh ke `ydc-server`(you-search) dengan domain filter resmi. Detail kendala di `MCP_RESEARCH_LOG.md`. |
 | 10 | Related work & gap | ⬜ PENDING | |
 | 11 | Diagram Mermaid | ⬜ PENDING | `mmdc` SUDAH DIPERBAIKI sesi ini (lihat Keputusan Penting) — render pipeline teruji OK |
 | 12 | Screenshot aplikasi | 🔴 BLOCKED (bagian render), verifikasi fungsi bisa jalan | Tidak ada tool screenshot OS/terminal di environment ini. Build+run untuk verifikasi fungsi masih bisa. Pengambilan gambar aktual perlu user manual. TIDAK memblokir `ready_for_codex` (screenshot tak masuk 17 syarat quality gate) |
@@ -66,8 +66,9 @@ Transcript lengkap workflow (kalau perlu re-cek reasoning agent): `C:\Users\LENO
 
 ## Next action kalau lanjut sesi baru
 
-1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, lalu `SESSION_1_HANDOFF.md`, `01_CODEBASE_AUDIT.md`, `02_CRYPTO_IMPLEMENTATION_AUDIT.md`, dan `evidence/CODE_EVIDENCE_MATRIX.md`.
-2. Jangan mengulang audit codebase/kripto kecuali ada klaim yang secara eksplisit perlu dikonfirmasi ulang.
-3. Lanjut TAHAP 4: justifikasi kriptografi. Gunakan audit kripto sebagai ground truth implementasi lokal.
-4. Jika TAHAP 4 membutuhkan referensi eksternal, ikuti aturan riset TAHAP 9/brief dan bedakan tegas evidence implementasi lokal dari referensi akademik/standar.
-5. Update file ini setiap TAHAP selesai — jangan tunggu sampai akhir sesi.
+1. Baca `docs/mini-ta/PROJECT_MEMORY.md`, lalu `SESSION_2_HANDOFF.md` (atau handoff sesi lebih baru), `03_CRYPTO_INVENTORY_NORMALIZED.md`, `04_CRYPTOGRAPHIC_JUSTIFICATION.md`, `05_CRYPTO_ALTERNATIVE_COMPARISON.md`.
+2. Jangan mengulang audit codebase/kripto/normalisasi/justifikasi/riset referensi kecuali ada klaim yang secara eksplisit perlu dikonfirmasi ulang.
+3. Lanjut TAHAP 5: spesifikasi protokol (`docs/mini-ta/01-claude-preparation/04_PROTOCOL_SPECIFICATION.md` per penomoran brief asli — cek penomoran final terhadap file yang sudah ada di folder ini sebelum menulis, karena TAHAP 4 sesi ini memakai 3 file `03/04/05` sehingga penomoran brief asli untuk TAHAP 5 dst. kemungkinan perlu digeser +1 atau disesuaikan; putuskan penomoran definitif di awal sesi TAHAP 5 dan catat keputusannya di sini).
+4. Jika TAHAP 5+ membutuhkan referensi eksternal baru, tambahkan ke `references/` yang sudah ada (JANGAN membuat ulang dari nol) — 31 referensi TAHAP 4/9 sudah mencakup 7 komponen kripto inti; TAHAP 5 (protokol) dan TAHAP 6/7 (key lifecycle/threat model) kemungkinan besar cukup memakai ulang referensi yang sama.
+5. `semantic-scholar` dan `tavily` sempat bermasalah (rate-limit/kuota habis) sesi ini — coba lagi di sesi baru (kuota mungkin sudah reset), tapi jangan blocking: `ydc-server`(you-search) dengan `include_domains` terarah adalah fallback yang terbukti bekerja baik.
+6. Update file ini setiap TAHAP selesai — jangan tunggu sampai akhir sesi.

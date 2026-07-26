@@ -1,0 +1,330 @@
+% REFERENCES.bib — AKSARA mini-TA (Implementasi Kriptografi)
+% Disusun TAHAP 4 (digabung dengan riset referensi TAHAP 9).
+% Seluruh entry diverifikasi via MCP (semantic-scholar/you-search) pada 2026-07-26.
+% Lihat references/MCP_RESEARCH_LOG.md untuk jejak pencarian dan sumber verifikasi per entry.
+
+% =========================================================================
+% STANDAR, RFC, SPESIFIKASI RESMI, DAN PUBLIKASI NIST
+% =========================================================================
+
+@misc{noise2018,
+  author       = {Trevor Perrin},
+  title        = {{The Noise Protocol Framework}},
+  howpublished = {Revision 34, status: official/unstable},
+  year         = {2018},
+  month        = jul,
+  url          = {https://noiseprotocol.org/noise.html}
+}
+
+@misc{rfc7748,
+  author       = {Adam Langley and Mike Hamburg and Sean Turner},
+  title        = {{Elliptic Curves for Security}},
+  howpublished = {RFC 7748},
+  series       = {Request for Comments},
+  number       = {7748},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC7748},
+  year         = {2016},
+  month        = jan,
+  url          = {https://www.rfc-editor.org/rfc/rfc7748.html}
+}
+
+@misc{rfc8439,
+  author       = {Yoav Nir and Adam Langley},
+  title        = {{ChaCha20 and Poly1305 for IETF Protocols}},
+  howpublished = {RFC 8439},
+  series       = {Request for Comments},
+  number       = {8439},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC8439},
+  year         = {2018},
+  month        = jun,
+  url          = {https://www.rfc-editor.org/rfc/rfc8439.html}
+}
+
+@misc{rfc9106,
+  author       = {Alex Biryukov and Daniel Dinu and Dmitry Khovratovich and Simon Josefsson},
+  title        = {{Argon2 Memory-Hard Function for Password Hashing and Proof-of-Work Applications}},
+  howpublished = {RFC 9106},
+  series       = {Request for Comments},
+  number       = {9106},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC9106},
+  year         = {2021},
+  month        = sep,
+  url          = {https://www.rfc-editor.org/rfc/rfc9106.html}
+}
+
+@misc{rfc7693,
+  author       = {Markku-Juhani O. Saarinen and Jean-Philippe Aumasson},
+  title        = {{The BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)}},
+  howpublished = {RFC 7693},
+  series       = {Request for Comments},
+  number       = {7693},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC7693},
+  year         = {2015},
+  month        = nov,
+  url          = {https://www.rfc-editor.org/rfc/rfc7693.html}
+}
+
+@misc{rfc8032,
+  author       = {Simon Josefsson and Ilari Liusvaara},
+  title        = {{Edwards-Curve Digital Signature Algorithm (EdDSA)}},
+  howpublished = {RFC 8032},
+  series       = {Request for Comments},
+  number       = {8032},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC8032},
+  year         = {2017},
+  month        = jan,
+  url          = {https://www.rfc-editor.org/rfc/rfc8032.html}
+}
+
+@misc{fips186-5,
+  author       = {{National Institute of Standards and Technology}},
+  title        = {{Digital Signature Standard (DSS)}},
+  howpublished = {FIPS PUB 186-5},
+  doi          = {10.6028/NIST.FIPS.186-5},
+  year         = {2023},
+  month        = feb,
+  url          = {https://csrc.nist.gov/pubs/fips/186-5/final}
+}
+
+@misc{sp800-186,
+  author       = {Lily Chen and Dustin Moody and Andrew Regenscheid and Angela Robinson and Karen Randall},
+  title        = {{Recommendations for Discrete Logarithm-based Cryptography: Elliptic Curve Domain Parameters}},
+  howpublished = {NIST Special Publication 800-186},
+  institution  = {National Institute of Standards and Technology},
+  year         = {2023},
+  url          = {https://csrc.nist.gov/pubs/sp/800/186/final}
+}
+
+@misc{sp800-38d,
+  author       = {Morris Dworkin},
+  title        = {{Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC}},
+  howpublished = {NIST Special Publication 800-38D},
+  institution  = {National Institute of Standards and Technology},
+  year         = {2007},
+  month        = nov,
+  url          = {https://csrc.nist.gov/pubs/sp/800/38/d/final}
+}
+
+@misc{rfc8452,
+  author       = {Shay Gueron and Adam Langley and Yehuda Lindell},
+  title        = {{AES-GCM-SIV: Nonce Misuse-Resistant Authenticated Encryption}},
+  howpublished = {RFC 8452},
+  series       = {Request for Comments},
+  number       = {8452},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC8452},
+  year         = {2019},
+  month        = apr,
+  url          = {https://www.rfc-editor.org/rfc/rfc8452.html}
+}
+
+@misc{rfc7914,
+  author       = {Colin Percival and Simon Josefsson},
+  title        = {{The scrypt Password-Based Key Derivation Function}},
+  howpublished = {RFC 7914},
+  series       = {Request for Comments},
+  number       = {7914},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC7914},
+  year         = {2016},
+  month        = aug,
+  url          = {https://www.rfc-editor.org/rfc/rfc7914.html}
+}
+
+@misc{rfc8018,
+  author       = {Kathleen Moriarty and Burt Kaliski and Andreas Rusch},
+  title        = {{PKCS #5: Password-Based Cryptography Specification Version 2.1}},
+  howpublished = {RFC 8018},
+  series       = {Request for Comments},
+  number       = {8018},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC8018},
+  year         = {2017},
+  month        = jan,
+  url          = {https://www.rfc-editor.org/rfc/rfc8018.html}
+}
+
+@misc{fips180-4,
+  author       = {{National Institute of Standards and Technology}},
+  title        = {{Secure Hash Standard (SHS)}},
+  howpublished = {FIPS PUB 180-4},
+  doi          = {10.6028/NIST.FIPS.180-4},
+  year         = {2015},
+  month        = aug,
+  url          = {https://csrc.nist.gov/pubs/fips/180-4/upd1/final}
+}
+
+@misc{fips202,
+  author       = {{National Institute of Standards and Technology}},
+  title        = {{SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions}},
+  howpublished = {FIPS PUB 202},
+  year         = {2015},
+  month        = aug,
+  url          = {https://csrc.nist.gov/pubs/fips/202/final}
+}
+
+@misc{rfc8446,
+  author       = {Eric Rescorla},
+  title        = {{The Transport Layer Security (TLS) Protocol Version 1.3}},
+  howpublished = {RFC 8446},
+  series       = {Request for Comments},
+  number       = {8446},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC8446},
+  year         = {2018},
+  month        = aug,
+  url          = {https://www.rfc-editor.org/rfc/rfc8446.html}
+}
+
+@misc{x3dh2016,
+  author       = {Moxie Marlinspike and Trevor Perrin},
+  title        = {{The X3DH Key Agreement Protocol}},
+  howpublished = {Signal Specifications},
+  year         = {2016},
+  month        = nov,
+  url          = {https://signal.org/docs/specifications/x3dh/}
+}
+
+@misc{sp800-90a,
+  author       = {{National Institute of Standards and Technology}},
+  title        = {{Recommendation for Random Number Generation Using Deterministic Random Bit Generators}},
+  howpublished = {NIST Special Publication 800-90A Revision 1},
+  year         = {2015},
+  month        = jun,
+  url          = {https://csrc.nist.gov/pubs/sp/800/90/a/r1/final}
+}
+
+% =========================================================================
+% PAPER / DESIGN DOCUMENT ASLI ALGORITMA (SUMBER PRIMER)
+% =========================================================================
+
+@inproceedings{bernstein2006curve25519,
+  author    = {Daniel J. Bernstein},
+  title     = {{Curve25519: New Diffie-Hellman Speed Records}},
+  booktitle = {International Conference on Theory and Practice of Public-Key Cryptography (PKC 2006)},
+  year      = {2006},
+  url       = {https://cr.yp.to/ecdh.html}
+}
+
+@misc{bernstein2008chacha,
+  author       = {Daniel J. Bernstein},
+  title        = {{ChaCha, a variant of Salsa20}},
+  howpublished = {Technical report, document ID 4027b5256e17b9796842e6d0f68b0b5e},
+  year         = {2008},
+  month        = jan,
+  url          = {https://cr.yp.to/chacha/chacha-20080120.pdf},
+  note         = {Tidak dipublikasikan pada venue peer-review formal; menjadi basis desain ChaCha20 yang distandardisasi pada RFC 8439.}
+}
+
+@inproceedings{bernstein2005poly1305,
+  author    = {Daniel J. Bernstein},
+  title     = {{The Poly1305-AES Message-Authentication Code}},
+  booktitle = {Fast Software Encryption (FSE 2005)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {3557},
+  pages     = {32--49},
+  publisher = {Springer},
+  editor    = {Henri Gilbert and Helena Handschuh},
+  year      = {2005},
+  url       = {https://cr.yp.to/mac/poly1305-20050329.pdf}
+}
+
+@inproceedings{biryukov2016argon2,
+  author    = {Alex Biryukov and Daniel Dinu and Dmitry Khovratovich},
+  title     = {{Argon2: New Generation of Memory-Hard Functions for Password Hashing and Other Applications}},
+  booktitle = {2016 IEEE European Symposium on Security and Privacy (EuroS\&P)},
+  pages     = {292--302},
+  doi       = {10.1109/EuroSP.2016.31},
+  year      = {2016},
+  url       = {https://orbilu.uni.lu/bitstream/10993/31652/1/Argon2ESP.pdf}
+}
+
+@inproceedings{aumasson2013blake2,
+  author    = {Jean-Philippe Aumasson and Samuel Neves and Zooko Wilcox-O'Hearn and Christian Winnerlein},
+  title     = {{BLAKE2: Simpler, Smaller, Fast as MD5}},
+  booktitle = {Applied Cryptography and Network Security (ACNS 2013)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {7954},
+  publisher = {Springer},
+  year      = {2013},
+  url       = {https://eprint.iacr.org/2013/322}
+}
+
+@article{bernstein2012ed25519,
+  author  = {Daniel J. Bernstein and Niels Duif and Tanja Lange and Peter Schwabe and Bo-Yin Yang},
+  title   = {{High-speed high-security signatures}},
+  journal = {Journal of Cryptographic Engineering},
+  volume  = {2},
+  number  = {2},
+  pages   = {77--89},
+  doi     = {10.1007/s13389-012-0027-1},
+  year    = {2012},
+  note    = {Versi ringkas dipresentasikan di CHES 2011.},
+  url     = {https://ed25519.cr.yp.to/ed25519-20110926.pdf}
+}
+
+@misc{percival2009scrypt,
+  author       = {Colin Percival},
+  title        = {{Stronger Key Derivation via Sequential Memory-Hard Functions}},
+  howpublished = {Dipresentasikan di BSDCan 2009},
+  year         = {2009},
+  url          = {https://www.tarsnap.com/scrypt/scrypt.pdf}
+}
+
+% =========================================================================
+% DOKUMENTASI RESMI LIBRARY / CRATE (RUST) YANG DIPAKAI AKSARA
+% =========================================================================
+
+@misc{snowcrate,
+  author       = {Jake McGinty and contributors},
+  title        = {{snow: a Rust implementation of the Noise Protocol Framework}},
+  howpublished = {crates.io / docs.rs, versi 0.10.0 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/snow/latest/snow/}
+}
+
+@misc{chacha20poly1305crate,
+  author       = {{RustCrypto Developers}},
+  title        = {{chacha20poly1305: pure Rust implementation of ChaCha20Poly1305 (RFC 8439)}},
+  howpublished = {docs.rs, versi 0.10.1 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/chacha20poly1305/latest/chacha20poly1305/}
+}
+
+@misc{ed25519dalekcrate,
+  author       = {{dalek-cryptography Developers}},
+  title        = {{ed25519-dalek: fast and efficient Ed25519 key generation, signing, and verification in pure Rust}},
+  howpublished = {docs.rs, versi 2.2.0 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/ed25519-dalek/2.2.0/ed25519_dalek/}
+}
+
+@misc{x25519dalekcrate,
+  author       = {{dalek-cryptography Developers}},
+  title        = {{x25519-dalek: pure Rust implementation of X25519 elliptic-curve Diffie-Hellman key exchange}},
+  howpublished = {docs.rs, versi 2.0.1 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/x25519-dalek/2.0.1/x25519_dalek/}
+}
+
+@misc{argon2crate,
+  author       = {{RustCrypto Developers}},
+  title        = {{argon2: pure Rust implementation of the Argon2 password hashing function}},
+  howpublished = {docs.rs, versi 0.5.3 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/argon2/0.5.3/argon2/}
+}
+
+@misc{blake2crate,
+  author       = {{RustCrypto Developers}},
+  title        = {{blake2: pure Rust implementation of the BLAKE2 hash functions}},
+  howpublished = {docs.rs, versi 0.10.6 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/blake2/0.10.6/blake2/}
+}
+
+@misc{randcrate,
+  author       = {{rust-random Developers}},
+  title        = {{rand::rngs::OsRng — antarmuka ke sumber entropi sistem operasi}},
+  howpublished = {docs.rs, versi 0.8.6 (versi yang dipakai AKSARA per \texttt{Cargo.lock})},
+  url          = {https://docs.rs/rand/0.8.6/rand/rngs/struct.OsRng.html}
+}
