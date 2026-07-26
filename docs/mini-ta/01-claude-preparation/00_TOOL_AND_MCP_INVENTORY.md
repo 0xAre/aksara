@@ -29,10 +29,10 @@ Lingkungan: Windows 11, PowerShell, repo `E:\Project APP\AKSARA`.
 |----------|--------|--------|------------------------------|
 | `context7` | Dokumentasi resmi library/crate (versi terkini) | READY | Verifikasi API/parameter crate: `snow`, `chacha20poly1305`, `argon2`, `ed25519-dalek`, `x25519-dalek`, `blake2`, `mdns-sd`, `arti-client`, `ratatui` |
 | `github` | Baca repo/commit/release publik | READY | Cross-check repo resmi crate (mis. `snow`, `arti-client`) bila dibutuhkan sebagai referensi sekunder |
-| `tavily` | Web search + ekstraksi halaman | READY | Cari & baca standar/RFC/paper yang tidak tercakup Context7/Semantic Scholar |
-| `ydc-server` (you-search/you-research/you-contents) | Discovery web, sintesis multi-sumber, baca URL spesifik | READY | Cadangan pencarian web untuk standar (NIST, IETF) |
+| `tavily` | Web search + ekstraksi halaman | **GAGAL TOTAL sejak TAHAP 4** (2026-07-26) — seluruh 4 percobaan pertama gagal HTTP 432 (indikasi kuota/plan API habis, bukan transient). Tidak dicoba ulang. | **JANGAN dipakai sebagai sumber utama** — cadangan opsional terakhir saja, cek dulu apakah kuota sudah reset sebelum mengandalkannya |
+| `ydc-server` (you-search/you-research/you-contents) | Discovery web, sintesis multi-sumber, baca URL spesifik | READY — **terbukti andal**, dipakai sebagai sumber utama riset TAHAP 4/9 (26 query sukses) | **Sumber utama/prioritas pertama** untuk web search & riset referensi (standar, RFC, NIST, paper, dokumentasi library) — pakai `include_domains` diarahkan ke domain resmi (`datatracker.ietf.org`, `csrc.nist.gov`, `docs.rs`, dst.) agar hasil tetap otoritatif |
 | `academic-core` | Ingest & index paper akademik | READY (opsional) | Tidak dipakai kecuali dibutuhkan indexing paper dalam jumlah besar |
-| `semantic-scholar` | Pencarian paper akademik, metadata, sitasi | READY | Sumber utama paper primer (Noise Protocol, Argon2, ChaCha20-Poly1305, Ed25519, BLAKE2) untuk TAHAP 9 |
+| `semantic-scholar` | Pencarian paper akademik, metadata, sitasi | **RATE-LIMITED sejak TAHAP 4** (2026-07-26) — hanya 1 query pertama sukses, seluruh percobaan berikutnya gagal `RateLimitError (retry_after: 60)` meski sudah menunggu beberapa menit. Kemungkinan API key/kuota bersama sudah terpakai. | **JANGAN diandalkan sebagai sumber utama** — coba paling banyak 1 query untuk cek apakah kuota sudah reset, lalu langsung alihkan ke `ydc-server` bila gagal. Jangan retry berulang. |
 | `zotero` | Baca item/metadata dari library referensi pengguna | READY | Dicek bila pengguna sudah punya koleksi referensi tersimpan; tidak wajib |
 | `sequential-thinking` | Bantuan penalaran terstruktur | READY (opsional) | Tidak dipakai sebagai sumber evidence, hanya bila dibutuhkan penalaran berlapis |
 | `wolfram-alpha` | Komputasi matematis | READY (opsional) | Tidak relevan untuk audit ini |
@@ -44,6 +44,6 @@ Lingkungan: Windows 11, PowerShell, repo `E:\Project APP\AKSARA`.
 ## Ringkasan kesiapan
 
 - Diagram: **siap penuh** — Mermaid CLI prioritas-1 berfungsi (source `.mmd` + render SVG/PNG).
-- Riset referensi: **siap** — kombinasi `context7` (dok library), `semantic-scholar` (paper primer), `tavily`/`ydc-server` (standar & web) mencukupi target 15–25 referensi dengan ≥5 sumber primer/standar.
+- Riset referensi: **siap, dengan catatan** — `tavily` dan `semantic-scholar` bermasalah sejak TAHAP 4 (lihat baris masing-masing di atas dan detail lengkap di `references/MCP_RESEARCH_LOG.md`). `ydc-server` (you-search) terbukti sebagai sumber utama yang andal (31 referensi berhasil diverifikasi TAHAP 4/9 hampir seluruhnya lewat tool ini) — **prioritaskan `ydc-server` lebih dulu** untuk riset referensi berikutnya, bukan cadangan terakhir.
 - Screenshot aplikasi aktual: **terblokir** — tidak ada tool capture layar/terminal di environment ini. Build & run untuk verifikasi fungsi tetap bisa dilakukan; pengambilan gambar aktual perlu dilakukan manual oleh pengguna. Dicatat di `14_OPEN_QUESTIONS.md` dan `HANDOFF_TO_CODEX.yaml`.
 - Build project: **siap** — `cargo`/`rustc` 1.97.0 terpasang, `target/debug` menunjukkan build sebelumnya berhasil.
