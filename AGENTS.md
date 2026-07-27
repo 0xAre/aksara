@@ -16,7 +16,7 @@
 
 - The deliverable is the final assignment for the Implementasi Kriptografi course.
 - It is group work by three members, not an individual thesis or skripsi.
-- Member names remain `Anggota 1`, `Anggota 2`, and `Anggota 3` with status `NEEDS_CONFIRMATION`.
+- Member names are CONFIRMED as of 2026-07-27, sourced from `docs/mini-ta/00-template/PROPOSAL CARAKA (2).docx` (same course, same group): Andika Aryansyach Fauzan (2322101878), Mahendra Nur Hidayat (2322101937), Rafi Putra Fadlurrahman (2322101963). Study program: Rekayasa Sistem Kriptografi. Institution: Politeknik Siber dan Sandi Negara. Year: 2026. The placeholders `Anggota 1/2/3` are retired; only the mapping of each name to a specific module assignment remains `NEEDS_CONFIRMATION`.
 - Focus on factual cryptographic implementation and justification. Keep the scope proportional to a course assignment while maintaining academic substance and accuracy.
 
 ## Mandatory Startup Sequence

@@ -108,11 +108,17 @@ blockers:
     blocks_ready_for_codex: false
 
   member_names:
-    status: NEEDS_CONFIRMATION
-    placeholder:
-      - Anggota 1
-      - Anggota 2
-      - Anggota 3
+    status: CONFIRMED
+    confirmed_on: "2026-07-27"
+    source: docs/mini-ta/00-template/PROPOSAL CARAKA (2).docx
+    members:
+      - {name: "Andika Aryansyach Fauzan", nim: "2322101878"}
+      - {name: "Mahendra Nur Hidayat", nim: "2322101937"}
+      - {name: "Rafi Putra Fadlurrahman", nim: "2322101963"}
+    study_program: Rekayasa Sistem Kriptografi
+    institution: Politeknik Siber dan Sandi Negara
+    year: 2026
+    remaining: "pemetaan nama ke pembagian modul (Anggota 1/2/3 di 09_SCOPE_AND_TEAM_PLAN.md) masih urutan default, boleh ditukar kelompok"
 
 memory:
   project_memory: docs/mini-ta/PROJECT_MEMORY.md
