@@ -1,22 +1,28 @@
 # 16 — Spesifikasi Format Dokumen AKSARA
 
-Dokumen ini adalah **aturan format yang harus diikuti Codex** saat menyusun DOCX. Disusun 2026-07-27 dengan mengekstrak aturan nyata dari dua file di `docs/mini-ta/00-template/`, lalu **menyederhanakannya** sesuai instruksi eksplisit pengguna: dokumen ini adalah tugas mata kuliah, bukan Tugas Akhir/skripsi dengan sidang.
+Aturan format yang **wajib diikuti Codex** saat menyusun DOCX. Direvisi 2026-07-27 setelah pengguna menyediakan pedoman resmi institusi.
 
-## 1. Sumber dan Status Setiap Aturan
+## 1. Sumber dan Hierarki Aturan
 
-| Sumber | Isi sebenarnya | Dipakai untuk |
-|---|---|---|
-| `00-template/Cetak TA_rev3.docx` | **TA orang lain yang sudah dicetak** (topik QRNG, penulis Naval Indra Waskita, Poltek SSN 2025) — contoh terisi, bukan template kosong | Aturan tipografi, margin, penomoran, caption, gaya sitasi. Diukur langsung dari XML dokumen, bukan diperkirakan |
-| `00-template/PROPOSAL CARAKA (2).docx` | Proposal kelompok yang sama untuk **mata kuliah yang sama** ("PROPOSAL TUGAS IMPLEMENTASI KRIPTOGRAFI") | Identitas anggota, dan **preseden struktur** — proposal ini sudah menghilangkan seluruh lembar formal, sehingga penyederhanaan di §3 punya dasar nyata, bukan asumsi |
+| Prioritas | Sumber | Status | Dipakai untuk |
+|---|---|---|---|
+| **1** | **`Peraturan Direktur Poltek SSN tentang Pedoman Pelaksanaan Tugas Akhir` (2024, 149 hlm.)** — di luar repo: `E:\Kuliah\TA\FINAL PERDIR PEDOMAN TA\` | **Peraturan resmi** | **Sumber utama seluruh aturan tata tulis.** Menimpa dua sumber di bawah bila berbeda |
+| 2 | `00-template/Cetak TA_rev3.docx` | Contoh TA orang lain (topik QRNG, Poltek SSN 2025) | Konfirmasi silang: seluruh nilai yang diukur dari XML-nya **cocok** dengan pedoman |
+| 3 | `00-template/PROPOSAL CARAKA (2).docx` | Proposal kelompok yang sama, mata kuliah yang sama | Identitas anggota dan preseden struktur ringkas |
 
-**Batas penting**: `PROPOSAL CARAKA` adalah proyek berbeda (mesh offline, Ascon, protokol CLAMP). `AGENTS.md` melarang mencampur faktanya dengan AKSARA. Dari file itu **hanya identitas anggota dan struktur dokumen** yang diambil — tidak satu pun fakta teknis, algoritma, tabel, atau referensinya boleh masuk ke dokumen AKSARA.
+**Catatan penting tentang cakupan pedoman**: Perdir ini mengatur **Tugas Akhir** — karya tingkat IV, 2 semester, 4 SKS, dengan sidang dan penguji (Pasal 2-6). Dokumen kita adalah **tugas mata kuliah Implementasi Kriptografi**, bukan TA tersebut. Karena itu aturannya diterapkan **terpisah**:
+
+- **Tata tulis (§4-§8 dokumen ini) → diikuti penuh.** Ini yang dimaksud pengguna dengan "aturan dari dosen".
+- **Struktur dokumen (§3) → disederhanakan** atas instruksi eksplisit pengguna. Bagian yang dihapus beserta alasannya didaftar lengkap di §3.2 supaya keputusan ini dapat dipertanggungjawabkan bila ditanya.
+
+**Batas `PROPOSAL CARAKA`**: proyek berbeda (mesh offline, Ascon, protokol CLAMP). `AGENTS.md` melarang mencampur faktanya. Dari file itu **hanya identitas anggota dan struktur dokumen** yang diambil.
 
 ## 2. Identitas Dokumen
 
 | Field | Nilai | Status |
 |---|---|---|
 | Jenis dokumen | Tugas Mata Kuliah Implementasi Kriptografi | CONFIRMED |
-| Judul | **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Chat Terminal Tanpa Server — Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Siklus Hidup Kunci, dan Threat Model** | **CONFIRMED** (disetujui pengguna 2026-07-27) |
+| Judul | **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Chat Terminal Tanpa Server — Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Siklus Hidup Kunci, dan Threat Model** | CONFIRMED (2026-07-27) |
 | Penulis 1 | Andika Aryansyach Fauzan (2322101878) | CONFIRMED |
 | Penulis 2 | Mahendra Nur Hidayat (2322101937) | CONFIRMED |
 | Penulis 3 | Rafi Putra Fadlurrahman (2322101963) | CONFIRMED |
@@ -24,126 +30,152 @@ Dokumen ini adalah **aturan format yang harus diikuti Codex** saat menyusun DOCX
 | Institusi | Politeknik Siber dan Sandi Negara | CONFIRMED |
 | Tahun | 2026 | CONFIRMED |
 
-**Catatan judul**: pengguna menginstruksikan nama panjang AKSARA masuk ke judul, **menimpa** `09_SCOPE_AND_TEAM_PLAN.md` §7 yang semula menyatakan nama panjang hanya dipakai sebagai konteks di BAB I. Bentuk final dipilih pengguna dari tiga alternatif, mengutamakan judul yang ringkas dan mudah diingat.
+**Judul sudah diperiksa terhadap pedoman** (hlm. 60 butir 3): judul tidak memakai singkatan kecuali nama/istilah — `AKSARA` adalah nama proyek dan `Noise_IK` adalah nama protokol, keduanya diizinkan; judul bukan kalimat tanya; judul tidak ditutup tanda baca. **Aman.**
 
-Dua konsekuensi yang perlu dikompensasi Codex saat menulis prosa:
+Dua konsekuensi pilihan judul yang **wajib dikompensasi Codex**:
 
-1. **Kata "P2P" tidak muncul di judul.** Sifat peer-to-peer wajib ditegaskan pada kalimat pembuka Abstrak (bila dipakai) dan BAB I §1.1, supaya tidak hilang dari pembacaan sekilas.
-2. **Sisi evaluasi empiris tidak terlihat di judul.** Kontribusi terkuat penelitian ini — verifikasi 46/46 pengujian dan koreksi klaim performa "~100 ms" menjadi ~48 ms — harus tampil eksplisit di Abstrak dan BAB VI §6.1, karena judul tidak lagi memberi sinyal itu.
+1. Kata "P2P" tidak muncul di judul → sifat *peer-to-peer* ditegaskan di kalimat pembuka Abstrak dan BAB I.1.
+2. Sisi evaluasi empiris tidak muncul → koreksi klaim "~100 ms" menjadi ~48 ms dan hasil 46/46 pengujian harus tampil eksplisit di Abstrak dan BAB VI.
 
-**Frasa yang DILARANG masuk judul atau subjudul** meskipun terdengar menjual: "Tanpa Jejak", "Anti-Sadap", "Sepenuhnya Anonim", "Terbukti Aman", atau variasi apa pun yang menyiratkan jaminan absolut. `08_THREAT_MODEL.md` T2 mencatat fingerprint dan presence masih bocor lewat mDNS plaintext, dan `AGENTS.md` melarang klaim "aman" tanpa kualifikasi. Frasa "Tanpa Server" aman dipakai karena akurat secara harfiah — AKSARA memang tidak memakai server perantara.
+**Frasa DILARANG** di judul/subjudul meski terdengar menjual: "Tanpa Jejak", "Anti-Sadap", "Sepenuhnya Anonim", "Terbukti Aman". `08_THREAT_MODEL.md` T2 mencatat fingerprint dan presence masih bocor lewat mDNS plaintext. "Tanpa Server" lolos karena akurat secara harfiah.
 
-## 3. Struktur Dokumen (Disederhanakan)
+## 3. Struktur Dokumen
 
 ### 3.1 Yang DIPAKAI
 
 | # | Bagian | Catatan |
 |---|---|---|
-| 1 | **Sampul** | Judul, 3 nama + NIM, program studi, institusi, tahun. Tanpa logo kecuali diminta |
-| 2 | **Daftar Isi** | Otomatis dari heading Word |
-| 3 | **Daftar Gambar** | 7 diagram (`11_FIGURE_MANIFEST.md`) |
-| 4 | **Daftar Tabel** | 13 tabel (`13_TABLE_MANIFEST.md`) |
-| 5 | **BAB I — PENDAHULUAN** | 6 subbab |
-| 6 | **BAB II — KAJIAN PUSTAKA** | 10 subbab |
-| 7 | **BAB III — METODOLOGI PENELITIAN** | 5 subbab |
-| 8 | **BAB IV — PERANCANGAN DAN IMPLEMENTASI** | 7 subbab |
-| 9 | **BAB V — PENGUJIAN DAN ANALISIS** | 3 subbab |
-| 10 | **BAB VI — PENUTUP** | 3 subbab |
-| 11 | **Daftar Pustaka** | 40 entry (`references/REFERENCES.bib`) |
+| 1 | **Sampul** | Judul, 3 nama + NIM, program studi, institusi, tahun. Simetris di tengah. Tanpa hardcover/linen/tinta emas (§3.2) |
+| 2 | **Abstrak** (Indonesia) | **200-300 kata**, spasi tunggal, **tanpa rujukan referensi apa pun**, diakhiri maksimal 7 kata kunci urut abjad. Memuat judul, kata "Oleh", nama + NIM, nama program studi |
+| 3 | **Daftar Isi** | Dibangkitkan otomatis Word, spasi tunggal |
+| 4 | **Daftar Gambar** | 7 diagram (`11_FIGURE_MANIFEST.md`), otomatis, spasi tunggal |
+| 5 | **Daftar Tabel** | 13 tabel (`13_TABLE_MANIFEST.md`), otomatis, spasi tunggal |
+| 6 | **BAB I — PENDAHULUAN** | 6 subbab |
+| 7 | **BAB II — KAJIAN PUSTAKA** | 10 subbab |
+| 8 | **BAB III — METODOLOGI PENELITIAN** | 5 subbab |
+| 9 | **BAB IV — PERANCANGAN DAN IMPLEMENTASI** | 7 subbab |
+| 10 | **BAB V — PENGUJIAN DAN ANALISIS** | 3 subbab |
+| 11 | **BAB VI — PENUTUP** | 3 subbab |
+| 12 | **Daftar Pustaka** | 40 entry (`references/REFERENCES.bib`), format IEEE, spasi tunggal |
 
-Opsional, boleh ditambahkan bila diminta dosen:
+**Abstrak naik status dari opsional menjadi dipakai** — pedoman mengatur Abstrak secara rinci (hlm. 61) dan ia menjadi satu-satunya tempat pembaca menangkap koreksi klaim performa secara cepat, mengingat judul final tidak lagi menyinggung sisi empiris.
 
-- **Abstrak** (1 halaman, bahasa Indonesia saja) — tidak ada di proposal CARAKA, tapi murah dibuat dan menambah bobot akademik. **Abstract bahasa Inggris tidak perlu.**
-- **Lampiran** — kode sumber tidak perlu dilampirkan karena repositori sudah menjadi luaran; cukup dirujuk.
+**Catatan jumlah bab**: pedoman (hlm. 64) menyebut Bagian Utama terdiri atas Pendahuluan, Telaah Kepustakaan, Metodologi Penelitian, Hasil Penelitian dan Pembahasan, serta Simpulan dan Saran — 5 bab. Dokumen ini memakai **6 bab** dengan memisahkan Perancangan/Implementasi (BAB IV) dari Pengujian/Analisis (BAB V). Ini **bukan pelanggaran**: contoh `Cetak TA_rev3.docx` yang sudah dicetak dan lolos sidang juga memakai 6 bab dengan pemisahan yang sama, dan pemisahan ini justru dituntut oleh isi AKSARA — implementasinya sudah ada sebelum penelitian dimulai, pengujiannya yang baru dikerjakan.
 
 ### 3.2 Yang DIHAPUS dan alasannya
 
-| Bagian di `Cetak TA_rev3.docx` | Alasan dihapus |
+| Bagian di pedoman | Alasan dihapus |
 |---|---|
 | Lembar Judul (duplikat sampul) | Redundan dengan sampul |
-| Lembar Pernyataan Orisinalitas | Butuh tanda tangan elektronik bersertifikat — artefak sidang TA, bukan tugas mata kuliah |
-| Lembar Persetujuan | Butuh tanda tangan Pembimbing Materi |
-| Lembar Pengesahan | Butuh tanda tangan Ketua Penguji + Penguji I + Penguji II. **Tidak ada sidang** untuk tugas mata kuliah |
-| Lembar Pernyataan Persetujuan Publikasi | Penyerahan Hak Bebas Royalti ke institusi — hanya berlaku untuk TA resmi |
-| Kata Pengantar | Ucapan terima kasih personal; tidak relevan untuk tugas kelompok satu mata kuliah |
-| Abstract (Inggris) | Persyaratan TA resmi, berlebihan untuk tugas mata kuliah |
+| Lembar Pernyataan Orisinalitas | Butuh tanda tangan elektronik bersertifikat — artefak sidang TA |
+| Lembar Persetujuan | Butuh tanda tangan Pembimbing Materi; tugas mata kuliah tidak punya pembimbing TA |
+| Lembar Pengesahan Penguji | Butuh tanda tangan Ketua Penguji + Penguji I + II. **Tidak ada sidang** |
+| Halaman Pernyataan Persetujuan Publikasi | Penyerahan Hak Bebas Royalti ke institusi — hanya untuk TA resmi |
+| Kata Pengantar / Ucapan Terima Kasih | Ucapan terima kasih personal; tidak relevan untuk tugas satu mata kuliah |
+| Abstract (bahasa Inggris) | Pedoman mensyaratkan dua bahasa untuk TA; berlebihan untuk tugas mata kuliah |
 | Daftar Notasi | AKSARA tidak memakai notasi matematis formal yang perlu didaftar |
-| Daftar Lampiran | Tidak ada lampiran (lihat §3.1) |
+| Daftar Lampiran + Lampiran | Kode sumber tidak dilampirkan — repositori sudah menjadi luaran, cukup dirujuk |
 | Daftar Riwayat Hidup | Artefak TA resmi |
+| Sampul hardcover linen berwarna, tinta emas, logo 5 cm, jilid lem, cetak bolak-balik | Spesifikasi fisik percetakan TA (hlm. 58, 60). Tugas mata kuliah tidak dijilid hardcover |
+| Aturan "setiap bab dimulai di halaman ganjil" | Konsekuensi cetak bolak-balik yang tidak dipakai |
 
-**Dasar penyederhanaan**: proposal kelompok ini untuk mata kuliah yang sama sudah memakai struktur ringkas — hanya sampul, daftar isi/gambar/tabel, isi, dan daftar pustaka. Jadi penghapusan di atas mengikuti preseden yang sudah diterima, bukan keputusan sepihak.
+**Dasar penyederhanaan**: proposal kelompok ini untuk mata kuliah yang sama sudah memakai struktur ringkas — hanya sampul, daftar isi/gambar/tabel, isi, dan daftar pustaka. Penghapusan di atas mengikuti preseden yang sudah diterima, bukan keputusan sepihak.
 
-## 4. Format Halaman dan Tipografi
+## 4. Halaman dan Tipografi
 
-Seluruh nilai berikut **diukur langsung** dari `word/document.xml` dan `word/styles.xml` milik `Cetak TA_rev3.docx`, bukan diperkirakan.
+Seluruh nilai berasal dari pedoman (hlm. 58-59) dan **terkonfirmasi cocok** dengan hasil pengukuran XML `Cetak TA_rev3.docx`.
 
-| Aspek | Nilai | Bukti |
+| Aspek | Ketentuan | Sumber |
 |---|---|---|
-| Ukuran kertas | **A4** (210 × 297 mm) | `<w:pgSz w:w="11906" w:h="16838">` |
-| Margin kiri | **4 cm** | `w:left="2268"` twips ÷ 567 |
-| Margin atas, kanan, bawah | **3 cm** | `w:top/right/bottom="1701"` twips ÷ 567 |
-| Font | **Times New Roman** | 935 kemunculan, dominan mutlak |
-| Ukuran badan teks | **12 pt** | `<w:sz w:val="24">` (half-point), 1886 kemunculan |
-| Ukuran judul sampul | 16 pt | `w:val="32"`, 24 kemunculan |
-| Ukuran heading besar | 14 pt | `w:val="28"`, 64 kemunculan |
-| Ukuran caption / isi tabel | 9–10 pt | style `Caption` `w:sz="18"`; sebagian isi tabel `w:val="20"` |
-| Perataan badan teks | **Rata kiri-kanan (justify)** | `<w:jc w:val="both">` dominan (360 vs 65 rata kiri) |
-| Spasi baris badan teks | **1,15** | `w:line="276"` dengan `lineRule="auto"` (276 ÷ 240) |
-| Font kode sumber | Courier New | 45 kemunculan |
+| Kertas | A4, HVS 80 gram, putih polos | Pedoman hlm. 58 |
+| Margin kiri | **4 cm** | Pedoman hlm. 58 · cocok dengan XML (`w:left="2268"` twips) |
+| Margin kanan, atas, bawah | **3 cm** | Pedoman hlm. 58 · cocok dengan XML (`1701` twips) |
+| Font | **Times New Roman 12 pt** | Pedoman hlm. 58 · cocok dengan XML |
+| Perataan | **Rata kiri-kanan (justify)** | Pedoman hlm. 58 · cocok dengan XML |
+| Spasi baris | **1,15** (`line spacing = multiple at 1,15`) | Pedoman hlm. 59 · cocok dengan XML (`w:line="276"`) |
+| Indentasi paragraf | **TIDAK ADA.** Huruf pertama paragraf baru mulai dari batas tepi kiri | Pedoman hlm. 65 butir 7 |
+| Jarak antarparagraf | Satu baris kosong (spasi 1,15, ukuran 12) | Pedoman hlm. 65 butir 8 |
+| Footer | Auto text **"Politeknik Siber dan Sandi Negara"**, **Arial 10 pt tebal, rata kanan**, dari Abstrak sampai Daftar Pustaka | Pedoman hlm. 58 butir b |
 
-**Peringatan spasi baris**: nilai 1,15 adalah apa yang benar-benar dipakai contoh TA tersebut. Banyak panduan penulisan Indonesia mensyaratkan **1,5**. Bila dosen punya panduan tertulis yang menyebut 1,5, **panduan tertulis menang** — angka di sini adalah hasil pengukuran satu contoh, bukan kutipan dari peraturan resmi.
+**Catatan spasi 1,15 — pertanyaan terbuka sebelumnya kini TERTUTUP.** Revisi dokumen ini sebelumnya menandai 1,15 sebagai hasil ukur satu contoh yang mungkin kalah oleh panduan tertulis. Pedoman hlm. 59 butir d menyebut angka itu eksplisit: *"Pengetikan dilakukan dengan spasi 1,15 (line spacing = multiple at 1,15)"*. **1,15 adalah aturan resmi, bukan kebetulan.** Jangan diganti 1,5.
 
-## 5. Penomoran Heading
+Spasi **tunggal** (bukan 1,15) khusus untuk: kutipan langsung, keterangan notasi setelah persamaan, judul tabel/gambar yang lebih dari satu baris, daftar pustaka, Abstrak, dan seluruh daftar (isi/gambar/tabel).
 
-Pola yang dipakai contoh TA:
+Jarak antarblok (pedoman hlm. 59 butir h): penunjuk bab → judul bab = 1 spasi; judul bab → teks pertama = 3 spasi; teks → judul subbab berikutnya = 2 spasi; judul subbab → baris pertama teks = 1 spasi; teks ↔ tabel/gambar = 2 spasi.
 
-| Level | Bentuk | Contoh |
-|---|---|---|
-| BAB | `BAB <romawi>` pada baris pertama, judul BAB pada baris kedua, keduanya kapital dan rata tengah | `BAB I` / `PENDAHULUAN` |
-| Subbab (level 2) | **KAPITAL SEMUA**, bernomor otomatis | `LATAR BELAKANG`, `RUMUSAN MASALAH` |
-| Sub-subbab (level 3) | Kapital di awal kata, bernomor `<romawi-bab>.<n>.<n>` | `II.1.1 Quantum Random Number Generator` |
-
-Untuk AKSARA, penomoran level 3 disarankan memakai angka Arab (`2.1.1`) agar konsisten dengan penomoran subbab di `14_CHAPTER_CONTENT_PACK.md` yang sudah dipakai lintas seluruh dokumen persiapan. **Konsistensi internal lebih penting daripada meniru persis contoh** — yang penting satu pola dipakai dari BAB I sampai BAB VI.
-
-## 6. Gambar dan Tabel
-
-| Aturan | Ketentuan |
-|---|---|
-| Penomoran | Per BAB: `Gambar <bab>.<urut>`, `Tabel <bab>.<urut>` — contoh `Gambar 4.1`, `Tabel 5.2` |
-| Posisi caption gambar | **Di bawah** gambar |
-| Posisi caption tabel | **Di atas** tabel |
-| Gaya caption | Times New Roman 10 pt, rata tengah |
-| Wajib dirujuk di teks | Setiap gambar/tabel harus disebut dalam kalimat sebelum kemunculannya (mis. "Gambar 4.1 menunjukkan…") — tidak boleh muncul tanpa rujukan |
-| Sumber gambar AKSARA | `diagrams/rendered/png/` (7 diagram, resolusi 2×) untuk disisipkan ke DOCX; versi SVG tersedia bila perlu kualitas cetak lebih tinggi |
-
-**Konsistensi penomoran**: contoh TA memakai bentuk tidak konsisten (`Gambar 1. 1` dengan spasi vs `Gambar 2.1` tanpa spasi). Untuk AKSARA pakai **`Gambar 4.1`** (tanpa spasi setelah titik) secara seragam.
-
-## 7. Sitasi dan Daftar Pustaka
-
-- **Gaya: IEEE numerik.** Kedua dokumen sumber memakainya secara konsisten — rujukan dalam teks berbentuk `[1]`, `[5]`, `[7][8][9]`, dan daftar pustaka diurutkan berdasarkan urutan kemunculan pertama.
-- Sumber referensi AKSARA: `references/REFERENCES.bib` (**40 entry terverifikasi**). Jangan menambah referensi baru tanpa verifikasi — `AGENTS.md` melarang mengarang DOI/penulis/tahun/venue.
-- Format entry mengikuti pola pada contoh: penulis, judul (dalam tanda kutip untuk artikel, miring untuk buku), venue/penerbit, kota, tahun; untuk sumber daring tambahkan `[Online]. Available: <URL>`.
-- Setiap klaim teori wajib bersitasi; setiap klaim implementasi wajib menunjuk path+symbol source code, bukan sitasi. Aturan ini berasal dari `AGENTS.md` dan **lebih ketat** daripada aturan format mana pun di sini.
-
-## 8. Penomoran Halaman
+## 5. Penomoran Halaman
 
 | Bagian | Penomoran |
 |---|---|
-| Sampul | Tidak diberi nomor |
-| Daftar isi/gambar/tabel | Angka romawi kecil (`i`, `ii`, `iii`) |
-| BAB I sampai Daftar Pustaka | Angka Arab (`1`, `2`, `3`) mulai dari BAB I |
+| Lembar Sampul | Tidak diberi nomor |
+| Bagian awal (Abstrak, Daftar Isi/Gambar/Tabel) | **Angka Romawi kecil**, posisi **tengah, 2,5 cm dari tepi bawah** |
+| BAB I sampai Daftar Pustaka | **Angka Arab** |
 
-Posisi nomor halaman mengikuti contoh: bawah-tengah atau kanan-atas — belum dapat dipastikan dari ekstraksi XML, **NEEDS_CONFIRMATION**, dan tidak berdampak besar bila salah pilih.
+Sumber: pedoman hlm. 59 butir g.
+
+## 6. Penomoran dan Penulisan Judul Bab
+
+> **KOREKSI terhadap revisi dokumen ini sebelumnya.** Versi lama menyarankan penomoran subbab memakai angka Arab (`2.1.1`) demi konsistensi dengan `14_CHAPTER_CONTENT_PACK.md`. **Itu salah.** Pedoman hlm. 62-63 mewajibkan kombinasi **angka Romawi (bab) + angka Arab (subbab)**. Pedoman menang; content pack hanya alat kerja internal, bukan dokumen cetak.
+
+| Level | Bentuk | Contoh |
+|---|---|---|
+| Bab | `BAB` + angka Romawi pada satu baris, judul bab pada baris berikutnya. **Kapital semua, tebal, simetris tengah**, tanpa garis bawah, tanpa titik | `BAB IV` / `PERANCANGAN DAN IMPLEMENTASI` |
+| Subbab | **Romawi.Arab**, judul **kapital semua** | `IV.1 ARSITEKTUR SISTEM` |
+| Anak subbab | **Romawi.Arab.Arab**, judul **Title Case** | `IV.1.1 Struktur Modul Kriptografi` |
+
+Pada Title Case anak subbab, kata sambung dan kata depan di tengah judul **tidak** dikapitalkan: *yang, karena, dan, untuk, sebagai, atau, tetapi, dengan, jika, maka, oleh, serta, bagi, dari, daripada, terhadap, di, ke, pada, kepada* (pedoman hlm. 63 butir 5).
+
+Aturan lain yang mudah terlewat:
+
+- **Nomor dan judul anak subbab tidak dimuat di Daftar Isi** — hanya bab dan subbab (hlm. 62 butir 4).
+- **Dilarang menulis judul bab → judul subbab → judul anak subbab berturut-turut tanpa kalimat penyisip.** Wajib ada minimal satu paragraf di antaranya (hlm. 65 butir 13).
+- Perincian yang bukan subordinat judul memakai huruf, bukan angka: `a.` → `a)` → `(a)` (hlm. 65 butir 6).
+- Setiap bab dimulai pada halaman baru (hlm. 64 butir 1).
+- Istilah asing dicetak **miring**, kecuali nama (hlm. 62 butir 10). Relevan untuk dokumen ini: *handshake*, *forward secrecy*, *trust-on-first-use*, *serverless*, *peer-to-peer*.
+
+## 7. Gambar dan Tabel
+
+Sumber: pedoman hlm. 66.
+
+| Aturan | Ketentuan |
+|---|---|
+| Penomoran | Menyertakan nomor bab: `Tabel 4.1` = tabel pertama di BAB IV. Berlaku sama untuk gambar |
+| Judul tabel | **Di atas** tabel, rata kiri atau simetris tengah, jarak 1,15 spasi, langsung mengikuti nomornya |
+| Judul gambar | **Di bawah** gambar, simetris tengah, jarak 1,15 spasi |
+| Judul lebih dari satu baris | Simetris tengah, **spasi tunggal** |
+| Penulisan nama | **Title Case** |
+| Posisi | Simetris tengah terhadap halaman, diletakkan di antara bagian teks yang paling banyak membahasnya |
+| Wajib dirujuk | Setiap gambar/tabel harus dirujuk dalam teks bagian utama |
+| Harus mandiri | Dapat dimengerti tanpa membaca teks — judul harus deskriptif |
+| Sumber | Bila bukan olahan sendiri, tulis sumber di bawah tabel / di bawah judul gambar, **Times New Roman 10 pt tegak**, jarak 1,15 spasi. Bila diolah lebih lanjut beri catatan "telah diolah kembali" |
+
+**Untuk AKSARA**: ketujuh diagram adalah olahan sendiri (dirender dari `diagrams/src/*.mmd`), sehingga **tidak perlu baris sumber**. Sisipkan dari `diagrams/rendered/png/`. Seluruh tabel juga olahan sendiri dari audit source code.
+
+## 8. Sitasi dan Daftar Pustaka
+
+Sumber: pedoman hlm. 68.
+
+- **Gaya IEEE**, dibangkitkan dengan *Reference Manager Tools* (Mendeley/Zotero/fitur Word), bukan diketik manual.
+- Rujukan dalam teks memakai **nomor urut dalam kurung siku**, ditempatkan **sebelum tanda baca**, dengan **spasi sebelum kurung siku pembuka**. Contoh: `… dispesifikasikan pada Noise Protocol Framework [1].`
+- Nomor diberikan **sesuai urutan kemunculan pertama**; sumber yang sama memakai nomor yang sama di seluruh dokumen.
+- Urutan entri Daftar Pustaka **harus sama persis** dengan urutan numerik dalam teks.
+- Nama depan penulis ditulis sebagai inisial, nama belakang lengkap.
+- Daftar Pustaka diketik **spasi tunggal**.
+
+**Sumber referensi AKSARA**: `references/REFERENCES.bib` (**40 entry terverifikasi**). Dilarang menambah referensi baru tanpa verifikasi — `AGENTS.md` melarang mengarang DOI/penulis/tahun/venue.
+
+Aturan `AGENTS.md` **lebih ketat** dan tetap berlaku di atas aturan format: setiap klaim teori wajib bersitasi; setiap klaim implementasi wajib menunjuk path + symbol source code, bukan sitasi.
 
 ## 9. Yang Masih Perlu Dikonfirmasi
 
 | # | Item | Dampak bila salah |
 |---|---|---|
-| 2 | Spasi baris 1,15 vs 1,5 (§4) | Mengubah jumlah halaman; perlu satu kali set ulang |
-| 3 | Perlu/tidaknya Abstrak (§3.1) | Menambah satu halaman |
-| 4 | Posisi nomor halaman (§8) | Kosmetik |
-| 5 | Apakah dosen mensyaratkan bagian lain yang tidak ada di kedua dokumen sumber | Bisa berarti bagian baru harus ditulis |
+| 1 | Apakah dosen mata kuliah menghendaki struktur lebih ringkas atau lebih lengkap dari §3 | Menambah atau menghapus bagian |
+| 2 | Apakah footer "Politeknik Siber dan Sandi Negara" tetap diminta untuk tugas mata kuliah | Kosmetik, mudah ditambah/dihapus |
+| 3 | Apakah Abstrak wajib dua bahasa seperti TA, atau cukup Indonesia | Menambah satu halaman |
+
+Ketiganya kosmetik dan tidak menghalangi penyusunan dimulai.
 
 ## Referensi
 
-Tidak ada referensi teori baru. Seluruh isi dokumen ini adalah hasil ekstraksi dari `00-template/Cetak TA_rev3.docx` (aturan format, diukur dari XML) dan `00-template/PROPOSAL CARAKA (2).docx` (identitas anggota dan preseden struktur untuk mata kuliah yang sama).
+Tidak ada referensi teori baru. Isi dokumen ini berasal dari `Peraturan Direktur Poltek SSN tentang Pedoman Pelaksanaan Tugas Akhir` (2024) halaman 58-68, dengan konfirmasi silang terhadap `00-template/Cetak TA_rev3.docx` (pengukuran XML) dan `00-template/PROPOSAL CARAKA (2).docx` (identitas dan preseden struktur).
