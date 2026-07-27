@@ -1,17 +1,23 @@
 # Tabel 13 — Pembagian Tugas Anggota
 
-Reproduksi tabel `09_SCOPE_AND_TEAM_PLAN.md` §8 sebagai artefak tabel siap-pakai BAB I/lampiran. Nama anggota **CONFIRMED** 2026-07-27 (sumber: `00-template/PROPOSAL CARAKA (2).docx`, ditunjuk pengguna). Pemetaan nama ke peran mengikuti urutan pada proposal dan **boleh ditukar** kelompok — cakupan modul yang menentukan, bukan urutannya — belum ada nama asli yang dapat diverifikasi.
+Reproduksi tabel `09_SCOPE_AND_TEAM_PLAN.md` §8 sebagai artefak tabel siap-pakai untuk BAB I atau BAB III.
 
-| Anggota | Modul | Tugas Teknis | Eksperimen (rencana TAHAP 13) | Bagian Laporan |
-|---|---|---|---|---|
-| **Andika Aryansyach Fauzan** (2322101878) | `src/identity/` (`keypair.rs`, `vault.rs`), `src/crypto/handshake.rs` (primitif) | Audit/verifikasi ulang inventarisasi primitif CORE-1..7; jelaskan generation kunci, layout vault, alur `seal()`/`unseal()`, parameter Argon2id | EXP-01 (correctness/rejection vault), EXP-05 (benchmark Argon2id) | BAB II (primitif kriptografi), BAB IV bagian identity/vault |
-| **Mahendra Nur Hidayat** (2322101937) | `src/transport/` (`mod.rs`, `lan.rs`, `tor.rs`, `frame.rs`), `src/session/mod.rs` | Dokumentasikan alur protokol end-to-end; jelaskan orkestrasi `run_session`, model konkurensi/cancel-safety, framing | EXP-02 (handshake Noise_IK), EXP-03 (transport sesi) | BAB IV (inti — protokol komunikasi), BAB III (metodologi pengujian protokol) |
-| **Rafi Putra Fadlurrahman** (2322101963) | `src/contacts/mod.rs`, `src/tui/` (titik integrasi kripto), `src/main.rs`/`src/error.rs`; lintas-modul: testing, benchmarking, analisis, dokumentasi | Jelaskan invite/fingerprint binding, integrasi kripto TUI/main; agregasi hasil pengujian; susun threat model dan risk register; koordinasi referensi/diagram/tabel/content pack | EXP-04 (invite/fingerprint/contact store); agregasi lintas-eksperimen | BAB I (pendahuluan), BAB V (pengujian dan analisis, gabungan hasil), BAB VI (penutup) |
+Nama anggota **CONFIRMED** 2026-07-27 (sumber: `00-template/PROPOSAL CARAKA (2).docx`, ditunjuk pengguna). Peran **CONFIRMED** 2026-07-27 langsung dari pengguna, menggantikan pembagian berbasis modul hasil asumsi SESSION 2.
 
-## Catatan Keseimbangan
+| Anggota | Peran | Tanggung Jawab Utama | Bagian Laporan |
+|---|---|---|---|
+| **Andika Aryansyach Fauzan** (2322101878) | Core developer — fullstack | Perancangan dan implementasi seluruh codebase AKSARA v0.2.1 (7 modul, 46 unit test); narasumber teknis untuk setiap klaim implementasi dan verifikator kesesuaian laporan terhadap kode | BAB IV; verifikasi teknis BAB II dan BAB III |
+| **Mahendra Nur Hidayat** (2322101937) | Dokumentasi akhir | Penyusunan dokumen final sesuai `16_DOCUMENT_FORMAT_SPEC.md`; Daftar Isi/Gambar/Tabel otomatis; Daftar Pustaka IEEE 40 entry; konsistensi istilah lintas bab | BAB I, BAB II, BAB VI, Abstrak, bagian awal dan akhir |
+| **Rafi Putra Fadlurrahman** (2322101963) | User testing | Eksekusi dan pencatatan EXP-01 s.d. EXP-05; verifikasi perilaku aplikasi dari sisi pengguna; pencatatan hasil apa adanya termasuk yang tidak sesuai harapan | BAB V; metodologi pengujian di BAB III |
 
-Anggota kedua mendapat lebih banyak file karena modul transport secara alami lebih terpecah (LAN/Tor/framing terpisah); kompleksitas konseptual tetap seimbang dengan Anggota 1. Anggota 3 memikul beban integrasi/dokumentasi lebih besar sebagai kompensasi cakupan modul teknis yang lebih kecil.
+## Catatan Pembagian
+
+Pembagian ini **berbasis peran fungsional**, bukan pemecahan kepemilikan modul kode per orang. Struktur ini mencerminkan kondisi nyata: AKSARA sudah terimplementasi utuh oleh satu core developer sebelum penelitian dimulai, sehingga tugas mata kuliah ini berfokus pada mendokumentasikan, menguji, dan mengevaluasi artefak yang sudah ada.
+
+Memecah kepemilikan kode secara artifisial menjadi tiga hanya agar terlihat seimbang akan menjadi klaim yang tidak benar — melanggar aturan kejujuran akademik `AGENTS.md` sekaligus Pasal 5 huruf a Perdir Pedoman TA (kejujuran akademik dalam pelaksanaan metode dan publikasi hasil).
+
+Keseimbangan beban tetap terjaga karena ketiga peran menghasilkan luaran yang sebanding: implementasi menghasilkan artefak yang dianalisis, dokumentasi menghasilkan dokumen final yang dinilai, dan pengujian menghasilkan seluruh data BAB V. Ketiganya memetakan ke bab yang berbeda tanpa tumpang tindih.
 
 ## Referensi
 
-`09_SCOPE_AND_TEAM_PLAN.md` §8 (TAHAP 8), `12_TEST_PLAN.md` (TAHAP 13, kolom eksperimen diperbarui sesuai 5 kelompok final).
+`09_SCOPE_AND_TEAM_PLAN.md` §8 (TAHAP 8, direvisi 2026-07-27).
