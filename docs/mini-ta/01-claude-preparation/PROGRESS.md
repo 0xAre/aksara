@@ -57,7 +57,7 @@ State mesin lintas-agen untuk sprint ini: `docs/mini-ta/WORKFLOW_STATE.yaml`. Ba
    | 16 — Peta klaim | `13_CLAIM_EVIDENCE_CITATION_MAP.md` | **`15_CLAIM_EVIDENCE_CITATION_MAP.md`** |
    | 17 — Handoff Codex | `HANDOFF_TO_CODEX.yaml` | tidak berubah (tidak bernomor) |
 1. **mmdc diperbaiki** — instalasi global `@mermaid-js/mermaid-cli` awalnya korup (node_modules kosong). User sudah **mengizinkan** `npm install -g @mermaid-js/mermaid-cli`. Sudah dijalankan dengan `PUPPETEER_SKIP_DOWNLOAD=true` (download Chromium bawaan gagal), lalu diarahkan ke Chrome sistem via config `docs/mini-ta/puppeteer-config.json` (`executablePath: C:\Program Files\Google\Chrome\Application\chrome.exe`). Diverifikasi render SVG+PNG sukses (exit 0). **Cara pakai untuk TAHAP 11:** `mmdc -i <file>.mmd -o <out>.svg -p "docs/mini-ta/puppeteer-config.json" -b white` (jalankan dari root repo, sesuaikan path relatif).
-2. **Nama anggota kelompok** — tidak ada nama asli di manapun (proposal CARAKA lama semua placeholder). Sudah diputuskan pakai placeholder Anggota 1/2/3 di TAHAP 8, ditandai `NEEDS_CONFIRMATION` di handoff akhir. Jangan tanya user lagi soal ini.
+2. **Nama anggota kelompok** — ~~tidak ada nama asli di manapun~~ **DIPERBARUI 2026-07-27**: pengguna menunjuk `00-template/PROPOSAL CARAKA (2).docx` sebagai sumber identitas. Nama CONFIRMED: **Andika Aryansyach Fauzan (2322101878), Mahendra Nur Hidayat (2322101937), Rafi Putra Fadlurrahman (2322101963)**, program studi Rekayasa Sistem Kriptografi, Politeknik Siber dan Sandi Negara, tahun 2026. Catatan SESSION 2 ("proposal CARAKA semua placeholder") ternyata keliru — file itu memuat nama asli. Yang tersisa hanya pemetaan nama ke peran modul. Jangan tanya user lagi soal nama.
 3. **Screenshot TAHAP 12** — build+verifikasi fungsi SUDAH selesai SESSION 4 (`cargo build --release` bersih, `aksara id --offline` diverifikasi generate/unseal/reject-passphrase-salah — detail `screenshots/STATUS.md`). Capture gambar TUI aktual TETAP perlu tindakan manual user (tidak ada tool capture OS/terminal di environment agent). Tidak menghalangi `ready_for_codex`. Dokumentasikan status ini juga di `14_OPEN_QUESTIONS.md` bila dibuat TAHAP 15/17.
 4. **Versi crate ground-truth** (dari `Cargo.lock`, dipakai konsisten di semua TAHAP kripto): `ed25519-dalek 2.2.0`, `x25519-dalek 2.0.1`, `snow 0.10.0`, `argon2 0.5.3`, `chacha20poly1305 0.10.1` (chacha20 0.10.0, poly1305 0.8.0, aead 0.5.2), `zeroize 1.9.0`, `rand 0.8.6`, `blake2 0.10.6`, `mdns-sd 0.20.0`, `arti-client/tor-hsservice/tor-cell 0.43.0`, `rustls 0.23.40`, `ring 0.17.14`, `tokio 1.52.3`, `ratatui 0.29.0`, `crossterm 0.29.0`.
 5. **`cargo build --release` diverifikasi SESSION 4** (commit `450d484`, 2026-07-26) — bersih 0 warning/0 error, binary `target/release/aksara.exe` 8,77MB, waktu build 9 menit (dependency Tor berat pada build pertama). Subcommand `aksara id --vault <path> --offline` (tidak butuh TUI interaktif) dipakai untuk verifikasi fungsi generate/unseal/reject-passphrase-salah — cocok `07_KEY_LIFECYCLE.md` §3.2/§3.4. Kalau perlu verifikasi ulang cepat di sesi depan, pakai subcommand ini dulu sebelum mencoba menjalankan TUI penuh (yang tidak bisa di-capture agent).
@@ -121,12 +121,18 @@ Next action di atas **sudah dikerjakan seluruhnya**. Rincian di `SESSION_6_HANDO
 
 **Next action**: tidak ada pekerjaan data/dokumen tersisa yang bisa dikerjakan agen tanpa izin tambahan. Jalur berikutnya = **Jalur B (Codex menyusun DOCX)** dari BAB I s.d. VI.
 
+**Lanjutan berikutnya (identitas + format dokumen), 2026-07-27:**
+
+- **Identitas anggota CONFIRMED** dan disebar ke `AGENTS.md`, `PROJECT_MEMORY.md`, `WORKFLOW_STATE.yaml`, `09_SCOPE_AND_TEAM_PLAN.md`, `tables/13_team_assignment.md`, `HANDOFF_TO_CODEX.yaml`. BI-04 → `resolved`.
+- **`16_DOCUMENT_FORMAT_SPEC.md` dibuat** — aturan format diukur langsung dari XML `Cetak TA_rev3.docx` (A4, margin kiri 4 cm dan sisi lain 3 cm, Times New Roman 12 pt, justify, spasi 1,15, sitasi IEEE numerik, caption per BAB), lalu **struktur disederhanakan** atas instruksi pengguna: seluruh lembar formal + kata pengantar + abstract Inggris + daftar notasi/lampiran/riwayat hidup dihapus. Preseden penghapusan: proposal CARAKA untuk mata kuliah yang sama sudah memakai struktur ringkas.
+- **Judul**: kepanjangan AKSARA kini masuk judul atas instruksi pengguna — membatalkan catatan `09_SCOPE_AND_TEAM_PLAN.md` §7 sebelumnya. Bentuk usulan di `16_DOCUMENT_FORMAT_SPEC.md` §2.
+
 Yang masih terbuka, seluruhnya butuh keputusan/tindakan pengguna:
 
-1. Nama asli 3 anggota, program studi, institusi (`NEEDS_CONFIRMATION`).
-2. Persetujuan judul final — `09_SCOPE_AND_TEAM_PLAN.md` §7 merekomendasikan Judul #3, belum disetujui.
+1. Persetujuan bentuk final judul (`16_DOCUMENT_FORMAT_SPEC.md` §2).
+2. Pemetaan nama anggota ke peran Anggota 1/2/3 — urutan saat ini default dari proposal, boleh ditukar.
 3. Capture screenshot TUI aktual (BI-03).
-4. **Ekstraksi aturan format dari `00-template/Cetak TA_rev3.docx`** — template ada tapi belum pernah dibongkar jadi spesifikasi (font, margin, penomoran heading, gaya sitasi, format caption) yang bisa dipakai Codex. Tanpa ini Codex akan menebak format.
+4. Konfirmasi spasi baris **1,15** (terukur dari contoh) vs **1,5** (lazim di panduan tertulis) — panduan tertulis dosen menang bila ada.
 5. Opsional: histogram distribusi 30 run EXP-05 (`02-experiment-data/charts/` masih kosong); diagram topologi pengujian untuk BAB V (sengaja ditunda di TAHAP 11 menunggu test plan — alasan penundaannya kini hilang, BAB V satu-satunya bab tanpa gambar).
 6. Opsional, butuh izin modifikasi `src/`: harness `criterion` untuk latensi handshake presisi dan test rejection ciphertext transport.
 

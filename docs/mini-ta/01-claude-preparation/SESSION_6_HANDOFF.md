@@ -69,6 +69,36 @@ Setelah commit `1653531`, pengguna meminta tiga kekurangan yang teridentifikasi 
 
 Akibatnya **BAB VI kini READY penuh**, bukan lagi campuran READY + READY_FOR_DRAFTING.
 
+## B3. Identitas Anggota dan Spesifikasi Format Dokumen
+
+Pengguna menunjuk `00-template/PROPOSAL CARAKA (2).docx` sebagai sumber identitas anggota, dan mengonfirmasi `00-template/Cetak TA_rev3.docx` sebagai acuan format dari dosen dengan instruksi menyederhanakannya untuk konteks tugas mata kuliah.
+
+**Identitas — CONFIRMED, placeholder `Anggota 1/2/3` pensiun:**
+
+| Nama | NIM |
+|---|---|
+| Andika Aryansyach Fauzan | 2322101878 |
+| Mahendra Nur Hidayat | 2322101937 |
+| Rafi Putra Fadlurrahman | 2322101963 |
+
+Program studi Rekayasa Sistem Kriptografi, Politeknik Siber dan Sandi Negara, tahun 2026. Disebar ke `AGENTS.md`, `PROJECT_MEMORY.md`, `WORKFLOW_STATE.yaml`, `09_SCOPE_AND_TEAM_PLAN.md`, `tables/13_team_assignment.md`, dan `HANDOFF_TO_CODEX.yaml`. BI-04 → `resolved`.
+
+**Koreksi catatan lama**: `PROGRESS.md` keputusan #2 dan `09_SCOPE_AND_TEAM_PLAN.md` menyatakan sejak SESSION 2 bahwa "proposal CARAKA seluruhnya placeholder `[Nama X — TBD]`". Itu **keliru** — file tersebut memuat nama asli lengkap dengan NIM. Kesimpulan itu bertahan lima sesi dan menyebabkan placeholder dipakai lebih lama dari perlunya.
+
+**Batas yang dijaga**: dari `PROPOSAL CARAKA` hanya identitas anggota dan struktur dokumen yang diambil. Seluruh fakta teknisnya (mesh offline, Ascon, protokol CLAMP, tabel evaluasi, 24 referensinya) **tidak** masuk ke dokumen AKSARA — `AGENTS.md` melarang mencampur kedua proyek.
+
+**Judul — berubah arah**: pengguna menginstruksikan kepanjangan AKSARA masuk ke judul. Ini **membatalkan** catatan `09_SCOPE_AND_TEAM_PLAN.md` §7 yang sebelumnya menyatakan kepanjangan hanya dipakai sebagai konteks di BAB I. Bentuk usulan (masih `NEEDS_CONFIRMATION`):
+
+> **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Manajemen Kunci, dan Threat Model pada Aplikasi Chat Terminal P2P Serverless**
+
+**Format — `16_DOCUMENT_FORMAT_SPEC.md` dibuat.** Aturan tipografi diukur langsung dari XML `Cetak TA_rev3.docx`, bukan diperkirakan: A4, margin kiri 4 cm dan atas/kanan/bawah 3 cm, Times New Roman 12 pt, rata kiri-kanan, spasi baris 1,15, sitasi IEEE numerik, caption bernomor per BAB.
+
+Struktur disederhanakan sesuai instruksi. **Dihapus**: lembar judul duplikat, lembar pernyataan orisinalitas, lembar persetujuan, lembar pengesahan, lembar persetujuan publikasi, kata pengantar, abstract bahasa Inggris, daftar notasi, daftar lampiran, daftar riwayat hidup. Alasannya konsisten: seluruhnya artefak sidang TA resmi yang menuntut tanda tangan pembimbing/penguji, sementara tugas ini tidak melalui sidang. **Dipakai**: sampul, daftar isi/gambar/tabel, BAB I-VI, daftar pustaka; abstrak Indonesia opsional.
+
+Penyederhanaan ini punya **dasar preseden**, bukan asumsi: proposal CARAKA — untuk mata kuliah yang persis sama — sudah memakai struktur ringkas tanpa satu pun lembar formal tersebut.
+
+**Peringatan untuk Codex**: angka spasi baris 1,15 berasal dari pengukuran **satu contoh TA**, bukan kutipan peraturan tertulis. Banyak panduan Indonesia mensyaratkan 1,5. Bila ada panduan tertulis dari dosen, panduan itu menang.
+
 ## C. Dokumen yang Diperbarui
 
 - `14_CHAPTER_CONTENT_PACK.md` — **BAB V terisi penuh** (5.1 lingkungan, 5.2 hasil, 5.3 analisis; format 13 field per subbab sama seperti BAB I-IV) dan **BAB VI §6.1 terisi**. §6.2/§6.3 **tidak diubah** (tetap `READY_FOR_DRAFTING`), hanya ditambahi daftar bahan dari hasil BAB V. Tabel ringkasan status per BAB diperbarui.

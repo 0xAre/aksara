@@ -1,6 +1,9 @@
 # HANDOFF TO CODEX — AKSARA Mini-TA
 # Dihasilkan akhir TAHAP 17 (SESSION 5B). Sumber kebenaran: docs/mini-ta/01-claude-preparation/*.
-# Codex bertugas menyusun docs/mini-ta/00-template/Cetak_TA_rev3.docx dari bahan ini.
+# Codex bertugas menyusun DOKUMEN BARU (output ke docs/mini-ta/04-output/) dari bahan ini.
+# Aturan format WAJIB: docs/mini-ta/01-claude-preparation/16_DOCUMENT_FORMAT_SPEC.md
+# File di 00-template/ adalah CONTOH milik orang/proyek lain - dipakai sebagai acuan format saja,
+# JANGAN diedit dan JANGAN diambil fakta teknisnya.
 # JANGAN mengarang fakta baru di luar file yang dirujuk di bawah — setiap klaim harus
 # tertelusur ke 15_CLAIM_EVIDENCE_CITATION_MAP.md.
 
@@ -10,22 +13,36 @@ project:
   work_type: Kelompok
   member_count: 3
   recommended_title: >
+    AKSARA (Authenticated Key-based Secure Autonomous Relay Architecture):
     Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Manajemen Kunci, dan
-    Threat Model pada Aplikasi Chat Terminal P2P Serverless AKSARA
-  recommended_title_source: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §7 (alternatif #3)
+    Threat Model pada Aplikasi Chat Terminal P2P Serverless
+  recommended_title_status: NEEDS_CONFIRMATION
+  recommended_title_source: >
+    Instruksi eksplisit pengguna 2026-07-27 (kepanjangan AKSARA masuk judul) +
+    isi alternatif #3 di 09_SCOPE_AND_TEAM_PLAN.md §7 + pola judul proposal
+    CARAKA. MENIMPA catatan lama §7 yang menyatakan kepanjangan AKSARA bukan
+    bagian judul. Bagian setelah titik dua masih boleh dipendekkan.
   members:
-    - name: "Anggota 1"
-      status: NEEDS_CONFIRMATION
-    - name: "Anggota 2"
-      status: NEEDS_CONFIRMATION
-    - name: "Anggota 3"
-      status: NEEDS_CONFIRMATION
+    - name: "Andika Aryansyach Fauzan"
+      nim: "2322101878"
+      status: CONFIRMED
+    - name: "Mahendra Nur Hidayat"
+      nim: "2322101937"
+      status: CONFIRMED
+    - name: "Rafi Putra Fadlurrahman"
+      nim: "2322101963"
+      status: CONFIRMED
+  study_program: Rekayasa Sistem Kriptografi
+  institution: Politeknik Siber dan Sandi Negara
+  year: 2026
   members_note: >
-    Tidak ada nama asli yang dapat diverifikasi dari proposal CARAKA sebelumnya
-    (seluruhnya placeholder). Pengguna/kelompok WAJIB mengisi nama asli sebelum
-    dokumen final dicetak.
-  study_program: NEEDS_CONFIRMATION
-  institution: NEEDS_CONFIRMATION
+    Identitas dikonfirmasi 2026-07-27 dari docs/mini-ta/00-template/PROPOSAL
+    CARAKA (2).docx, ditunjuk langsung oleh pengguna - dokumen proposal untuk
+    mata kuliah dan kelompok yang sama. HANYA identitas anggota yang diambil
+    dari file itu; seluruh fakta teknis CARAKA (mesh, Ascon, protokol CLAMP)
+    DILARANG masuk ke dokumen AKSARA per AGENTS.md. Yang masih terbuka hanya
+    pemetaan nama ke peran Anggota 1/2/3 di 09_SCOPE_AND_TEAM_PLAN.md §8 -
+    urutan saat ini mengikuti urutan pada proposal dan boleh ditukar.
 
 scope:
   main_problem: >
@@ -173,6 +190,26 @@ team:
   contribution_matrix: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §8
   contribution_matrix_table: docs/mini-ta/01-claude-preparation/tables/13_team_assignment.md
 
+document_format:
+  spec: docs/mini-ta/01-claude-preparation/16_DOCUMENT_FORMAT_SPEC.md
+  source_examples:
+    - {file: "docs/mini-ta/00-template/Cetak TA_rev3.docx", used_for: "aturan tipografi/margin/caption/sitasi, diukur langsung dari XML"}
+    - {file: "docs/mini-ta/00-template/PROPOSAL CARAKA (2).docx", used_for: "identitas anggota dan preseden struktur ringkas untuk mata kuliah yang sama"}
+  page: "A4, margin kiri 4 cm, atas/kanan/bawah 3 cm"
+  typography: "Times New Roman 12 pt, rata kiri-kanan, spasi 1,15 (NEEDS_CONFIRMATION vs 1,5)"
+  citation_style: "IEEE numerik [n], urut kemunculan pertama"
+  simplified: true
+  simplified_note: >
+    Atas instruksi eksplisit pengguna 2026-07-27, struktur disederhanakan untuk
+    konteks tugas mata kuliah. DIHAPUS: lembar judul duplikat, lembar
+    pernyataan orisinalitas, lembar persetujuan, lembar pengesahan, lembar
+    persetujuan publikasi, kata pengantar, abstract bahasa Inggris, daftar
+    notasi, daftar lampiran, daftar riwayat hidup - seluruhnya artefak sidang
+    TA resmi yang butuh tanda tangan pembimbing/penguji, sementara tugas ini
+    tidak melalui sidang. DIPAKAI: sampul, daftar isi/gambar/tabel, BAB I-VI,
+    daftar pustaka. Abstrak Indonesia opsional. Preseden penghapusan diambil
+    dari proposal CARAKA untuk mata kuliah yang sama.
+
 restrictions:
   prohibited_claims:
     - "AKSARA aman secara absolut / tidak dapat diretas"
@@ -185,11 +222,11 @@ restrictions:
     - "AKSARA selalu memverifikasi identitas peer tanpa kualifikasi (hanya berlaku untuk kontak yang sudah dikenal — trust-on-first-use pada kontak baru)"
     - "Angka hasil eksperimen apa pun di BAB V/VI sebelum EXP-01..05 benar-benar dijalankan"
   unresolved_information:
-    - "Nama asli 3 anggota kelompok (placeholder Anggota 1/2/3)"
-    - "study_program dan institution (belum diisi)"
+    - "Bentuk final judul - usulan ada di 16_DOCUMENT_FORMAT_SPEC.md §2, menunggu persetujuan kelompok"
+    - "Pemetaan nama anggota ke peran Anggota 1/2/3 (nama sendiri sudah CONFIRMED)"
     - "Screenshot TUI aktual (build+fungsi terverifikasi SESSION 4, capture gambar tetap MANUAL_USER_ACTION_REQUIRED)"
-    - "Seluruh data hasil eksperimen EXP-01..05 (WAITING_FOR_EXPERIMENT)"
-    - "BAB V penuh dan BAB VI subbab 6.1 (bergantung eksperimen)"
+    - "Spasi baris 1,15 (terukur dari contoh TA) vs 1,5 (lazim di panduan tertulis) - lihat 16_DOCUMENT_FORMAT_SPEC.md §4"
+    - "Perlu/tidaknya Abstrak (opsional, lihat 16_DOCUMENT_FORMAT_SPEC.md §3.1)"
   claim_map: docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
   claim_map_critical_section: "§Klaim Kritis Anti-Overclaim (5 item prioritas tertinggi)"
 
@@ -248,8 +285,9 @@ readiness:
       action_required: "Tindakan manual pengguna — instruksi lengkap di screenshots/STATUS.md"
     - id: BI-04
       desc: "Nama asli 3 anggota kelompok, study_program, institution belum dikonfirmasi"
-      severity: non_blocking
-      action_required: "Konfirmasi dari kelompok/dosen pembimbing sebelum cetak final"
+      severity: resolved
+      resolved_on: "2026-07-27"
+      action_required: "Tidak ada - identitas lengkap ada di team.members. Sisa: pemetaan nama ke peran modul dan persetujuan bentuk judul"
     - id: BI-05
       desc: "13_TABLE_MANIFEST.md mendaftar 13 tabel, 1 di atas batas maksimum 12 brief"
       severity: cosmetic
