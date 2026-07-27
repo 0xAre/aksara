@@ -476,33 +476,105 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 
 ---
 
-## BAB V — PENGUJIAN DAN ANALISIS (BLOCKED — Menunggu Data Eksperimen)
+## BAB V — PENGUJIAN DAN ANALISIS
 
-Sesuai brief ("BAB V hanya boleh diisi setelah data eksperimen tersedia") dan Quality Gate ("BAB V dan BAB VI boleh menunggu data pengujian"), BAB V **sengaja tidak diisi** pada sesi ini. Struktur subbab yang direncanakan (untuk diisi setelah `12_TEST_PLAN.md` dieksekusi):
+**Diisi 2026-07-27** setelah eksekusi `12_TEST_PLAN.md` pada dua tanggal: correctness/rejection EXP-01..04 (2026-07-26, commit `3d22494`) dan seluruh metrik kuantitatif EXP-02/03/04/05 (2026-07-27, commit `75d17fd`). Sumber data: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-26.csv` dan `EXPERIMENT_RESULTS_2026-07-27.csv`. **Seluruh angka di bawah adalah hasil terukur, bukan estimasi.**
 
-| Subbab (rencana) | Isi yang akan diisi | Sumber data |
-|---|---|---|
-| 5.1 Lingkungan Pengujian Aktual | Spesifikasi hardware/OS/commit saat eksperimen benar-benar dijalankan | `EXPERIMENT_RESULT_TEMPLATE.csv` kolom `environment`/`commit_hash` |
-| 5.2 Hasil EXP-01 s.d. EXP-05 | Data terukur per kelompok eksperimen | `EXPERIMENT_RESULT_TEMPLATE.csv` terisi |
-| 5.3 Analisis dan Diskusi | Interpretasi hasil terhadap ekspektasi `12_TEST_PLAN.md` poin 12 tiap eksperimen | Hasil §5.2 + `12_TEST_PLAN.md` |
+### 5.1 Lingkungan Pengujian Aktual
 
-**Status kesiapan seluruh BAB V**: `WAITING_FOR_EXPERIMENT`. **Claim ID**: Tidak ada — tidak boleh ada klaim hasil sebelum data tersedia. **Klaim yang dilarang secara mutlak**: menulis angka/hasil apa pun di BAB V sebelum eksperimen `12_TEST_PLAN.md` benar-benar dijalankan dan dicatat di `EXPERIMENT_RESULT_TEMPLATE.csv`.
+1. **Tujuan**: Mendokumentasikan lingkungan eksekusi persis agar hasil BAB V dapat direplikasi dan agar batas generalisasinya jelas — kritis karena Argon2id bersifat memory-hard sehingga hasilnya terikat pada hardware.
+2. **Outline paragraf**: (a) spesifikasi hardware dan OS; (b) toolchain Rust dan profil build; (c) commit dan prosedur pengukuran (cold-start, kontrol baseline); (d) keterbatasan lingkungan yang berpotensi memengaruhi angka.
+3. **Kalimat topik**: "Seluruh pengujian dijalankan pada satu mesin laptop bare-metal dengan konfigurasi yang dicatat lengkap, sehingga hasil kuantitatif pada bab ini berlaku spesifik untuk lingkungan tersebut dan tidak digeneralisasi ke kelas hardware lain."
+4. **Fakta/data hasil**: CPU Intel Core i7-1165G7 @ 2,80 GHz (4 core / 8 thread); RAM total 11,79 GB dengan ~0,93 GB bebas saat pengujian; mesin LENOVO 82FG, bare-metal (bukan VM/container); OS Microsoft Windows 11 Home 10.0.26200 build 26200; `rustc 1.97.0 (2d8144b78 2026-07-07)`, `cargo 1.97.0`; profil `--release`; `cargo build --release` dijalankan ulang sebelum pengukuran (selesai 1 menit 5 detik) sehingga `target/release/aksara.exe` segar untuk commit `75d17fd`.
+5. **Evidence**: `EXPERIMENT_RESULTS_2026-07-27.csv` kolom `environment`/`commit_hash`; `EXPERIMENT_RESULTS_2026-07-26.csv` untuk EXP-01..04 correctness.
+6. **Referensi**: `rfc9106` (justifikasi mengapa lingkungan wajib dicatat untuk Argon2id).
+7. **Claim ID**: — (deskripsi lingkungan, bukan klaim implementasi).
+8. **Diagram**: Tidak ada.
+9. **Tabel**: TBL-12 (parameter evaluasi) dapat diperluas satu kolom "lingkungan aktual".
+10. **Eksperimen**: Berlaku untuk seluruh EXP-01 s.d. EXP-05.
+11. **Klaim yang boleh ditulis**: Seluruh spesifikasi di poin 4 apa adanya; fakta bahwa pengukuran waktu memakai jam dinding dari luar proses (`Measure-Command` PowerShell), bukan timer internal source.
+12. **Klaim yang dilarang**: Menyatakan hasil kuantitatif berlaku "untuk hardware modern" secara umum; menyembunyikan bahwa RAM bebas hanya ~0,93 GB saat uji (relevan untuk Argon2id 19 MiB, walau jauh di bawah batas).
+13. **Status kesiapan**: READY.
+
+### 5.2 Hasil Pengujian EXP-01 s.d. EXP-05
+
+1. **Tujuan**: Menyajikan seluruh data terukur per kelompok eksperimen tanpa interpretasi (interpretasi dipisah ke §5.3).
+2. **Outline paragraf**: (a) hasil correctness/rejection agregat test suite; (b) EXP-01 vault; (c) EXP-02 handshake; (d) EXP-03 transport; (e) EXP-04 invite/fingerprint; (f) EXP-05 benchmark Argon2id.
+3. **Kalimat topik**: "Pengujian menghasilkan dua kelas data: verifikasi biner correctness dan rejection yang seluruhnya lolos, serta empat metrik kuantitatif yang salah satunya mengoreksi klaim performa yang selama ini hanya tertulis sebagai komentar kode."
+4. **Fakta/data hasil**:
+   - **Agregat**: `cargo test --release` = **46/46 PASS, 0 FAIL, 0 ignored** (2026-07-26, commit `3d22494`), waktu eksekusi 0,13 detik dilaporkan cargo.
+   - **EXP-01 (vault)**: seluruh unit test lolos (`seal_unseal_roundtrip`, `vault_looks_random`, `cli_unseal_wrong_passphrase`, `cli_unseal_modified_ciphertext`, `vault_has_no_magic_bytes`). Verifikasi CLI tambahan 2026-07-27: 10 cold-start `unseal` berturut-turut = **10/10 sukses (100%)** dengan invite yang dicetak **identik pada seluruh 10 run** (jumlah string unik = 1); passphrase salah ditolak dengan exit code 1 dan pesan generik `Error: vault could not be opened` (tidak membedakan penyebab).
+   - **EXP-02 (handshake Noise_IK)**: 5 test correctness/rejection lolos. Latensi handshake **tidak terdeteksi di atas noise** metode pengukuran eksternal: selisih berpasangan waktu proses test-binary yang menjalankan `handshake_ik_roundtrip` versus yang menjalankan 0 test = **-0,15 ms (sd 1,91 ms, n=19)**; dilaporkan sebagai **batas atas < 0,86 ms** (95% CI), bukan nilai titik.
+   - **EXP-03 (transport sesi)**: 9 test lolos (4 sesi + 5 framing). Overhead tag AEAD terukur **tepat 16 byte** pada instance vault (108 byte file − 16 byte salt − 12 byte nonce − 64 byte plaintext). Overhead pada instance Noise transport **tidak diukur langsung** (`NEEDS_EXPERIMENT`).
+   - **EXP-04 (invite/fingerprint/contacts)**: 10 test lolos. Panjang invite LAN-only **86 karakter konsisten pada 5 keypair acak berbeda**; fingerprint **64 karakter heksadesimal** pada 5 sampel.
+   - **EXP-05 (benchmark Argon2id)**: n = 30 cold-start `aksara id --vault <path> --offline`. Waktu **end-to-end proses**: mean **68,47 ms**, median 64,15 ms, sd 12,47 ms, min 54,53 ms, max 106,86 ms. Kontrol `aksara -h` (tanpa Argon2id, n = 30): mean **20,48 ms**, median 19,10 ms, sd 4,73 ms. **Biaya `unseal` neto** (selisih berpasangan): mean **47,99 ms**, median 45,08 ms, sd 11,41 ms, min 26,99 ms, max 86,30 ms. Ukuran vault **tepat 108 byte pada 5 vault independen**.
+5. **Evidence**: `EXPERIMENT_RESULTS_2026-07-26.csv` (46 baris correctness), `EXPERIMENT_RESULTS_2026-07-27.csv` (123 baris data, termasuk 30 run mentah unseal dan 30 run baseline).
+6. **Referensi**: `rfc9106` (Argon2id), `rfc8439` (tag Poly1305 128-bit = 16 byte), `noise2018` (handshake).
+7. **Claim ID**: CM-150 (waktu unlock vault), CM-151 (latensi handshake), CM-152 (overhead ciphertext), CM-153 (proporsi sukses/rejection), CM-061 (klaim "~100 ms" — **dikoreksi** oleh data ini).
+8. **Diagram**: Tidak ada diagram baru; boleh ditambahkan histogram sederhana distribusi 30 run EXP-05 bila diinginkan (opsional, data mentah tersedia di CSV).
+9. **Tabel**: TBL-11 (skenario pengujian) dan TBL-12 (parameter evaluasi) diisi dengan kolom hasil aktual.
+10. **Eksperimen**: EXP-01 s.d. EXP-05 (sumber langsung subbab ini).
+11. **Klaim yang boleh ditulis**: Seluruh angka poin 4 persis seperti tertulis, selalu disertai n dan sebaran (sd/min/max), bukan mean telanjang; fakta bahwa 46/46 test lolos; fakta bahwa ukuran vault dan panjang invite terverifikasi lewat pengukuran, bukan hanya dikutip dari spesifikasi.
+12. **Klaim yang dilarang**: Menulis "latensi handshake = 0 ms" atau nilai titik apa pun untuk EXP-02 — yang terukur hanya batas atas; mengklaim overhead 16 byte "terverifikasi untuk transport sesi" (yang terverifikasi adalah instance vault); menyatakan 46/46 test lolos berarti sistem "terbukti aman" (larangan `AGENTS.md` #16); mengutip "~100 ms" sebagai fakta terukur.
+13. **Status kesiapan**: READY (EXP-01, EXP-04, EXP-05 lengkap; EXP-02 dan EXP-03 lengkap untuk correctness, parsial untuk metrik kuantitatif — sudah ditandai eksplisit).
+
+### 5.3 Analisis dan Diskusi
+
+1. **Tujuan**: Menginterpretasikan hasil §5.2 terhadap ekspektasi yang ditulis di `12_TEST_PLAN.md` poin 12 tiap eksperimen, termasuk satu kasus di mana hasil **mengoreksi** dokumentasi yang ada.
+2. **Outline paragraf**: (a) correctness dan rejection sesuai ekspektasi penuh; (b) koreksi klaim "~100 ms" Argon2id dan implikasinya pada trade-off keamanan/UX; (c) proporsi biaya kriptografi — handshake dapat diabaikan dibanding derivasi kunci; (d) metrik deterministik yang terkonfirmasi (108 byte, 86 karakter, 16 byte); (e) keterbatasan metode pengukuran dan apa yang belum terukur.
+3. **Kalimat topik**: "Hasil pengujian mengonfirmasi seluruh ekspektasi correctness dan rejection, namun mengoreksi satu-satunya klaim performa eksplisit dalam kode sumber: waktu unlock vault ternyata sekitar separuh dari angka yang selama ini tertulis sebagai komentar."
+4. **Fakta/data hasil (bahan interpretasi)**:
+   - **Konfirmasi**: Ekspektasi `12_TEST_PLAN.md` EXP-01/02/03/04 poin 12 (roundtrip 100%, rejection 100%, seluruh test existing lolos) terpenuhi seluruhnya. Ukuran vault 108 byte, panjang invite 86 karakter, dan overhead tag 16 byte cocok persis dengan spesifikasi internal `07_KEY_LIFECYCLE.md` §3.1 dan `06_PROTOCOL_SPECIFICATION.md` §3/§6.4 — nilai deterministik yang kini terverifikasi secara empiris, bukan hanya dikutip.
+   - **Koreksi**: Komentar `src/identity/vault.rs` menyatakan derivasi kunci "membutuhkan ~100ms untuk unlock" pada hardware modern. Pengukuran memberi **47,99 ms neto** (median 45,08 ms) — sekitar **separuh** dari angka tersebut, bahkan bila diukur end-to-end termasuk spawn proses angkanya masih **68,47 ms**, tetap di bawah 100 ms. Klaim komentar kode karenanya **tidak dikonfirmasi apa adanya** pada hardware uji.
+   - **Implikasi trade-off**: Argon2id dengan m=19 MiB, t=2, p=1 yang dipilih mengikuti rekomendasi OWASP memberi biaya lebih rendah dari yang diperkirakan penulis kode. Ini menguntungkan UX namun berarti margin terhadap brute-force offline **lebih kecil** dari asumsi komentar tersebut; interpretasi kuantitatif ketahanan brute-force berada di luar scope (`09_SCOPE_AND_TEAM_PLAN.md` §5) dan tidak boleh diekstrapolasi dari angka ini.
+   - **Proporsi biaya**: Handshake Noise_IK berada di bawah batas deteksi metode (< 0,86 ms), sedangkan `unseal` ~48 ms. Dengan kata lain, pada satu siklus pemakaian, biaya kriptografi **didominasi derivasi kunci vault**, bukan pertukaran kunci — konsisten dengan justifikasi `04_CRYPTOGRAPHIC_JUSTIFICATION.md` CORE-1 poin 8 bahwa X25519+ChaChaPoly bersifat ringan.
+   - **Keterbatasan metode**: pengukuran dilakukan dari luar proses sehingga selalu mengandung overhead spawn (dikendalikan lewat kontrol baseline, tetapi menyisakan sd 11,41 ms pada selisih berpasangan); latensi handshake dan overhead ciphertext transport tidak dapat diukur presisi tanpa menambahkan timer/instrumentasi ke `src/`, yang memerlukan permintaan eksplisit pengguna sesuai `AGENTS.md` §Source-Code Protection; memory usage puncak (RSS) saat Argon2id berjalan tidak diukur (CM-154, tetap `WAITING_FOR_EXPERIMENT`) — hanya parameter statis 19 MiB yang diketahui dari kode.
+5. **Evidence**: `src/identity/vault.rs` (komentar "~100ms" dan `argon2_params()`), CB-087/CM-061, kedua file CSV hasil.
+6. **Referensi**: `rfc9106`, `biryukov2016argon2` (sifat memory-hard dan ketergantungan hardware), `noise2018`.
+7. **Claim ID**: CM-061 (dikoreksi), CM-150 (terukur), CM-151 (batas atas), CM-152 (parsial), CM-153 (terukur), CM-154 (tetap belum terukur).
+8. **Diagram**: Tidak ada.
+9. **Tabel**: TBL-12 (parameter evaluasi — kolom "hasil aktual" vs "ekspektasi").
+10. **Eksperimen**: EXP-01 s.d. EXP-05.
+11. **Klaim yang boleh ditulis**: Bahwa hasil **mengoreksi** komentar kode "~100 ms" pada hardware uji; bahwa biaya kriptografi per sesi didominasi Argon2id; bahwa nilai-nilai deterministik spesifikasi terkonfirmasi empiris.
+12. **Klaim yang dilarang**: Menyatakan komentar kode "salah" secara umum (yang terukur hanya satu hardware — komentar bisa saja akurat pada mesin lain yang lebih lambat); mengubah klaim jadi "AKSARA lebih cepat dari X" tanpa pembanding yang benar-benar diukur; menarik kesimpulan ketahanan brute-force kuantitatif dari angka 48 ms; menyatakan handshake "tidak memakan waktu" — yang benar adalah biayanya di bawah resolusi pengukuran.
+13. **Status kesiapan**: READY.
 
 ---
 
-## BAB VI — PENUTUP (BLOCKED — Bergantung BAB V)
+## BAB VI — PENUTUP
 
-Sesuai brief ("BAB VI tidak boleh berisi kesimpulan hasil sebelum BAB V selesai"), BAB VI **sengaja tidak diisi substansi hasil** pada sesi ini. Struktur subbab yang direncanakan:
+**§6.1 diisi 2026-07-27** setelah BAB V lengkap. **§6.2 dan §6.3 tidak diubah** — keduanya sudah berstatus `READY_FOR_DRAFTING` sejak SESSION 5B dengan sumber yang tidak bergantung eksperimen; rinciannya tetap seperti tabel di bawah.
 
-| Subbab (rencana) | Isi yang akan diisi | Ketergantungan |
-|---|---|---|
-| 6.1 Kesimpulan | Kesimpulan menjawab 3 rumusan masalah — **butuh hasil BAB V** untuk rumusan masalah #1 dan #3 (verifikasi klaim keamanan empiris); rumusan masalah #2 (key lifecycle) SEBAGIAN dapat dijawab dari analisis deskriptif BAB IV tanpa menunggu eksperimen | BAB V (parsial), BAB IV (parsial) |
-| 6.2 Keterbatasan Penelitian | Dapat disusun dari `09_SCOPE_AND_TEAM_PLAN.md` §5 + gap G1-G5 (`10_RELATED_WORK_AND_GAP.md`) + T1-T7 (`08_THREAT_MODEL.md`) — **tidak bergantung BAB V**, dapat disiapkan lebih awal pada SESSION 5B | Tidak bergantung eksperimen |
-| 6.3 Saran | Saran pengembangan lanjutan (rotasi kunci, verifikasi formal Noise_IK, dst.) berbasis gap yang sudah teridentifikasi — **tidak bergantung BAB V** | Tidak bergantung eksperimen |
+### 6.1 Kesimpulan
 
-**Catatan untuk SESSION 5B**: subbab 6.2 dan 6.3 **dapat disusun lebih awal** (tidak perlu menunggu BAB V) karena bersumber dari analisis deskriptif yang sudah selesai (threat model, related work gap) — bukan dari data eksperimen. Hanya 6.1 (kesimpulan) yang benar-benar terikat penuh pada ketersediaan BAB V.
+1. **Tujuan**: Menjawab tiga rumusan masalah `09_SCOPE_AND_TEAM_PLAN.md` secara langsung dan proporsional terhadap bukti yang benar-benar tersedia — tanpa menaikkan status klaim apa pun di luar yang didukung BAB IV dan BAB V.
+2. **Outline paragraf**: satu paragraf per rumusan masalah, ditutup satu paragraf sintesis singkat.
+3. **Kalimat topik**: "Penelitian ini berhasil memetakan implementasi kriptografi AKSARA secara menyeluruh dari kode sumber, mendokumentasikan siklus hidup kuncinya, dan memverifikasi secara empiris perilaku correctness serta satu klaim performa yang sebelumnya hanya berupa komentar kode."
+4. **Bahan kesimpulan per rumusan masalah**:
+   - **RM #1 (protokol dan primitif yang benar-benar diimplementasikan)**: Terjawab penuh. Tujuh komponen kriptografi inti (CORE-1..7) teridentifikasi dari 36 entry audit, dengan pattern `Noise_IK_25519_ChaChaPoly_BLAKE2s` terkonfirmasi literal di `src/crypto/handshake.rs`. Temuan penting yang wajib diulang di kesimpulan: Ed25519 **hadir sebagai identitas namun tidak dipakai untuk sign/verify** (CM-071), dan ChaCha20-Poly1305 dipakai pada tiga instance berbeda tanpa AAD. Verifikasi empiris: 46/46 test lolos, mencakup correctness dan rejection keempat kelompok fungsional.
+   - **RM #2 (siklus hidup kunci)**: Terjawab penuh dari analisis deskriptif dan terkonfirmasi empiris pada bagian yang dapat diuji. Vault identitas berukuran **tepat 108 byte** (terverifikasi 5 sampel), memakai Argon2id m=19 MiB/t=2/p=1, dan gagal secara fail-closed dengan pesan generik saat passphrase salah (terverifikasi 100% pada pengujian CLI). `unseal` bersifat deterministik: 10 run berturut-turut menghasilkan invite identik.
+   - **RM #3 (verifikasi klaim keamanan dan performa)**: Terjawab **sebagian**, dan justru di sinilah kontribusi empiris paling tajam. Klaim performa satu-satunya dalam kode — "~100 ms" untuk unlock vault — **terkoreksi menjadi ~48 ms neto** (median 45,08 ms, n = 30) pada hardware uji. Sebaliknya, properti keamanan seperti forward secrecy dan identity-hiding tetap **`DOCUMENTED_ONLY`**: keduanya diwarisi dari spesifikasi Noise_IK dan tidak diverifikasi oleh test AKSARA sendiri, sehingga kesimpulan tidak boleh menaikkannya menjadi "terbukti".
+   - **Sintesis**: AKSARA mengimplementasikan rangkaian primitif kriptografi yang koheren dan lolos seluruh pengujian correctness/rejection yang tersedia, dengan dua batas jujur yang harus ikut disimpulkan — tidak adanya pengecekan identitas pada koneksi pertama ke kontak baru (trust-on-first-use, CM-014), dan sejumlah properti keamanan yang statusnya masih terdokumentasi tanpa verifikasi lokal.
+5. **Evidence**: BAB IV (seluruh subbab), BAB V §5.2/§5.3, `15_CLAIM_EVIDENCE_CITATION_MAP.md`.
+6. **Referensi**: `noise2018`, `rfc9106`, `rfc8439`, `rfc8032`.
+7. **Claim ID**: CM-014, CM-017, CM-018, CM-061 (dikoreksi), CM-071, CM-150, CM-153.
+8. **Diagram**: Tidak ada.
+9. **Tabel**: Tidak ada tabel baru; kesimpulan merujuk TBL-04 dan TBL-09.
+10. **Eksperimen**: EXP-01 s.d. EXP-05.
+11. **Klaim yang boleh ditulis**: Ketiga jawaban rumusan masalah persis seperti poin 4, termasuk pernyataan eksplisit bahwa RM #3 terjawab sebagian.
+12. **Klaim yang dilarang**: Menyimpulkan bahwa "AKSARA aman"; menaikkan status forward secrecy/identity-hiding menjadi terverifikasi; menyatakan seluruh rumusan masalah terjawab penuh; menghilangkan temuan trust-on-first-use dan ketiadaan sign/verify Ed25519 dari kesimpulan hanya karena terdengar negatif.
+13. **Status kesiapan**: READY.
 
-**Status kesiapan**: 6.1 = `WAITING_FOR_EXPERIMENT`; 6.2 dan 6.3 = `READY_FOR_DRAFTING` (dapat disusun penuh di SESSION 5B tanpa menunggu eksperimen, meski secara formal ditempatkan setelah BAB V dalam struktur dokumen akhir).
+### 6.2 dan 6.3 — Tidak berubah dari SESSION 5B
+
+| Subbab | Isi | Ketergantungan | Status |
+|---|---|---|---|
+| 6.2 Keterbatasan Penelitian | Disusun dari `09_SCOPE_AND_TEAM_PLAN.md` §5 + gap G1-G5 (`10_RELATED_WORK_AND_GAP.md`) + T1-T7 (`08_THREAT_MODEL.md`) | Tidak bergantung eksperimen | `READY_FOR_DRAFTING` |
+| 6.3 Saran | Saran pengembangan lanjutan (rotasi kunci, verifikasi formal Noise_IK, dst.) berbasis gap yang sudah teridentifikasi | Tidak bergantung eksperimen | `READY_FOR_DRAFTING` |
+
+**Tambahan bahan untuk §6.2 dari hasil BAB V** (tidak mengubah status, hanya melengkapi daftar keterbatasan): pengukuran waktu dilakukan dari luar proses sehingga tidak memisahkan Argon2id dari operasi I/O vault; latensi handshake dan overhead ciphertext transport sesi tidak terukur presisi tanpa instrumentasi source; memory usage puncak (CM-154) tidak diukur; seluruh angka performa berasal dari satu unit hardware.
+
+**Tambahan bahan untuk §6.3**: menambahkan harness benchmark internal (`criterion`/`benches/`) agar klaim performa dapat diverifikasi ulang otomatis, dan menambahkan test rejection untuk ciphertext transport sesi yang dimodifikasi — dua hal yang pada penelitian ini terhalang batas wewenang modifikasi source.
 
 ---
 
@@ -514,10 +586,10 @@ Sesuai brief ("BAB VI tidak boleh berisi kesimpulan hasil sebelum BAB V selesai"
 | II — Kajian Pustaka | 10 | READY | Seluruh subbab selesai penuh; bagian kuantitatif (timing Argon2id) tetap `WAITING_FOR_EXPERIMENT` |
 | III — Metodologi | 5 | READY (4) / PARTIAL (1) | 3.4 sebagian `WAITING_FOR_EXPERIMENT` (lingkungan eksekusi belum final) |
 | IV — Perancangan dan Implementasi | 7 | READY | Seluruh subbab selesai penuh — BAB inti, paling rinci |
-| V — Pengujian dan Analisis | 3 (rencana) | `WAITING_FOR_EXPERIMENT` | Sengaja di-block, sesuai izin brief |
-| VI — Penutup | 3 (rencana) | `WAITING_FOR_EXPERIMENT` (6.1) / `READY_FOR_DRAFTING` (6.2, 6.3) | 6.2/6.3 dapat disusun penuh di SESSION 5B tanpa menunggu eksperimen |
+| V — Pengujian dan Analisis | 3 | READY | Diisi 2026-07-27 dari data terukur; EXP-02/EXP-03 parsial pada metrik kuantitatif, ditandai eksplisit |
+| VI — Penutup | 3 | READY (6.1) / `READY_FOR_DRAFTING` (6.2, 6.3) | 6.1 diisi 2026-07-27; 6.2/6.3 tidak diubah dari SESSION 5B |
 
-**Quality Gate poin 15 brief** ("BAB I sampai BAB IV memiliki content pack") **TERPENUHI** pada akhir subbab ini.
+**Quality Gate poin 15 brief** ("BAB I sampai BAB IV memiliki content pack") **TERPENUHI**. Per 2026-07-27 content pack mencakup BAB I s.d. BAB VI, melampaui syarat minimum tersebut.
 
 ## Referensi
 

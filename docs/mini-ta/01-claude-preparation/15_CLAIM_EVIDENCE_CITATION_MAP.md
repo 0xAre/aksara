@@ -83,7 +83,7 @@ Prefix ID baru pada peta ini: `CM-xxx` (Claim Map).
 | Claim ID | Klaim | Evidence Code | Referensi | Data Eksperimen | Bab | Status |
 |---|---|---|---|---|---|---|
 | CM-060 | Argon2id dipakai satu-satunya password-based KDF, parameter `m=19 MiB, t=2, p=1`, output 32 byte, dipakai langsung sebagai kunci AEAD vault | CR-014 | `rfc9106`, `biryukov2016argon2` | EXP-01, EXP-05 | BAB II §2.5, BAB IV §4.2, §4.6 | IMPLEMENTED (HIGH parameter, jelas dari kode) |
-| CM-061 | Klaim komentar kode "~100ms pada hardware modern" **TIDAK diverifikasi benchmark** apa pun dalam source yang diaudit | `identity/vault.rs:33-38` (CB-087) | — | **EXP-05 (WAITING_FOR_EXPERIMENT)** | BAB II §2.5, BAB IV §4.2 | DOCUMENTED_ONLY / LOW — **jangan dikutip sebagai fakta terukur sebelum EXP-05 dijalankan** |
+| CM-061 | Klaim komentar kode "~100ms pada hardware modern" **TERKOREKSI** oleh EXP-05 (2026-07-27): terukur ~48 ms neto (median 45,08 ms, n=30) pada hardware uji | `identity/vault.rs:33-38` (CB-087) | `rfc9106` | **EXP-05 (EXECUTED — `EXPERIMENT_RESULTS_2026-07-27.csv`)** | BAB II §2.5, BAB IV §4.2, BAB V §5.3 | CORRECTED — **jangan kutip "~100ms" sebagai fakta; kutip angka terukur dan selalu sertakan lingkungan ujinya** |
 | CM-062 | Output Argon2id dipakai LANGSUNG sebagai kunci AEAD tanpa HKDF perantara | CR-014 | `rfc9106` | — | BAB IV §4.2, §4.6 | IMPLEMENTED (dinilai dapat diterima untuk kasus tunggal saat ini) |
 
 ---
@@ -184,17 +184,19 @@ Prefix ID baru pada peta ini: `CM-xxx` (Claim Map).
 
 ---
 
-## 15. Klaim Performa (Seluruhnya Menunggu Eksperimen)
+## 15. Klaim Performa (Diperbarui 2026-07-27 — 4 dari 5 Sudah Terukur)
 
-Sesuai aturan "klaim performa didukung eksperimen": seluruh baris berikut **wajib** tetap `NEEDS_EXPERIMENT`/`WAITING_FOR_EXPERIMENT` di BAB manapun sampai `12_TEST_PLAN.md` benar-benar dijalankan dan dicatat di `EXPERIMENT_RESULT_TEMPLATE.csv`.
+Aturan "klaim performa didukung eksperimen" tetap berlaku. Empat baris di bawah kini **sudah punya data nyata** (`EXPERIMENT_RESULTS_2026-07-27.csv`, commit `75d17fd`); satu baris tetap belum diukur. Seluruh angka **wajib** ditulis bersama n, sebaran, dan spesifikasi hardware uji — tidak boleh digeneralisasi.
 
-| Claim ID | Klaim (berupa PERTANYAAN, bukan hasil) | Evidence Code | Referensi | Data Eksperimen | Bab | Status |
+| Claim ID | Klaim | Evidence Code | Referensi | Data Eksperimen | Bab | Status |
 |---|---|---|---|---|---|---|
-| CM-150 | Waktu unlock vault (Argon2id) aktual pada hardware uji | CB-087 = CM-061 | `rfc9106` | EXP-05 | BAB V (rencana §5.2) | WAITING_FOR_EXPERIMENT |
-| CM-151 | Latensi handshake Noise_IK end-to-end | — | `noise2018` | EXP-02 | BAB V (rencana §5.2) | WAITING_FOR_EXPERIMENT |
-| CM-152 | Overhead ciphertext transport sesi aktual (byte) per ukuran payload | — | `rfc8439` | EXP-03 | BAB V (rencana §5.2) | WAITING_FOR_EXPERIMENT |
-| CM-153 | Proporsi roundtrip sukses/rejection benar vault, handshake, transport, contacts (%) | — | — | EXP-01, EXP-02, EXP-03, EXP-04 | BAB V (rencana §5.2) | WAITING_FOR_EXPERIMENT |
-| CM-154 | Memory usage puncak (RSS) saat Argon2id berjalan | — | — | EXP-05 (opsional/sekunder) | BAB V (rencana §5.2) | WAITING_FOR_EXPERIMENT (opsional) |
+| CM-150 | Waktu unlock vault (Argon2id) pada hardware uji = mean 47,99 ms neto / 68,47 ms end-to-end (n=30, sd 11,41/12,47 ms) | CB-087 = CM-061 | `rfc9106` | EXP-05 (EXECUTED) | BAB V §5.2, §5.3 | MEASURED — berlaku hanya untuk lingkungan di BAB V §5.1 |
+| CM-151 | Latensi handshake Noise_IK end-to-end **tidak terdeteksi di atas noise** metode eksternal; batas atas < 0,86 ms (95% CI, n=19) | — | `noise2018` | EXP-02 (EXECUTED, parsial) | BAB V §5.2, §5.3 | PARTIAL — batas atas, **bukan nilai titik**; presisi butuh instrumentasi source |
+| CM-152 | Overhead tag AEAD = tepat 16 byte, terukur pada instance vault (108 − 16 salt − 12 nonce − 64 plaintext) | `identity/vault.rs` konstanta layout | `rfc8439` | EXP-03 (EXECUTED, parsial) | BAB V §5.2 | PARTIAL — instance **vault** terukur; instance Noise transport tetap `NEEDS_EXPERIMENT` |
+| CM-153 | Proporsi correctness/rejection: 46/46 unit test lolos; 10/10 unseal CLI sukses dan deterministik; 100% rejection passphrase salah | — | — | EXP-01..04 (EXECUTED) | BAB V §5.2 | MEASURED |
+| CM-154 | Memory usage puncak (RSS) saat Argon2id berjalan | — | — | EXP-05 (opsional/sekunder) | BAB V §5.3 (dicatat sebagai keterbatasan) | WAITING_FOR_EXPERIMENT (opsional) — hanya parameter statis 19 MiB yang diketahui |
+| CM-155 | Ukuran vault = tepat 108 byte, terverifikasi 5 vault independen | `identity/vault.rs` `VAULT_SIZE` | — | EXP-05 (EXECUTED) | BAB V §5.2 | MEASURED |
+| CM-156 | Panjang invite LAN-only = 86 karakter, konsisten pada 5 keypair acak | `contacts/mod.rs` `encode_invite` | — | EXP-04 (EXECUTED) | BAB V §5.2 | MEASURED |
 
 ---
 
@@ -216,10 +218,10 @@ Sesuai aturan "klaim performa didukung eksperimen": seluruh baris berikut **waji
 | Threat model T1-T7 | 7 | CM-120..126 |
 | Related work gap G1-G5 | 5 | CM-130..134 |
 | FR/NFR cross-cutting | 3 | CM-140..142 |
-| Klaim performa (menunggu eksperimen) | 5 | CM-150..154 |
-| **Total** | **81** | CM-001..154 (non-kontinu per kategori) |
+| Klaim performa | 7 | CM-150..156 |
+| **Total** | **83** | CM-001..156 (non-kontinu per kategori) |
 
-**Distribusi status**: mayoritas `IMPLEMENTED`/`NOT_FOUND` dengan evidence HIGH confidence (audit source-level langsung); sejumlah kecil `DOCUMENTED_ONLY`/`NEEDS_CONFIRMATION`/LOW-MEDIUM confidence yang **wajib dipertahankan hedge-nya** (terutama CM-015, CM-017, CM-018, CM-061 — larangan overclaim eksplisit); 5 klaim performa (`CM-150..154`) seragam `WAITING_FOR_EXPERIMENT`.
+**Distribusi status**: mayoritas `IMPLEMENTED`/`NOT_FOUND` dengan evidence HIGH confidence (audit source-level langsung); sejumlah kecil `DOCUMENTED_ONLY`/`NEEDS_CONFIRMATION`/LOW-MEDIUM confidence yang **wajib dipertahankan hedge-nya** (terutama CM-015, CM-017, CM-018 — larangan overclaim eksplisit). Klaim performa **diperbarui 2026-07-27**: 4 `MEASURED` (CM-150, CM-153, CM-155, CM-156), 2 `PARTIAL` (CM-151 batas atas, CM-152 hanya instance vault), 1 tetap `WAITING_FOR_EXPERIMENT` (CM-154 RSS). CM-061 berubah dari `DOCUMENTED_ONLY` menjadi `CORRECTED`. Dua Claim ID baru (CM-155, CM-156) ditambahkan untuk metrik deterministik yang kini terverifikasi empiris — total naik dari 81 menjadi 83.
 
 ## Klaim Kritis Anti-Overclaim (Prioritas Tertinggi)
 
@@ -227,7 +229,7 @@ Daftar ini mengulang (bukan menduplikasi baru) klaim yang paling berisiko di-ove
 
 1. **CM-071** — Ed25519 TIDAK dipakai sign/verify aktif. Jangan pernah menulis "AKSARA menggunakan tanda tangan digital Ed25519".
 2. **CM-017/CM-018** — Forward secrecy dan kerahasiaan static-key initiator `DOCUMENTED_ONLY`. Jangan menulis "AKSARA terbukti memiliki forward secrecy".
-3. **CM-061** — Klaim "~100ms" Argon2id belum diverifikasi. Jangan mengutip angka ini sebagai fakta terukur di BAB manapun sebelum EXP-05 dijalankan.
+3. **CM-061** — Klaim "~100ms" Argon2id sudah diuji (EXP-05, 2026-07-27) dan **TERKOREKSI menjadi ~48 ms neto** pada hardware uji. Jangan mengutip "~100ms" sebagai fakta; kutip angka terukur, selalu bersama n, sebaran, dan spesifikasi hardware — dan jangan generalisasi ke hardware lain.
 4. **CM-041/CM-044** — ChaCha20-Poly1305 TIDAK misuse-resistant dan TIDAK memakai AAD. Jangan menulis "AKSARA melindungi terhadap nonce reuse" tanpa hedge.
 5. **CM-014** — Trust-on-first-use pada kontak baru. Jangan menulis "AKSARA selalu memverifikasi identitas peer" tanpa kualifikasi "untuk kontak yang sudah dikenal".
 

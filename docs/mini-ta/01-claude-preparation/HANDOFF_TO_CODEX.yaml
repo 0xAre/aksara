@@ -75,8 +75,8 @@ chapters:
     subbab_count: 10
   bab_3:
     title: METODOLOGI PENELITIAN
-    status: PARTIAL
-    status_note: "4 dari 5 subbab READY; subbab 3.4 (lingkungan) sebagian WAITING_FOR_EXPERIMENT untuk spesifikasi hardware eksekusi pengujian"
+    status: READY
+    status_note: "Sejak 2026-07-27 seluruh 5 subbab READY — spesifikasi hardware eksekusi pengujian yang sebelumnya WAITING_FOR_EXPERIMENT pada subbab 3.4 kini tersedia di BAB V §5.1"
     source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-III
     subbab_count: 5
   bab_4:
@@ -87,21 +87,27 @@ chapters:
     subbab_count: 7
   bab_5:
     title: PENGUJIAN DAN ANALISIS
-    status: WAITING_FOR_EXPERIMENT
+    status: READY
+    subbab_count: 3
     status_note: >
-      Belum diisi sengaja (diizinkan eksplisit brief: "BAB V dan BAB VI boleh
-      menunggu data pengujian"). Struktur rencana 3 subbab tersedia di content
-      pack. Wajib EXP-01..05 (12_TEST_PLAN.md) dijalankan dan dicatat di
-      EXPERIMENT_RESULT_TEMPLATE.csv sebelum subbab ini ditulis penuh.
+      Diisi 2026-07-27 (commit 75d17fd) dari data terukur nyata. 5.1 lingkungan
+      pengujian aktual, 5.2 hasil EXP-01..05, 5.3 analisis dan diskusi —
+      seluruhnya READY. Dua metrik berstatus PARTIAL dan SUDAH ditandai eksplisit
+      di dalam content pack: latensi handshake (hanya batas atas < 0,86 ms, bukan
+      nilai titik) dan overhead ciphertext transport sesi (yang terukur adalah
+      instance vault). Codex WAJIB mempertahankan hedge kedua metrik ini.
     source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-V
   bab_6:
     title: PENUTUP
-    status: PARTIAL
+    status: READY
+    subbab_count: 3
     status_note: >
-      6.1 (Kesimpulan) WAITING_FOR_EXPERIMENT — bergantung BAB V untuk rumusan
-      masalah #1 dan #3. 6.2 (Keterbatasan) dan 6.3 (Saran) READY_FOR_DRAFTING —
-      TIDAK bergantung eksperimen, dapat ditulis penuh dari 09_SCOPE_AND_TEAM_PLAN.md
-      §5 + 10_RELATED_WORK_AND_GAP.md gap G1-G5 + 08_THREAT_MODEL.md T1-T7.
+      6.1 (Kesimpulan) diisi 2026-07-27 — menjawab RM #1 dan RM #2 penuh, RM #3
+      SEBAGIAN (klaim performa terkoreksi, properti keamanan tetap
+      DOCUMENTED_ONLY). 6.2 (Keterbatasan) dan 6.3 (Saran) tidak diubah, tetap
+      READY_FOR_DRAFTING dari 09_SCOPE_AND_TEAM_PLAN.md §5 +
+      10_RELATED_WORK_AND_GAP.md gap G1-G5 + 08_THREAT_MODEL.md T1-T7, dengan
+      tambahan bahan dari hasil BAB V yang sudah dicatat di content pack.
     source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-VI
 
 references:
@@ -138,12 +144,28 @@ experiments:
   result_template: docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv
   group_count: 5
   groups: [EXP-01 vault correctness/rejection, EXP-02 handshake Noise_IK, EXP-03 transport sesi, EXP-04 invite/fingerprint/contact store, EXP-05 benchmark Argon2id]
-  result_status: WAITING_FOR_EXPERIMENT
+  results:
+    - docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-26.csv
+    - docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv
+  result_status: EXECUTED
   result_status_note: >
-    TIDAK ADA eksperimen yang sudah dijalankan pada sprint persiapan ini (TAHAP
-    1-17). Seluruh 5 kelompok, 7 metrik unik, dan 22 baris template CSV masih
-    kosong. Eksekusi harus dilakukan sebagai langkah terpisah SEBELUM BAB V
-    dapat ditulis.
+    Seluruh 5 kelompok sudah dijalankan. 2026-07-26 (commit 3d22494):
+    cargo test --release = 46/46 PASS, mencakup penuh correctness+rejection
+    EXP-01..04. 2026-07-27 (commit 75d17fd): EXP-05 selesai (30 cold-start
+    unseal, mean 47,99 ms neto / 68,47 ms end-to-end, sd 11,41/12,47 ms; vault
+    108 byte pada 5 sampel) — MENGOREKSI klaim komentar kode "~100 ms"; EXP-04
+    panjang invite 86 karakter pada 5 sampel; EXP-01 determinisme CLI 10/10 dan
+    rejection passphrase salah 100%. DUA metrik tetap PARTIAL/BELUM terukur dan
+    tidak boleh diklaim lebih: latensi handshake hanya batas atas < 0,86 ms
+    (95% CI, n=19 — di bawah resolusi metode eksternal), overhead ciphertext
+    instance Noise transport tidak diukur langsung, dan memory usage puncak
+    (CM-154) tidak diukur. Pengukuran presisi ketiganya butuh instrumentasi
+    src/ yang memerlukan permintaan eksplisit pengguna (AGENTS.md).
+  environment: >
+    Windows 11 Home 10.0.26200 build 26200; Intel Core i7-1165G7 4C/8T @2.80GHz;
+    RAM 11.79 GB (free ~0.93 GB saat uji); bare-metal LENOVO 82FG; rustc 1.97.0
+    (2d8144b78 2026-07-07) / cargo 1.97.0; profil --release. Seluruh angka
+    performa berlaku HANYA untuk lingkungan ini — jangan digeneralisasi.
 
 team:
   contribution_matrix: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §8
@@ -170,16 +192,21 @@ restrictions:
   claim_map_critical_section: "§Klaim Kritis Anti-Overclaim (5 item prioritas tertinggi)"
 
 readiness:
-  ready_for_codex: "YES_PARTIAL"
+  ready_for_codex: "YES"
   ready_for_codex_note: >
-    BAB I-IV siap disusun Codex menjadi prosa DOCX sekarang (Quality Gate poin
-    15 brief eksplisit hanya mensyaratkan BAB I-IV). BAB V dan BAB VI TIDAK
-    siap — brief mengizinkan keduanya menunggu data pengujian ("BAB V dan BAB
-    VI boleh menunggu data pengujian"), sehingga status ini bukan pelanggaran
-    quality gate, melainkan kondisi yang memang diantisipasi brief. Tidak
-    ditemukan kontradiksi KRITIS pada penggunaan algoritma, nonce, key
-    management, atau format protokol manapun di seluruh dokumen TAHAP 1-16 —
+    Diperbarui 2026-07-27 (commit 75d17fd) dari YES_PARTIAL menjadi YES penuh.
+    BAB I s.d. BAB VI seluruhnya punya content pack: BAB V diisi dari data
+    terukur nyata (dua file EXPERIMENT_RESULTS_*.csv) dan BAB VI §6.1 diisi
+    menjawab tiga rumusan masalah; §6.2/§6.3 tetap READY_FOR_DRAFTING seperti
+    sebelumnya. Tidak ditemukan kontradiksi KRITIS pada penggunaan algoritma,
+    nonce, key management, atau format protokol di seluruh dokumen TAHAP 1-17 —
     satu-satunya syarat yang secara eksplisit memaksa ready_for_codex: NO.
+    CATATAN WAJIB untuk Codex: status YES ini TIDAK berarti setiap metrik sudah
+    terukur. Tiga item tetap hedged dan hedge-nya tidak boleh dihapus saat
+    menulis prosa — latensi handshake (batas atas saja), overhead ciphertext
+    transport sesi (hanya instance vault yang terukur), dan memory usage puncak
+    (tidak diukur). Lihat experiments.result_status_note dan
+    15_CLAIM_EVIDENCE_CITATION_MAP.md §15.
   quality_gate_17_items:
     - {id: 1, desc: "Scope kelompok jelas", met: true, source: "09_SCOPE_AND_TEAM_PLAN.md"}
     - {id: 2, desc: "3 anggota teridentifikasi/placeholder", met: true, source: "placeholder Anggota 1/2/3"}
@@ -201,12 +228,18 @@ readiness:
   blocking_issues:
     - id: BI-01
       desc: "BAB V (Pengujian dan Analisis) belum diisi — menunggu eksekusi EXP-01..05"
-      severity: non_blocking_per_brief
-      action_required: "Jalankan 12_TEST_PLAN.md, isi EXPERIMENT_RESULT_TEMPLATE.csv, lalu lengkapi BAB V di 14_CHAPTER_CONTENT_PACK.md"
+      severity: resolved
+      resolved_on: "2026-07-27 (commit 75d17fd)"
+      action_required: "Tidak ada — BAB V terisi dari EXPERIMENT_RESULTS_2026-07-26.csv dan _2026-07-27.csv"
     - id: BI-02
       desc: "BAB VI subbab 6.1 (Kesimpulan) belum diisi — bergantung BAB V"
-      severity: non_blocking_per_brief
-      action_required: "Selesaikan setelah BI-01"
+      severity: resolved
+      resolved_on: "2026-07-27 (commit 75d17fd)"
+      action_required: "Tidak ada — §6.1 terisi; §6.2/§6.3 tetap READY_FOR_DRAFTING seperti rencana semula"
+    - id: BI-06
+      desc: "Tiga metrik tetap tidak/belum terukur presisi: latensi handshake (batas atas saja), overhead ciphertext instance Noise transport, memory usage puncak (CM-154)"
+      severity: non_blocking
+      action_required: "Pertahankan hedge saat menulis prosa. Pengukuran presisi butuh instrumentasi src/ (benches/criterion) yang memerlukan permintaan eksplisit pengguna per AGENTS.md"
     - id: BI-03
       desc: "Screenshot TUI aktual belum ada (capture gambar, bukan build/fungsi)"
       severity: non_blocking
@@ -216,7 +249,7 @@ readiness:
       severity: non_blocking
       action_required: "Konfirmasi dari kelompok/dosen pembimbing sebelum cetak final"
     - id: BI-05
-      desc: "16_TABLE_MANIFEST.md mendaftar 13 tabel, 1 di atas batas maksimum 12 brief"
+      desc: "13_TABLE_MANIFEST.md mendaftar 13 tabel, 1 di atas batas maksimum 12 brief"
       severity: cosmetic
       action_required: "Tidak perlu tindakan — seluruh 13 kategori memang wajib eksplisit TAHAP 14 brief, bukan tabel berlebih yang perlu dipangkas"
 
