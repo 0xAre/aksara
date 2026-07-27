@@ -100,6 +100,21 @@ Transcript lengkap workflow (kalau perlu re-cek reasoning agent): `C:\Users\LENO
 
 **Next action paling prioritas sesi berikutnya**: jalankan EXP-05 (Argon2id timing, 30 cold-start run) — satu-satunya klaim performa eksplisit yang belum diverifikasi di seluruh sprint. Lalu isi 3 metrik sisa (latensi handshake, overhead ciphertext, panjang invite) — semuanya cepat/murah. Baru setelah itu lengkapi BAB V/VI di `14_CHAPTER_CONTENT_PACK.md` dan update `HANDOFF_TO_CODEX.yaml` (`chapters.bab_5`/`bab_6`, `experiments.result_status`, `readiness.ready_for_codex` → `YES` penuh).
 
+## Update SESSION 6 (2026-07-27, commit `75d17fd`) — Eksperimen SELESAI, BAB V/VI Terisi
+
+Next action di atas **sudah dikerjakan seluruhnya**. Rincian di `SESSION_6_HANDOFF.md`. Ringkasnya:
+
+- **EXP-05 SELESAI** — 30 cold-start `unseal` via CLI + 30 run kontrol. Neto **mean 47,99 ms** (median 45,08; sd 11,41), end-to-end mean 68,47 ms. **Klaim komentar kode "~100 ms" TERKOREKSI** (sekitar separuhnya pada hardware uji). Ukuran vault 108 byte terverifikasi 5 sampel.
+- **3 metrik sisa**: panjang invite 86 karakter (5 sampel) `EXECUTED`; overhead tag 16 byte `PARTIAL` (instance vault terukur, instance Noise transport tidak); latensi handshake `PARTIAL` (hanya batas atas < 0,86 ms, di bawah resolusi metode eksternal).
+- **Bonus EXP-01**: determinisme `unseal` 10/10 dengan invite identik; rejection passphrase salah 100%.
+- Hasil: `02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv` (123 baris data). File 2026-07-26 **tidak** ditimpa.
+- **BAB V (3 subbab) dan BAB VI §6.1 terisi penuh** di `14_CHAPTER_CONTENT_PACK.md`. §6.2/§6.3 tidak diubah.
+- `HANDOFF_TO_CODEX.yaml`: `ready_for_codex` → **`YES`** penuh; `bab_3`/`bab_5`/`bab_6` → READY; `experiments.result_status` → `EXECUTED`; BI-01/BI-02 → `resolved`; BI-06 baru (3 metrik yang tetap hedged).
+- `15_CLAIM_EVIDENCE_CITATION_MAP.md`: CM-061 → `CORRECTED`; CM-150..154 diperbarui; CM-155/CM-156 baru; total klaim **81 → 83**.
+- **Validasi SESSION 5B**: dilakukan (spot-check kode + konsistensi dokumen). Dua temuan nyata, keduanya sudah diperbaiki — `experiments.result_status` di handoff masih tertulis "TIDAK ADA eksperimen dijalankan" padahal commit `75d17fd` sudah menjalankan 46/46 test, dan BI-05 salah menyebut `16_TABLE_MANIFEST.md` (seharusnya `13_`). Selebihnya konsisten.
+
+**Next action**: tidak ada pekerjaan eksperimen tersisa yang tidak memerlukan izin modifikasi source. Jalur berikutnya = **Jalur B (Codex menyusun DOCX)**, kini dari BAB I s.d. VI. Opsional bila pengguna mengizinkan modifikasi `src/`: tambah harness `criterion` untuk latensi handshake presisi dan test rejection ciphertext transport.
+
 ## Next action kalau lanjut sesi baru
 
 **Sprint persiapan mini-TA (TAHAP 1-17) kini selesai** — `ready_for_codex: YES_PARTIAL` di `HANDOFF_TO_CODEX.yaml`. Sesi berikutnya BUKAN lagi "SESSION 6" dalam skema TAHAP baru, melainkan salah satu dari dua jalur berikut, tergantung permintaan pengguna:

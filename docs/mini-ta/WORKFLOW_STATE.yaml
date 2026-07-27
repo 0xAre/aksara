@@ -10,14 +10,19 @@ workflow:
   total_sessions_remaining: 0
   current_session: 5b
   latest_completed_stage: 17
-  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_5B_HANDOFF.md
-  next_action: finish_exp05_argon2id_benchmark_then_bab5_6
-  experiments_partial_result: >
-    2026-07-26 commit 3d22494: cargo test --release = 46/46 PASS. Correctness+
-    rejection EXP-01..04 SELESAI. EXP-05 (Argon2id timing) dan 3 metrik sisa
-    (latensi handshake, overhead ciphertext, panjang invite) BELUM diukur -
-    lihat docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-26.csv
-  ready_for_codex: YES_PARTIAL
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_6_HANDOFF.md
+  next_action: codex_menyusun_docx_bab_1_sampai_6
+  experiments_result: >
+    SELESAI. 2026-07-26 commit 3d22494: cargo test --release = 46/46 PASS
+    (correctness+rejection EXP-01..04). 2026-07-27 commit 75d17fd: EXP-05
+    selesai - 30 cold-start unseal, neto mean 47,99 ms (median 45,08; sd 11,41),
+    end-to-end mean 68,47 ms; MENGOREKSI klaim komentar kode "~100 ms". Vault
+    108 byte (5 sampel), invite 86 karakter (5 sampel), overhead tag 16 byte
+    (instance vault). TETAP hedged: latensi handshake hanya batas atas
+    < 0,86 ms, overhead instance Noise transport tidak diukur, RSS tidak diukur
+    - ketiganya butuh instrumentasi src/. Data:
+    docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv
+  ready_for_codex: YES
   note: >
     Sprint persiapan mini-TA (TAHAP 1-17) SELESAI. SESSION 5A dan 5B
     dijalankan dalam satu rangkaian percakapan (user memilih lanjut hati-hati
@@ -65,6 +70,22 @@ sessions:
       - docs/mini-ta/01-claude-preparation/tables/*
       - docs/mini-ta/01-claude-preparation/SESSION_5A_HANDOFF.md
 
+  session_6:
+    name: Experiment Execution and Chapters V-VI
+    stages: []
+    status: DONE
+    note: >
+      Bukan TAHAP baru dalam skema 17-tahap. Menjalankan EXP-05 + 3 metrik sisa
+      12_TEST_PLAN.md, memvalidasi output SESSION 5B (2 temuan diperbaiki), lalu
+      mengisi BAB V (3 subbab) dan BAB VI 6.1 di 14_CHAPTER_CONTENT_PACK.md.
+      ready_for_codex naik dari YES_PARTIAL menjadi YES.
+    expected_outputs:
+      - docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv
+      - docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md
+      - docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
+      - docs/mini-ta/01-claude-preparation/HANDOFF_TO_CODEX.yaml
+      - docs/mini-ta/01-claude-preparation/SESSION_6_HANDOFF.md
+
   session_5b:
     name: Chapter Content Pack and Codex Handoff
     stages: [15, 16, 17]
@@ -96,5 +117,5 @@ blockers:
 memory:
   project_memory: docs/mini-ta/PROJECT_MEMORY.md
   progress: docs/mini-ta/01-claude-preparation/PROGRESS.md
-  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_5B_HANDOFF.md
+  latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_6_HANDOFF.md
   source_of_truth: AGENTS.md
