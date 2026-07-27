@@ -102,12 +102,14 @@ chapters:
     status: READY
     subbab_count: 3
     status_note: >
-      6.1 (Kesimpulan) diisi 2026-07-27 — menjawab RM #1 dan RM #2 penuh, RM #3
-      SEBAGIAN (klaim performa terkoreksi, properti keamanan tetap
-      DOCUMENTED_ONLY). 6.2 (Keterbatasan) dan 6.3 (Saran) tidak diubah, tetap
-      READY_FOR_DRAFTING dari 09_SCOPE_AND_TEAM_PLAN.md §5 +
-      10_RELATED_WORK_AND_GAP.md gap G1-G5 + 08_THREAT_MODEL.md T1-T7, dengan
-      tambahan bahan dari hasil BAB V yang sudah dicatat di content pack.
+      Seluruh 3 subbab diisi 2026-07-27 dengan format 13 field penuh. 6.1
+      (Kesimpulan) menjawab RM #1 dan RM #2 penuh, RM #3 SEBAGIAN (klaim
+      performa terkoreksi, properti keamanan tetap DOCUMENTED_ONLY). 6.2
+      (Keterbatasan) disusun 3 lapis — batas cakupan (09_SCOPE_AND_TEAM_PLAN.md
+      §5, 9 poin), batas metode pengukuran (baru diketahui dari BAB V), dan
+      batas melekat objek penelitian (G2/G5/T2/T7). 6.3 (Saran) berisi 9 butir,
+      masing-masing tertaut eksplisit ke gap G1-G5 atau temuan T1-T7 — tidak ada
+      saran generik tanpa asal-usul.
     source: docs/mini-ta/01-claude-preparation/14_CHAPTER_CONTENT_PACK.md#BAB-VI
 
 references:

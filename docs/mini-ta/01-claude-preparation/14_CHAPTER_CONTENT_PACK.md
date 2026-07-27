@@ -543,7 +543,7 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 
 ## BAB VI — PENUTUP
 
-**§6.1 diisi 2026-07-27** setelah BAB V lengkap. **§6.2 dan §6.3 tidak diubah** — keduanya sudah berstatus `READY_FOR_DRAFTING` sejak SESSION 5B dengan sumber yang tidak bergantung eksperimen; rinciannya tetap seperti tabel di bawah.
+**Seluruh 3 subbab diisi 2026-07-27.** §6.1 disusun setelah BAB V lengkap. §6.2 dan §6.3 — yang sejak SESSION 5B hanya berupa baris tabel rencana berstatus `READY_FOR_DRAFTING` — dinaikkan menjadi content pack 13 field penuh agar setara dengan 28 subbab lainnya.
 
 ### 6.1 Kesimpulan
 
@@ -565,16 +565,46 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 12. **Klaim yang dilarang**: Menyimpulkan bahwa "AKSARA aman"; menaikkan status forward secrecy/identity-hiding menjadi terverifikasi; menyatakan seluruh rumusan masalah terjawab penuh; menghilangkan temuan trust-on-first-use dan ketiadaan sign/verify Ed25519 dari kesimpulan hanya karena terdengar negatif.
 13. **Status kesiapan**: READY.
 
-### 6.2 dan 6.3 — Tidak berubah dari SESSION 5B
+### 6.2 Keterbatasan Penelitian
 
-| Subbab | Isi | Ketergantungan | Status |
-|---|---|---|---|
-| 6.2 Keterbatasan Penelitian | Disusun dari `09_SCOPE_AND_TEAM_PLAN.md` §5 + gap G1-G5 (`10_RELATED_WORK_AND_GAP.md`) + T1-T7 (`08_THREAT_MODEL.md`) | Tidak bergantung eksperimen | `READY_FOR_DRAFTING` |
-| 6.3 Saran | Saran pengembangan lanjutan (rotasi kunci, verifikasi formal Noise_IK, dst.) berbasis gap yang sudah teridentifikasi | Tidak bergantung eksperimen | `READY_FOR_DRAFTING` |
+1. **Tujuan**: Menyatakan secara jujur dan terstruktur apa yang **tidak** dicakup penelitian ini, sehingga pembaca tidak menyimpulkan lebih dari yang didukung bukti — sekaligus membedakan keterbatasan *scope yang disengaja* dari keterbatasan *metode pengukuran* yang baru diketahui setelah BAB V.
+2. **Outline paragraf**: (a) keterbatasan cakupan analisis (apa yang sengaja tidak dinilai); (b) keterbatasan metode pengujian dan pengukuran; (c) keterbatasan yang melekat pada objek penelitian itu sendiri (desain AKSARA M1); (d) implikasi ketiganya terhadap tingkat kepercayaan kesimpulan.
+3. **Kalimat topik**: "Penelitian ini memiliki tiga lapis keterbatasan yang perlu dinyatakan eksplisit — batas cakupan yang ditetapkan sejak awal, batas metode pengukuran yang baru terlihat saat pengujian dijalankan, dan batas yang melekat pada desain AKSARA sendiri."
+4. **Bahan per kelompok keterbatasan**:
+   - **(a) Cakupan analisis** — sembilan batasan `09_SCOPE_AND_TEAM_PLAN.md` §5, diwarisi dari `08_THREAT_MODEL.md` §5: tidak menilai keamanan internal dependency crate (`snow`, `arti-client`/`tor-hsservice`, `mdns-sd`, `x25519-dalek`, `ed25519-dalek`) melainkan hanya cara AKSARA memakainya; tidak menilai kebenaran CSPRNG level-OS di balik `OsRng`; tidak melakukan pembuktian formal kriptografi; tidak melakukan analisis side-channel fisik/hardware; tidak mengevaluasi ketahanan DoS kuantitatif; tidak mencakup skenario multi-device/sinkronisasi kunci; bukan proyek remediasi (T1-T7 dilaporkan deskriptif, tidak diperbaiki); transport LAN/Tor dibahas sebagai konteks pendukung, bukan objek evaluasi kriptografi primer.
+   - **(b) Metode pengujian dan pengukuran** — bersumber dari BAB V §5.3 dan `12_TEST_PLAN.md`: pengukuran waktu dilakukan dari **luar proses** sehingga selalu memuat overhead spawn (dikendalikan lewat 30 run kontrol, tetapi menyisakan sd 11,41 ms pada selisih berpasangan); latensi handshake **tidak dapat diukur presisi** dan hanya menghasilkan batas atas; overhead ciphertext instance Noise transport **tidak observable** dari luar proses; memory usage puncak (CM-154) tidak diukur; seluruh angka performa berasal dari **satu unit hardware** sehingga tidak dapat digeneralisasi; tidak ditemukan known-answer test terhadap test vector standar resmi di test suite AKSARA (seluruh test bersifat roundtrip/property-based); tidak ada test rejection untuk ciphertext/frame transport sesi yang dimodifikasi — ketiadaan ini bukan kelalaian pengujian melainkan konsekuensi batas wewenang: menambah test berarti memodifikasi `src/`/`tests/` yang memerlukan permintaan eksplisit di luar cakupan pekerjaan dokumentasi.
+   - **(c) Melekat pada objek penelitian** — G2/T7: tidak ada mekanisme rotasi/ratcheting/revokasi kunci apa pun, sehingga tidak ada yang bisa dievaluasi pada aspek tersebut; G5: tidak ada fallback offline; T2: kebocoran metadata presence/fingerprint via mDNS plaintext diakui eksplisit sebagai trade-off M1; kontak hanya hidup di RAM pada M1 sehingga persistensi contact store tidak dapat diuji end-to-end lewat CLI.
+   - **(d) Implikasi** — kesimpulan penelitian ini valid pada level *perilaku observable di boundary aplikasi* dan *pemetaan implementasi dari source code*, bukan pada level pembuktian keamanan kriptografis. Properti seperti forward secrecy tetap berstatus `DOCUMENTED_ONLY` justru karena keterbatasan (a) poin 3 dan G1.
+5. **Evidence**: `09_SCOPE_AND_TEAM_PLAN.md` §5 (9 poin), `08_THREAT_MODEL.md` §5 dan risk register T1-T7, `10_RELATED_WORK_AND_GAP.md` G1-G5, BAB V §5.3, `12_TEST_PLAN.md` §0 (kandidat N/A) dan §EXP-03 poin 15.
+6. **Referensi**: `noise2018` (batas properti yang diwarisi vs diverifikasi), `rfc9106` (ketergantungan hasil Argon2id pada hardware).
+7. **Claim ID**: CM-017, CM-018 (properti `DOCUMENTED_ONLY`), CM-151, CM-152, CM-154 (metrik tidak/belum terukur), T2, T7, G1, G2, G5.
+8. **Diagram**: Tidak ada.
+9. **Tabel**: Tidak ada tabel baru; boleh merujuk TBL-09 (threat model) dan TBL-12 (parameter evaluasi, kolom status `PARTIAL`/`WAITING_FOR_EXPERIMENT`).
+10. **Eksperimen**: EXP-02, EXP-03, EXP-05 (sumber keterbatasan metode kelompok (b)).
+11. **Klaim yang boleh ditulis**: Seluruh keterbatasan poin 4 apa adanya; pernyataan eksplisit bahwa ketiadaan test rejection transport dan harness benchmark adalah **batas wewenang**, bukan kelalaian; pernyataan bahwa angka performa terikat satu unit hardware.
+12. **Klaim yang dilarang**: Membingkai keterbatasan sebagai "akan diselesaikan di penelitian berikutnya" seolah sudah direncanakan padahal belum (itu materi §6.3, dan hanya sebagai saran); menyamarkan keterbatasan (b) dengan bahasa yang mengesankan seluruh metrik sudah terukur; menuliskan keterbatasan cakupan sebagai kelemahan AKSARA — (a) adalah batas *penelitian*, bukan cacat *produk*.
+13. **Status kesiapan**: READY.
 
-**Tambahan bahan untuk §6.2 dari hasil BAB V** (tidak mengubah status, hanya melengkapi daftar keterbatasan): pengukuran waktu dilakukan dari luar proses sehingga tidak memisahkan Argon2id dari operasi I/O vault; latensi handshake dan overhead ciphertext transport sesi tidak terukur presisi tanpa instrumentasi source; memory usage puncak (CM-154) tidak diukur; seluruh angka performa berasal dari satu unit hardware.
+### 6.3 Saran
 
-**Tambahan bahan untuk §6.3**: menambahkan harness benchmark internal (`criterion`/`benches/`) agar klaim performa dapat diverifikasi ulang otomatis, dan menambahkan test rejection untuk ciphertext transport sesi yang dimodifikasi — dua hal yang pada penelitian ini terhalang batas wewenang modifikasi source.
+1. **Tujuan**: Memberikan saran pengembangan lanjutan yang **spesifik dan dapat ditindaklanjuti**, masing-masing tertaut pada gap atau keterbatasan yang sudah teridentifikasi — bukan saran generik.
+2. **Outline paragraf**: (a) saran untuk penelitian lanjutan (metodologis); (b) saran untuk pengembangan AKSARA sebagai produk; (c) prioritisasi singkat.
+3. **Kalimat topik**: "Saran berikut disusun langsung dari kesenjangan yang teridentifikasi pada BAB II dan keterbatasan yang dinyatakan pada subbab sebelumnya, sehingga setiap butir memiliki dasar yang dapat ditelusuri, bukan sekadar anjuran umum."
+4. **Bahan saran (setiap butir wajib menyebut asal-usulnya)**:
+   - **Untuk penelitian lanjutan**: (i) verifikasi formal terhadap instansiasi Noise_IK spesifik AKSARA, mis. dengan Noise Explorer atau ProVerif — menutup **G1** dan menaikkan status forward secrecy/identity-hiding dari `DOCUMENTED_ONLY` (CM-017/CM-018); (ii) menambahkan harness benchmark internal (`criterion`, direktori `benches/`) agar latensi handshake dan overhead ciphertext transport dapat diukur presisi — menutup keterbatasan §6.2(b) dan menaikkan CM-151/CM-152 dari `PARTIAL` menjadi terukur; (iii) evaluasi overhead protokol pada kondisi jaringan LAN dan Tor nyata — menutup **G3**, yang tidak tersentuh penelitian ini karena seluruh pengujian berjalan di loopback; (iv) mengulang benchmark Argon2id pada beberapa kelas hardware berbeda untuk menguji apakah koreksi "~100 ms → ~48 ms" bersifat umum atau spesifik mesin uji.
+   - **Untuk pengembangan AKSARA**: (v) menambahkan mekanisme rotasi/ratcheting kunci sesi — menutup **G2** dan **T7**, keterbatasan struktural dengan dampak jangka panjang tertinggi; (vi) menambahkan test rejection untuk frame/ciphertext transport sesi yang dimodifikasi — satu-satunya kelas rejection yang belum punya test sama sekali (`12_TEST_PLAN.md` §EXP-03 poin 15); (vii) memperjelas sinyal ke pengguna saat sesi tertutup akibat tampering versus penutupan normal — **T5**; (viii) menambahkan hardening permission file pada vault dan state Tor, serta meninjau ulang `FS_MISTRUST_DISABLE_PERMISSIONS_CHECKS` yang aktif tanpa syarat platform — **T4** dan **T6**; (ix) memperkenalkan proses handshake kontak yang lebih terstruktur untuk mengurangi ketergantungan pada verifikasi fingerprint manual — **G4**, **T1**, dan **T3**.
+   - **Prioritisasi**: butir (v) dan (ix) menyasar dua temuan berdampak tertinggi (T7 dan T1/T3); butir (ii) dan (vi) berbiaya paling rendah karena bersifat menambah perkakas uji tanpa mengubah desain protokol.
+5. **Evidence**: `10_RELATED_WORK_AND_GAP.md` G1-G5, `08_THREAT_MODEL.md` risk register T1-T7, BAB V §5.3, `12_TEST_PLAN.md` §EXP-03 poin 15, `15_CLAIM_EVIDENCE_CITATION_MAP.md` §15.
+6. **Referensi**: `noise2018`, referensi related work yang menjadi pembanding gap (Noise Explorer, analisis formal Signal/Matrix, WireGuard, Briar, Tox) sesuai citekey `10_RELATED_WORK_AND_GAP.md`.
+7. **Claim ID**: G1-G5, T1, T3, T4, T5, T6, T7, CM-151, CM-152.
+8. **Diagram**: Tidak ada.
+9. **Tabel**: Tidak ada tabel baru; boleh merujuk TBL-09 dan TBL-10 (penelitian terkait).
+10. **Eksperimen**: Tidak ada eksperimen baru — saran justru menunjuk eksperimen yang **belum** dapat dijalankan.
+11. **Klaim yang boleh ditulis**: Seluruh sembilan butir saran dengan tautan gap/temuannya masing-masing; pernyataan bahwa butir (ii) dan (vi) terhalang batas wewenang pada penelitian ini, bukan terhalang kesulitan teknis.
+12. **Klaim yang dilarang**: Menyatakan atau menyiratkan bahwa saran mana pun **sudah** dikerjakan/diimplementasikan; menjanjikan hasil dari saran (mis. "rotasi kunci akan menghilangkan risiko T7" — yang benar adalah *mengurangi*, dan itu pun belum diuji); menambahkan saran yang tidak tertaut pada gap/temuan terdokumentasi.
+13. **Status kesiapan**: READY.
+
+**Catatan perubahan**: §6.2 dan §6.3 semula hanya berupa baris tabel rencana berstatus `READY_FOR_DRAFTING` (SESSION 5B). Pada 2026-07-27 keduanya dinaikkan menjadi content pack 13 field penuh agar konsisten dengan 28 subbab lainnya — isi substansinya tetap bersumber dari dokumen yang sama seperti rencana semula (`09_SCOPE_AND_TEAM_PLAN.md` §5, G1-G5, T1-T7), ditambah keterbatasan metode yang baru diketahui dari BAB V.
 
 ---
 
@@ -587,7 +617,7 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 | III — Metodologi | 5 | READY (4) / PARTIAL (1) | 3.4 sebagian `WAITING_FOR_EXPERIMENT` (lingkungan eksekusi belum final) |
 | IV — Perancangan dan Implementasi | 7 | READY | Seluruh subbab selesai penuh — BAB inti, paling rinci |
 | V — Pengujian dan Analisis | 3 | READY | Diisi 2026-07-27 dari data terukur; EXP-02/EXP-03 parsial pada metrik kuantitatif, ditandai eksplisit |
-| VI — Penutup | 3 | READY (6.1) / `READY_FOR_DRAFTING` (6.2, 6.3) | 6.1 diisi 2026-07-27; 6.2/6.3 tidak diubah dari SESSION 5B |
+| VI — Penutup | 3 | READY | Seluruh 3 subbab diisi 2026-07-27 dengan format 13 field penuh |
 
 **Quality Gate poin 15 brief** ("BAB I sampai BAB IV memiliki content pack") **TERPENUHI**. Per 2026-07-27 content pack mencakup BAB I s.d. BAB VI, melampaui syarat minimum tersebut.
 
