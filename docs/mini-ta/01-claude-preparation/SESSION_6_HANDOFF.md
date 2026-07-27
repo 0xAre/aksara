@@ -103,6 +103,36 @@ Penyederhanaan ini punya **dasar preseden**, bukan asumsi: proposal CARAKA — u
 
 **Peringatan untuk Codex**: angka spasi baris 1,15 berasal dari pengukuran **satu contoh TA**, bukan kutipan peraturan tertulis. Banyak panduan Indonesia mensyaratkan 1,5. Bila ada panduan tertulis dari dosen, panduan itu menang.
 
+## B4. Pedoman Resmi Institusi dan Peran Anggota
+
+Pengguna menyediakan **`Peraturan Direktur Poltek SSN tentang Pedoman Pelaksanaan Tugas Akhir` (2024, 149 halaman)** — file di luar repo, `E:\Kuliah\TA\FINAL PERDIR PEDOMAN TA\`. Aturan tata tulis diekstrak dari halaman 58-68 dan `16_DOCUMENT_FORMAT_SPEC.md` **ditulis ulang** dengan pedoman ini sebagai sumber otoritatif, bukan lagi hasil ukur contoh docx.
+
+**Yang terkonfirmasi benar** (hasil ukur XML sesi sebelumnya cocok dengan pedoman): A4, margin kiri 4 cm dan kanan/atas/bawah 3 cm, Times New Roman 12 pt, rata kiri-kanan, sitasi IEEE, caption tabel di atas dan gambar di bawah, penomoran per bab.
+
+**Spasi 1,15 — pertanyaan terbuka kini TERTUTUP.** Sesi sebelumnya saya menandai 1,15 sebagai hasil ukur satu contoh yang mungkin kalah oleh panduan tertulis, dan menyarankan cek ke dosen. Pedoman hlm. 59 butir d menyebutnya eksplisit: *"Pengetikan dilakukan dengan spasi 1,15 (line spacing = multiple at 1,15)"*. Angka itu resmi. Jangan diganti 1,5.
+
+**Satu aturan yang saya SALAH sebelumnya**: penomoran subbab. Versi lama spec menyarankan angka Arab (`2.1.1`) demi konsistensi dengan content pack. Pedoman hlm. 62-63 mewajibkan **Romawi.Arab** — `IV.1` untuk subbab (kapital semua) dan `IV.1.1` untuk anak subbab (Title Case, kata sambung/depan huruf kecil). Sudah dikoreksi dengan catatan eksplisit di §6 spec.
+
+**Aturan baru yang sebelumnya tidak diketahui sama sekali**: paragraf **tanpa indentasi** (mulai dari batas kiri, dipisah satu baris kosong); footer wajib auto text "Politeknik Siber dan Sandi Negara" Arial 10 pt tebal rata kanan dari Abstrak sampai Daftar Pustaka; nomor halaman bagian awal Romawi kecil di tengah 2,5 cm dari tepi bawah; larangan menulis judul bab → subbab → anak subbab berturut-turut tanpa kalimat penyisip; perincian `a.` → `a)` → `(a)`; sumber gambar/tabel Times New Roman 10 pt bila bukan olahan sendiri; sitasi IEEE dengan nomor **sebelum tanda baca** dan spasi sebelum kurung siku.
+
+**Abstrak naik dari opsional menjadi wajib** — pedoman mengaturnya rinci (200-300 kata, spasi tunggal, tanpa rujukan referensi, maksimal 7 kata kunci), dan ia menjadi satu-satunya tempat pembaca menangkap koreksi klaim performa dengan cepat karena judul final tidak lagi menyinggung sisi empiris.
+
+**Penyederhanaan tetap berlaku** dan daftarnya bertambah dengan item yang baru terlihat dari pedoman: spesifikasi sampul hardcover linen berwarna, tinta emas, logo 5 cm, jilid lem, cetak bolak-balik, serta aturan "setiap bab mulai di halaman ganjil". Semuanya spesifikasi percetakan TA fisik yang tidak relevan untuk tugas mata kuliah.
+
+**Deviasi jumlah bab dicatat eksplisit**: pedoman hlm. 64 menyebut Bagian Utama 5 bab; dokumen ini memakai 6 bab. Bukan pelanggaran — contoh TA yang lolos sidang juga 6 bab dengan pemisahan yang sama, dan isi AKSARA menuntutnya karena implementasi sudah ada sebelum penelitian dimulai.
+
+### Peran anggota — CONFIRMED
+
+| Anggota | Peran | Bab |
+|---|---|---|
+| Andika Aryansyach Fauzan | Core developer — fullstack | BAB IV; verifikasi teknis BAB II/III |
+| Mahendra Nur Hidayat | Dokumentasi akhir | BAB I, II, VI, Abstrak, bagian awal/akhir |
+| Rafi Putra Fadlurrahman | User testing | BAB V; metodologi pengujian BAB III |
+
+Pembagian **berbasis peran fungsional, bukan kepemilikan modul kode**. Pembagian lama di `09_SCOPE_AND_TEAM_PLAN.md` §8 (`identity+crypto` / `transport+session` / `contacts+tui`) adalah asumsi perencanaan SESSION 2 dan kini **SUPERSEDED**, dengan blok penjelasan supersession ditinggalkan di tempatnya.
+
+**Alasan pembagian tidak dipecah per modul**: AKSARA sudah terimplementasi utuh oleh satu core developer sebelum penelitian dimulai. Mengarang pembagian kepemilikan kode menjadi tiga agar terlihat seimbang akan menjadi klaim yang tidak benar — melanggar `AGENTS.md` sekaligus Pasal 5 huruf a Perdir Pedoman TA tentang kejujuran akademik. Keseimbangan tetap terjaga lewat luaran yang sebanding: artefak, dokumen, dan data.
+
 ## C. Dokumen yang Diperbarui
 
 - `14_CHAPTER_CONTENT_PACK.md` — **BAB V terisi penuh** (5.1 lingkungan, 5.2 hasil, 5.3 analisis; format 13 field per subbab sama seperti BAB I-IV) dan **BAB VI §6.1 terisi**. §6.2/§6.3 **tidak diubah** (tetap `READY_FOR_DRAFTING`), hanya ditambahi daftar bahan dari hasil BAB V. Tabel ringkasan status per BAB diperbarui.

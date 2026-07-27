@@ -118,7 +118,18 @@ blockers:
     study_program: Rekayasa Sistem Kriptografi
     institution: Politeknik Siber dan Sandi Negara
     year: 2026
-    remaining: "pemetaan nama ke pembagian modul (Anggota 1/2/3 di 09_SCOPE_AND_TEAM_PLAN.md) masih urutan default, boleh ditukar kelompok"
+    roles_status: CONFIRMED
+    roles:
+      - {name: "Andika Aryansyach Fauzan", role: "Core developer - fullstack"}
+      - {name: "Mahendra Nur Hidayat", role: "Dokumentasi akhir"}
+      - {name: "Rafi Putra Fadlurrahman", role: "User testing"}
+    remaining: "tidak ada - nama dan peran keduanya CONFIRMED 2026-07-27"
+
+  document_format:
+    status: CONFIRMED
+    spec: docs/mini-ta/01-claude-preparation/16_DOCUMENT_FORMAT_SPEC.md
+    authority: "Peraturan Direktur Poltek SSN tentang Pedoman Pelaksanaan Tugas Akhir (2024) hlm 58-68 - di luar repo"
+    blocks_ready_for_codex: false
 
 memory:
   project_memory: docs/mini-ta/PROJECT_MEMORY.md

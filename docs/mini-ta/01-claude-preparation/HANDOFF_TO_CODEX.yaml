@@ -193,26 +193,57 @@ experiments:
 team:
   contribution_matrix: docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md §8
   contribution_matrix_table: docs/mini-ta/01-claude-preparation/tables/13_team_assignment.md
+  roles_status: CONFIRMED
+  roles_confirmed_on: "2026-07-27"
+  roles:
+    - {name: "Andika Aryansyach Fauzan", role: "Core developer - fullstack", chapters: "BAB IV; verifikasi teknis BAB II/III"}
+    - {name: "Mahendra Nur Hidayat", role: "Dokumentasi akhir", chapters: "BAB I, II, VI, Abstrak, bagian awal/akhir"}
+    - {name: "Rafi Putra Fadlurrahman", role: "User testing", chapters: "BAB V; metodologi pengujian BAB III"}
+  roles_note: >
+    Pembagian BERBASIS PERAN FUNGSIONAL, bukan pemecahan kepemilikan modul kode.
+    AKSARA sudah terimplementasi utuh oleh satu core developer sebelum
+    penelitian dimulai; tugas mata kuliah ini mendokumentasikan, menguji, dan
+    mengevaluasi artefak yang sudah ada. JANGAN mengarang pembagian modul per
+    orang agar terlihat seimbang - itu klaim tidak benar dan melanggar
+    AGENTS.md sekaligus Pasal 5 huruf a Perdir Pedoman TA. Pembagian berbasis
+    modul di versi lama 09_SCOPE §8 adalah asumsi SESSION 2, sudah SUPERSEDED.
 
 document_format:
   spec: docs/mini-ta/01-claude-preparation/16_DOCUMENT_FORMAT_SPEC.md
-  source_examples:
-    - {file: "docs/mini-ta/00-template/Cetak TA_rev3.docx", used_for: "aturan tipografi/margin/caption/sitasi, diukur langsung dari XML"}
-    - {file: "docs/mini-ta/00-template/PROPOSAL CARAKA (2).docx", used_for: "identitas anggota dan preseden struktur ringkas untuk mata kuliah yang sama"}
-  page: "A4, margin kiri 4 cm, atas/kanan/bawah 3 cm"
-  typography: "Times New Roman 12 pt, rata kiri-kanan, spasi 1,15 (NEEDS_CONFIRMATION vs 1,5)"
-  citation_style: "IEEE numerik [n], urut kemunculan pertama"
+  authority: >
+    Peraturan Direktur Poltek SSN tentang Pedoman Pelaksanaan Tugas Akhir
+    (2024, 149 hlm), halaman 58-68. Berada DI LUAR repo:
+    E:\Kuliah\TA\FINAL PERDIR PEDOMAN TA\. Ini peraturan resmi dan MENIMPA
+    contoh docx manapun bila berbeda.
+  cross_checked_with:
+    - {file: "docs/mini-ta/00-template/Cetak TA_rev3.docx", result: "seluruh nilai tipografi hasil ukur XML COCOK dengan pedoman"}
+    - {file: "docs/mini-ta/00-template/PROPOSAL CARAKA (2).docx", used_for: "identitas anggota dan preseden struktur ringkas mata kuliah yang sama"}
+  page: "A4 HVS 80gr; margin kiri 4 cm, kanan/atas/bawah 3 cm"
+  typography: "Times New Roman 12 pt, justify, spasi 1,15 (multiple at 1,15) - RESMI, bukan hasil terka. Paragraf TANPA indentasi"
+  footer: "Auto text 'Politeknik Siber dan Sandi Negara', Arial 10 pt tebal, rata kanan, dari Abstrak sampai Daftar Pustaka"
+  page_numbering: "Bagian awal angka Romawi kecil (tengah, 2,5 cm dari tepi bawah); bagian utama dan akhir angka Arab"
+  heading_numbering: "Romawi.Arab - contoh IV.1 (subbab, KAPITAL) dan IV.1.1 (anak subbab, Title Case). BUKAN 2.1.1 angka Arab"
+  figures_tables: "Nomor menyertakan nomor bab (Tabel 4.1). Judul tabel DI ATAS, judul gambar DI BAWAH, keduanya jarak 1,15 spasi, Title Case"
+  citation_style: "IEEE numerik. Nomor dalam kurung siku SEBELUM tanda baca, dengan spasi sebelum kurung siku pembuka. Contoh: '... framework [1].'"
   simplified: true
   simplified_note: >
-    Atas instruksi eksplisit pengguna 2026-07-27, struktur disederhanakan untuk
-    konteks tugas mata kuliah. DIHAPUS: lembar judul duplikat, lembar
-    pernyataan orisinalitas, lembar persetujuan, lembar pengesahan, lembar
-    persetujuan publikasi, kata pengantar, abstract bahasa Inggris, daftar
-    notasi, daftar lampiran, daftar riwayat hidup - seluruhnya artefak sidang
-    TA resmi yang butuh tanda tangan pembimbing/penguji, sementara tugas ini
-    tidak melalui sidang. DIPAKAI: sampul, daftar isi/gambar/tabel, BAB I-VI,
-    daftar pustaka. Abstrak Indonesia opsional. Preseden penghapusan diambil
-    dari proposal CARAKA untuk mata kuliah yang sama.
+    Atas instruksi eksplisit pengguna 2026-07-27, STRUKTUR disederhanakan untuk
+    konteks tugas mata kuliah - TATA TULIS tetap diikuti penuh sesuai pedoman.
+    DIHAPUS: lembar judul duplikat, pernyataan orisinalitas, persetujuan,
+    pengesahan penguji, persetujuan publikasi, kata pengantar, abstract bahasa
+    Inggris, daftar notasi, daftar lampiran, daftar riwayat hidup, spesifikasi
+    sampul hardcover/tinta emas/jilid lem, aturan bab mulai halaman ganjil.
+    Seluruhnya artefak sidang TA resmi atau spesifikasi percetakan; tugas ini
+    tidak melalui sidang dan tidak dijilid hardcover. DIPAKAI: sampul, Abstrak
+    Indonesia, daftar isi/gambar/tabel, BAB I-VI, daftar pustaka.
+    Abstrak NAIK dari opsional menjadi wajib - pedoman mengaturnya rinci dan ia
+    jadi satu-satunya tempat pembaca menangkap koreksi klaim performa cepat.
+  deviation_bab_count: >
+    Pedoman hlm 64 menyebut Bagian Utama 5 bab. Dokumen ini memakai 6 bab
+    (memisah Perancangan/Implementasi dari Pengujian/Analisis). BUKAN
+    pelanggaran: contoh Cetak TA_rev3.docx yang lolos sidang juga 6 bab dengan
+    pemisahan sama, dan isi AKSARA menuntutnya - implementasi sudah ada sebelum
+    penelitian dimulai, pengujiannya yang baru dikerjakan.
 
 restrictions:
   prohibited_claims:
@@ -226,10 +257,8 @@ restrictions:
     - "AKSARA selalu memverifikasi identitas peer tanpa kualifikasi (hanya berlaku untuk kontak yang sudah dikenal — trust-on-first-use pada kontak baru)"
     - "Angka hasil eksperimen apa pun di BAB V/VI sebelum EXP-01..05 benar-benar dijalankan"
   unresolved_information:
-    - "Pemetaan nama anggota ke peran Anggota 1/2/3 (nama sendiri sudah CONFIRMED)"
     - "Screenshot TUI aktual (build+fungsi terverifikasi SESSION 4, capture gambar tetap MANUAL_USER_ACTION_REQUIRED)"
-    - "Spasi baris 1,15 (terukur dari contoh TA) vs 1,5 (lazim di panduan tertulis) - lihat 16_DOCUMENT_FORMAT_SPEC.md §4"
-    - "Perlu/tidaknya Abstrak (opsional, lihat 16_DOCUMENT_FORMAT_SPEC.md §3.1)"
+    - "Apakah footer institusi dan Abstrak dua bahasa tetap diminta untuk tugas mata kuliah (kosmetik, lihat 16_DOCUMENT_FORMAT_SPEC.md §9)"
   claim_map: docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
   claim_map_critical_section: "§Klaim Kritis Anti-Overclaim (5 item prioritas tertinggi)"
 

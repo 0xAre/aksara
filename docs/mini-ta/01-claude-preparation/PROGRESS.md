@@ -129,9 +129,15 @@ Next action di atas **sudah dikerjakan seluruhnya**. Rincian di `SESSION_6_HANDO
 
 Yang masih terbuka, seluruhnya butuh keputusan/tindakan pengguna:
 
-1. Pemetaan nama anggota ke peran Anggota 1/2/3 — urutan saat ini default dari proposal, boleh ditukar.
-2. Capture screenshot TUI aktual (BI-03).
-3. Konfirmasi spasi baris **1,15** (terukur dari contoh) vs **1,5** (lazim di panduan tertulis) — panduan tertulis dosen menang bila ada.
+1. Capture screenshot TUI aktual (BI-03).
+2. Dua pertanyaan kosmetik: apakah footer institusi dan Abstrak dua bahasa tetap diminta untuk tugas mata kuliah (`16_DOCUMENT_FORMAT_SPEC.md` §9).
+
+**Ditutup 2026-07-27 setelah pengguna menyediakan pedoman resmi dan peran anggota:**
+
+- **Spasi 1,15 TERKONFIRMASI RESMI** — Perdir Pedoman TA hlm. 59 butir d menyebutnya eksplisit. Bukan lagi hasil terka dari satu contoh.
+- **Penomoran subbab DIKOREKSI** — wajib `IV.1` / `IV.1.1` (Romawi.Arab) per pedoman hlm. 62-63, bukan `2.1.1` angka Arab seperti yang sempat saya sarankan.
+- **Aturan baru dari pedoman** yang sebelumnya tidak diketahui: paragraf tanpa indentasi, footer institusi Arial 10 pt tebal rata kanan, nomor halaman awal Romawi kecil di tengah 2,5 cm dari tepi bawah, larangan judul bab→subbab→anak subbab berturut tanpa kalimat penyisip, perincian `a.`/`a)`/`(a)`, sumber gambar/tabel TNR 10 pt, sitasi IEEE dengan nomor sebelum tanda baca.
+- **Peran anggota CONFIRMED**: Andika core developer fullstack, Mahendra dokumentasi akhir, Rafi user testing. Pembagian berbasis modul hasil asumsi SESSION 2 SUPERSEDED.
 
 **Judul FINAL (CONFIRMED 2026-07-27)**: `AKSARA (Authenticated Key-based Secure Autonomous Relay Architecture): Chat Terminal Tanpa Server — Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Siklus Hidup Kunci, dan Threat Model`.
 5. Opsional: histogram distribusi 30 run EXP-05 (`02-experiment-data/charts/` masih kosong); diagram topologi pengujian untuk BAB V (sengaja ditunda di TAHAP 11 menunggu test plan — alasan penundaannya kini hilang, BAB V satu-satunya bab tanpa gambar).
