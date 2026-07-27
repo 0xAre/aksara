@@ -113,7 +113,22 @@ Next action di atas **sudah dikerjakan seluruhnya**. Rincian di `SESSION_6_HANDO
 - `15_CLAIM_EVIDENCE_CITATION_MAP.md`: CM-061 → `CORRECTED`; CM-150..154 diperbarui; CM-155/CM-156 baru; total klaim **81 → 83**.
 - **Validasi SESSION 5B**: dilakukan (spot-check kode + konsistensi dokumen). Dua temuan nyata, keduanya sudah diperbaiki — `experiments.result_status` di handoff masih tertulis "TIDAK ADA eksperimen dijalankan" padahal commit `75d17fd` sudah menjalankan 46/46 test, dan BI-05 salah menyebut `16_TABLE_MANIFEST.md` (seharusnya `13_`). Selebihnya konsisten.
 
-**Next action**: tidak ada pekerjaan eksperimen tersisa yang tidak memerlukan izin modifikasi source. Jalur berikutnya = **Jalur B (Codex menyusun DOCX)**, kini dari BAB I s.d. VI. Opsional bila pengguna mengizinkan modifikasi `src/`: tambah harness `criterion` untuk latensi handshake presisi dan test rejection ciphertext transport.
+**Lanjutan sesi yang sama (setelah commit `1653531`)** — tiga kekurangan dituntaskan:
+
+- **TBL-11/TBL-12 diisi hasil aktual** (`tables/11_test_scenarios.md`, `tables/12_evaluation_parameters.md`) — keduanya sebelumnya masih seluruhnya `WAITING_FOR_EXPERIMENT` padahal BAB V sudah merujuk ke sana.
+- **Kontradiksi diperbaiki**: `screenshots/STATUS.md` mencatat panjang invite **87 karakter** (SESSION 4), terukur **86** dan aritmetika membenarkan 86 (⌈64×4÷3⌉). Dikoreksi beserta catatan penjelas.
+- **BAB VI §6.2/§6.3 dinaikkan ke content pack 13 field** — sebelumnya hanya baris tabel rencana. **BAB VI kini READY penuh.**
+
+**Next action**: tidak ada pekerjaan data/dokumen tersisa yang bisa dikerjakan agen tanpa izin tambahan. Jalur berikutnya = **Jalur B (Codex menyusun DOCX)** dari BAB I s.d. VI.
+
+Yang masih terbuka, seluruhnya butuh keputusan/tindakan pengguna:
+
+1. Nama asli 3 anggota, program studi, institusi (`NEEDS_CONFIRMATION`).
+2. Persetujuan judul final — `09_SCOPE_AND_TEAM_PLAN.md` §7 merekomendasikan Judul #3, belum disetujui.
+3. Capture screenshot TUI aktual (BI-03).
+4. **Ekstraksi aturan format dari `00-template/Cetak TA_rev3.docx`** — template ada tapi belum pernah dibongkar jadi spesifikasi (font, margin, penomoran heading, gaya sitasi, format caption) yang bisa dipakai Codex. Tanpa ini Codex akan menebak format.
+5. Opsional: histogram distribusi 30 run EXP-05 (`02-experiment-data/charts/` masih kosong); diagram topologi pengujian untuk BAB V (sengaja ditunda di TAHAP 11 menunggu test plan — alasan penundaannya kini hilang, BAB V satu-satunya bab tanpa gambar).
+6. Opsional, butuh izin modifikasi `src/`: harness `criterion` untuk latensi handshake presisi dan test rejection ciphertext transport.
 
 ## Next action kalau lanjut sesi baru
 

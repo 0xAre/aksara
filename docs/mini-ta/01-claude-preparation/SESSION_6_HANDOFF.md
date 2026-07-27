@@ -59,6 +59,16 @@ Prosedur: 30 cold-start `aksara id --vault <path> --offline` (proses baru per ru
 
 Metode latensi handshake: perbandingan waktu proses test-binary yang menjalankan `handshake_ik_roundtrip --exact` versus yang menjalankan 0 test. `--report-time` cargo hanya tersedia di nightly, sehingga timing per-test tidak bisa diambil langsung. Hasilnya bermakna secara kualitatif — biaya kriptografi per sesi didominasi Argon2id (~48 ms), bukan handshake (< 1 ms).
 
+## B2. Pekerjaan Lanjutan Sesi yang Sama (#5-#7)
+
+Setelah commit `1653531`, pengguna meminta tiga kekurangan yang teridentifikasi dari analisis kesiapan dituntaskan:
+
+1. **TBL-11 dan TBL-12 diisi hasil aktual.** Keduanya sebelumnya masih seluruhnya `WAITING_FOR_EXPERIMENT` padahal BAB V §5.2/§5.3 sudah menunjuk ke sana. `tables/11_test_scenarios.md` mendapat kolom "Hasil Aktual" + status per EXP; `tables/12_evaluation_parameters.md` mendapat kolom "Hasil Terukur" + status per metrik, plus catatan metode kontrol baseline.
+2. **Kontradiksi 87 vs 86 karakter diperbaiki.** `screenshots/STATUS.md` (SESSION 4) mencatat panjang invite **87 karakter**; pengukuran EXP-04 pada 5 keypair memberi **86**, dan aritmetikanya membenarkan 86 (⌈64 × 4 ÷ 3⌉ = 86). Angka 87 adalah kesalahan hitung SESSION 4, bukan perubahan perilaku kode. Sudah dikoreksi beserta catatan penjelasnya. **Pelajaran**: angka yang dicatat dari pengamatan sekilas tanpa verifikasi aritmetika sempat bertahan tiga sesi.
+3. **BAB VI §6.2/§6.3 dinaikkan ke content pack 13 field.** Sebelumnya hanya baris tabel rencana berstatus `READY_FOR_DRAFTING` — Codex punya arah tapi bukan bahan, dan risikonya dua subbab penutup ditulis dengan kedalaman berbeda dari 28 subbab lain. §6.2 disusun 3 lapis (batas cakupan / batas metode / batas melekat objek); §6.3 berisi 9 butir saran yang seluruhnya tertaut eksplisit ke G1-G5 atau T1-T7.
+
+Akibatnya **BAB VI kini READY penuh**, bukan lagi campuran READY + READY_FOR_DRAFTING.
+
 ## C. Dokumen yang Diperbarui
 
 - `14_CHAPTER_CONTENT_PACK.md` — **BAB V terisi penuh** (5.1 lingkungan, 5.2 hasil, 5.3 analisis; format 13 field per subbab sama seperti BAB I-IV) dan **BAB VI §6.1 terisi**. §6.2/§6.3 **tidak diubah** (tetap `READY_FOR_DRAFTING`), hanya ditambahi daftar bahan dari hasil BAB V. Tabel ringkasan status per BAB diperbarui.
