@@ -87,9 +87,13 @@ Program studi Rekayasa Sistem Kriptografi, Politeknik Siber dan Sandi Negara, ta
 
 **Batas yang dijaga**: dari `PROPOSAL CARAKA` hanya identitas anggota dan struktur dokumen yang diambil. Seluruh fakta teknisnya (mesh offline, Ascon, protokol CLAMP, tabel evaluasi, 24 referensinya) **tidak** masuk ke dokumen AKSARA — `AGENTS.md` melarang mencampur kedua proyek.
 
-**Judul — berubah arah**: pengguna menginstruksikan kepanjangan AKSARA masuk ke judul. Ini **membatalkan** catatan `09_SCOPE_AND_TEAM_PLAN.md` §7 yang sebelumnya menyatakan kepanjangan hanya dipakai sebagai konteks di BAB I. Bentuk usulan (masih `NEEDS_CONFIRMATION`):
+**Judul — FINAL, CONFIRMED**: pengguna menginstruksikan kepanjangan AKSARA masuk ke judul, lalu memilih bentuk ringkas dari tiga alternatif. Ini **membatalkan** catatan `09_SCOPE_AND_TEAM_PLAN.md` §7 yang sebelumnya menyatakan kepanjangan hanya dipakai sebagai konteks di BAB I.
 
-> **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Manajemen Kunci, dan Threat Model pada Aplikasi Chat Terminal P2P Serverless**
+> **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Chat Terminal Tanpa Server — Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Siklus Hidup Kunci, dan Threat Model**
+
+Dua konsekuensi yang **wajib dikompensasi Codex**, bukan diabaikan: kata "P2P" tidak muncul di judul, sehingga sifat peer-to-peer harus ditegaskan di kalimat pembuka Abstrak dan BAB I §1.1; dan sisi evaluasi empiris juga tidak muncul, sehingga koreksi klaim "~100 ms" → ~48 ms serta hasil 46/46 pengujian harus tampil eksplisit di Abstrak dan BAB VI §6.1.
+
+**Larangan frasa judul** (dicatat di `16_DOCUMENT_FORMAT_SPEC.md` §2): "Tanpa Jejak", "Anti-Sadap", "Sepenuhnya Anonim", "Terbukti Aman", atau variasi yang menyiratkan jaminan absolut. T2 mencatat fingerprint dan presence masih bocor lewat mDNS plaintext — judul yang menjanjikan lebih dari yang dibuktikan dokumen sendiri akan runtuh saat ditanya penguji. "Tanpa Server" lolos karena akurat secara harfiah.
 
 **Format — `16_DOCUMENT_FORMAT_SPEC.md` dibuat.** Aturan tipografi diukur langsung dari XML `Cetak TA_rev3.docx`, bukan diperkirakan: A4, margin kiri 4 cm dan atas/kanan/bawah 3 cm, Times New Roman 12 pt, rata kiri-kanan, spasi baris 1,15, sitasi IEEE numerik, caption bernomor per BAB.
 

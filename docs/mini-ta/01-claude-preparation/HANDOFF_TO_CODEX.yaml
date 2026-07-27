@@ -12,16 +12,20 @@ project:
   document_type: Tugas Akhir Mata Kuliah Implementasi Kriptografi
   work_type: Kelompok
   member_count: 3
-  recommended_title: >
+  final_title: >
     AKSARA (Authenticated Key-based Secure Autonomous Relay Architecture):
-    Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Manajemen Kunci, dan
-    Threat Model pada Aplikasi Chat Terminal P2P Serverless
-  recommended_title_status: NEEDS_CONFIRMATION
-  recommended_title_source: >
-    Instruksi eksplisit pengguna 2026-07-27 (kepanjangan AKSARA masuk judul) +
-    isi alternatif #3 di 09_SCOPE_AND_TEAM_PLAN.md §7 + pola judul proposal
-    CARAKA. MENIMPA catatan lama §7 yang menyatakan kepanjangan AKSARA bukan
-    bagian judul. Bagian setelah titik dua masih boleh dipendekkan.
+    Chat Terminal Tanpa Server - Implementasi dan Evaluasi Keamanan Protokol
+    Noise_IK, Siklus Hidup Kunci, dan Threat Model
+  final_title_status: CONFIRMED
+  final_title_confirmed_on: "2026-07-27"
+  final_title_note: >
+    Dipilih pengguna dari 3 alternatif. MENIMPA catatan lama
+    09_SCOPE_AND_TEAM_PLAN.md §7 yang menyatakan kepanjangan AKSARA bukan
+    bagian judul. Kata "P2P" dan sisi evaluasi empiris TIDAK muncul di judul -
+    Codex WAJIB menegaskan keduanya di Abstrak dan BAB I §1.1 / BAB VI §6.1
+    sebagai kompensasi. DILARANG menambah frasa "Tanpa Jejak"/"Anti-Sadap"/
+    "Terbukti Aman" ke judul atau subjudul: T2 mencatat metadata masih bocor
+    via mDNS plaintext. Frasa "Tanpa Server" akurat dan boleh dipakai.
   members:
     - name: "Andika Aryansyach Fauzan"
       nim: "2322101878"
@@ -222,7 +226,6 @@ restrictions:
     - "AKSARA selalu memverifikasi identitas peer tanpa kualifikasi (hanya berlaku untuk kontak yang sudah dikenal — trust-on-first-use pada kontak baru)"
     - "Angka hasil eksperimen apa pun di BAB V/VI sebelum EXP-01..05 benar-benar dijalankan"
   unresolved_information:
-    - "Bentuk final judul - usulan ada di 16_DOCUMENT_FORMAT_SPEC.md §2, menunggu persetujuan kelompok"
     - "Pemetaan nama anggota ke peran Anggota 1/2/3 (nama sendiri sudah CONFIRMED)"
     - "Screenshot TUI aktual (build+fungsi terverifikasi SESSION 4, capture gambar tetap MANUAL_USER_ACTION_REQUIRED)"
     - "Spasi baris 1,15 (terukur dari contoh TA) vs 1,5 (lazim di panduan tertulis) - lihat 16_DOCUMENT_FORMAT_SPEC.md §4"

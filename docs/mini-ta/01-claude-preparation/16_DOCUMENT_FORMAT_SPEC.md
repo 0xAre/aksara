@@ -16,7 +16,7 @@ Dokumen ini adalah **aturan format yang harus diikuti Codex** saat menyusun DOCX
 | Field | Nilai | Status |
 |---|---|---|
 | Jenis dokumen | Tugas Mata Kuliah Implementasi Kriptografi | CONFIRMED |
-| Judul | **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Manajemen Kunci, dan Threat Model pada Aplikasi Chat Terminal P2P Serverless** | **NEEDS_CONFIRMATION — lihat catatan di bawah** |
+| Judul | **AKSARA (*Authenticated Key-based Secure Autonomous Relay Architecture*): Chat Terminal Tanpa Server — Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Siklus Hidup Kunci, dan Threat Model** | **CONFIRMED** (disetujui pengguna 2026-07-27) |
 | Penulis 1 | Andika Aryansyach Fauzan (2322101878) | CONFIRMED |
 | Penulis 2 | Mahendra Nur Hidayat (2322101937) | CONFIRMED |
 | Penulis 3 | Rafi Putra Fadlurrahman (2322101963) | CONFIRMED |
@@ -24,7 +24,14 @@ Dokumen ini adalah **aturan format yang harus diikuti Codex** saat menyusun DOCX
 | Institusi | Politeknik Siber dan Sandi Negara | CONFIRMED |
 | Tahun | 2026 | CONFIRMED |
 
-**Catatan judul**: pengguna menginstruksikan nama panjang AKSARA masuk ke judul. Ini **menimpa** `09_SCOPE_AND_TEAM_PLAN.md` §7 yang semula menyatakan nama panjang hanya dipakai sebagai konteks di BAB I. Bentuk di atas menggabungkan instruksi tersebut dengan isi Judul #3 (rekomendasi §7) dan mengikuti pola judul proposal CARAKA (`<NAMA> (<kepanjangan>): <deskripsi>`). Bagian setelah tanda titik dua masih bisa dipendekkan bila dirasa terlalu panjang.
+**Catatan judul**: pengguna menginstruksikan nama panjang AKSARA masuk ke judul, **menimpa** `09_SCOPE_AND_TEAM_PLAN.md` §7 yang semula menyatakan nama panjang hanya dipakai sebagai konteks di BAB I. Bentuk final dipilih pengguna dari tiga alternatif, mengutamakan judul yang ringkas dan mudah diingat.
+
+Dua konsekuensi yang perlu dikompensasi Codex saat menulis prosa:
+
+1. **Kata "P2P" tidak muncul di judul.** Sifat peer-to-peer wajib ditegaskan pada kalimat pembuka Abstrak (bila dipakai) dan BAB I §1.1, supaya tidak hilang dari pembacaan sekilas.
+2. **Sisi evaluasi empiris tidak terlihat di judul.** Kontribusi terkuat penelitian ini — verifikasi 46/46 pengujian dan koreksi klaim performa "~100 ms" menjadi ~48 ms — harus tampil eksplisit di Abstrak dan BAB VI §6.1, karena judul tidak lagi memberi sinyal itu.
+
+**Frasa yang DILARANG masuk judul atau subjudul** meskipun terdengar menjual: "Tanpa Jejak", "Anti-Sadap", "Sepenuhnya Anonim", "Terbukti Aman", atau variasi apa pun yang menyiratkan jaminan absolut. `08_THREAT_MODEL.md` T2 mencatat fingerprint dan presence masih bocor lewat mDNS plaintext, dan `AGENTS.md` melarang klaim "aman" tanpa kualifikasi. Frasa "Tanpa Server" aman dipakai karena akurat secara harfiah — AKSARA memang tidak memakai server perantara.
 
 ## 3. Struktur Dokumen (Disederhanakan)
 
@@ -132,7 +139,6 @@ Posisi nomor halaman mengikuti contoh: bawah-tengah atau kanan-atas — belum da
 
 | # | Item | Dampak bila salah |
 |---|---|---|
-| 1 | Bentuk final judul (§2) | Perlu diganti di sampul dan daftar isi — murah diperbaiki |
 | 2 | Spasi baris 1,15 vs 1,5 (§4) | Mengubah jumlah halaman; perlu satu kali set ulang |
 | 3 | Perlu/tidaknya Abstrak (§3.1) | Menambah satu halaman |
 | 4 | Posisi nomor halaman (§8) | Kosmetik |

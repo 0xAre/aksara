@@ -129,10 +129,11 @@ Next action di atas **sudah dikerjakan seluruhnya**. Rincian di `SESSION_6_HANDO
 
 Yang masih terbuka, seluruhnya butuh keputusan/tindakan pengguna:
 
-1. Persetujuan bentuk final judul (`16_DOCUMENT_FORMAT_SPEC.md` §2).
-2. Pemetaan nama anggota ke peran Anggota 1/2/3 — urutan saat ini default dari proposal, boleh ditukar.
-3. Capture screenshot TUI aktual (BI-03).
-4. Konfirmasi spasi baris **1,15** (terukur dari contoh) vs **1,5** (lazim di panduan tertulis) — panduan tertulis dosen menang bila ada.
+1. Pemetaan nama anggota ke peran Anggota 1/2/3 — urutan saat ini default dari proposal, boleh ditukar.
+2. Capture screenshot TUI aktual (BI-03).
+3. Konfirmasi spasi baris **1,15** (terukur dari contoh) vs **1,5** (lazim di panduan tertulis) — panduan tertulis dosen menang bila ada.
+
+**Judul FINAL (CONFIRMED 2026-07-27)**: `AKSARA (Authenticated Key-based Secure Autonomous Relay Architecture): Chat Terminal Tanpa Server — Implementasi dan Evaluasi Keamanan Protokol Noise_IK, Siklus Hidup Kunci, dan Threat Model`.
 5. Opsional: histogram distribusi 30 run EXP-05 (`02-experiment-data/charts/` masih kosong); diagram topologi pengujian untuk BAB V (sengaja ditunda di TAHAP 11 menunggu test plan — alasan penundaannya kini hilang, BAB V satu-satunya bab tanpa gambar).
 6. Opsional, butuh izin modifikasi `src/`: harness `criterion` untuk latensi handshake presisi dan test rejection ciphertext transport.
 
