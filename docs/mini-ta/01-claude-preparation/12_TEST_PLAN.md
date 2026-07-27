@@ -168,7 +168,19 @@ Basis objek uji: `02_CRYPTO_IMPLEMENTATION_AUDIT.md` (ID `CR-xxx`), `03_CRYPTO_I
 
 **Update pasca-SESSION 5B (2026-07-26, commit `3d22494`)**: `cargo test --release` dijalankan penuh — **46/46 test PASS, 0 FAIL**. Ini mencakup PENUH correctness+rejection EXP-01 (vault, termasuk `wrong_passphrase_returns_error`/`tampered_vault_returns_error` yang ternyata sudah ada sebagai unit test, bukan perlu prosedur CLI manual seperti diperkirakan semula), EXP-02 (handshake, minus metrik latensi), EXP-03 (transport sesi, minus metrik overhead byte), EXP-04 (invite/fingerprint/contacts, minus metrik panjang string). Hasil lengkap: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-26.csv`.
 
-**Belum dijalankan** (butuh instrumentasi manual tambahan di luar `cargo test`, atau di luar kuota sesi): latensi handshake (EXP-02), overhead ciphertext byte (EXP-03), panjang invite (EXP-04), **seluruh EXP-05** (benchmark Argon2id 30 cold-start run + ukuran vault). Status kelompok-kelompok ini tetap `WAITING_FOR_EXPERIMENT` untuk sub-metrik yang belum diukur.
+**Update 2026-07-27 (commit `75d17fd`) — seluruh kelompok kini SUDAH dijalankan.** Hasil lengkap: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv` (123 baris data, termasuk 30 run mentah unseal + 30 run kontrol). Lingkungan: Windows 11 Home 10.0.26200, Intel Core i7-1165G7 4C/8T @2,80 GHz, RAM 11,79 GB, bare-metal, `rustc 1.97.0`, profil `--release` (dibuild ulang sebelum pengukuran).
+
+| Metrik | Status | Hasil |
+|---|---|---|
+| EXP-05 waktu unseal (Argon2id) | `EXECUTED` | n=30 cold-start. End-to-end mean 68,47 ms (median 64,15; sd 12,47; min 54,53; max 106,86). Kontrol proses tanpa Argon2id mean 20,48 ms. **Neto mean 47,99 ms** (median 45,08; sd 11,41). **MENGOREKSI klaim komentar kode "~100 ms"** — sekitar separuhnya pada hardware uji. |
+| EXP-05 ukuran vault | `EXECUTED` | Tepat 108 byte pada 5 vault independen. |
+| EXP-04 panjang invite | `EXECUTED` | 86 karakter konsisten pada 5 keypair acak; fingerprint 64 karakter hex. |
+| EXP-01 determinisme + rejection CLI | `EXECUTED` | 10/10 unseal sukses dengan invite identik; passphrase salah ditolak 100% (`Error: vault could not be opened`, exit 1). |
+| EXP-03 overhead tag AEAD | `PARTIAL` | Tepat 16 byte terukur pada instance **vault**. Instance Noise transport **tidak** diukur langsung — tidak observable dari luar proses tanpa instrumentasi `src/`. |
+| EXP-02 latensi handshake | `PARTIAL` | Tidak terdeteksi di atas noise metode eksternal: selisih berpasangan −0,15 ms (sd 1,91; n=19). Dilaporkan sebagai **batas atas < 0,86 ms (95% CI)**, bukan nilai titik. |
+| EXP-05 memory usage puncak (RSS) | `WAITING_FOR_EXPERIMENT` | Tidak diukur (opsional/sekunder). Hanya parameter statis 19 MiB yang diketahui dari kode. |
+
+Tiga item terakhir memerlukan timer/profiler di dalam `src/` untuk diukur presisi — di luar wewenang sesi dokumentasi tanpa permintaan eksplisit pengguna (`AGENTS.md` §Source-Code Protection).
 
 Template kosong asli tetap tersedia: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULT_TEMPLATE.csv` (untuk re-run/replikasi).
 
