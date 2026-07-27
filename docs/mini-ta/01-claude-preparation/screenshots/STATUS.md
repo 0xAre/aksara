@@ -31,9 +31,11 @@ TUI penuh (`ratatui`/`crossterm`) memerlukan terminal interaktif yang tidak dapa
 
 | Skenario | Perintah (bentuk umum) | Hasil |
 |---|---|---|
-| Buat identitas baru | `aksara id --vault <path> --offline` (vault belum ada) | `Vault tidak ditemukan... Membuat identitas baru... Identitas dibuat dan disimpan.` — mencetak invite code (base64url 87 karakter) dan fingerprint (64 hex, dikelompokkan 8×8) sesuai format yang didokumentasikan `06_PROTOCOL_SPECIFICATION.md` §3 dan `07_KEY_LIFECYCLE.md` §2 |
+| Buat identitas baru | `aksara id --vault <path> --offline` (vault belum ada) | `Vault tidak ditemukan... Membuat identitas baru... Identitas dibuat dan disimpan.` — mencetak invite code (base64url **86 karakter** — dikoreksi 2026-07-27, lihat catatan di bawah tabel) dan fingerprint (64 hex, dikelompokkan 8×8) sesuai format yang didokumentasikan `06_PROTOCOL_SPECIFICATION.md` §3 dan `07_KEY_LIFECYCLE.md` §2 |
 | Unlock identitas yang sama (passphrase benar) | `aksara id --vault <path> --offline` (vault sudah ada, passphrase identik) | Mencetak **invite code dan fingerprint yang persis sama** dengan langkah sebelumnya — membuktikan `seal()`/`unseal()` deterministik terhadap identitas yang sama (`07_KEY_LIFECYCLE.md` §3.2) |
 | Unlock dengan passphrase salah | `aksara id --vault <path> --offline` (passphrase berbeda) | `Error: vault could not be opened`, exit code `1` — mengonfirmasi langsung pesan error ambigu yang disengaja (anti-oracle attack) yang didokumentasikan `07_KEY_LIFECYCLE.md` §3.4 |
+
+**Koreksi 2026-07-27 (SESSION 6, commit `75d17fd`)**: dokumen ini semula mencatat panjang invite **87 karakter**. Pengukuran EXP-04 pada 5 keypair acak berbeda menghasilkan **86 karakter** secara konsisten, dan angka itulah yang benar secara aritmetika — base64url tanpa padding atas 64 byte = ⌈64 × 4 ÷ 3⌉ = 86 karakter. Angka 87 pada catatan SESSION 4 adalah kesalahan hitung, bukan perubahan perilaku kode. Sumber data: `docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv`. Nilai yang benar (86) sudah dipakai konsisten di `12_TEST_PLAN.md`, `tables/12_evaluation_parameters.md`, `14_CHAPTER_CONTENT_PACK.md` BAB V, dan `15_CLAIM_EVIDENCE_CITATION_MAP.md` (CM-156).
 
 **Kesimpulan**: fungsi inti manajemen identitas (generate → seal → unseal → reject salah passphrase) **terverifikasi berjalan sesuai dokumentasi TAHAP 6/7** pada binary hasil build sesi ini — bukan hanya klaim dari pembacaan kode statis.
 
