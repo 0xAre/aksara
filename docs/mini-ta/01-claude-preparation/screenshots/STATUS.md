@@ -54,6 +54,10 @@ Ini **bukan** kegagalan aplikasi — AKSARA terbukti berjalan benar (§1-2). Ini
 
 ### Instruksi Pengambilan Manual (untuk pengguna/anggota kelompok)
 
+> **Panduan langkah-demi-langkah tersedia**: `PANDUAN_SCREENSHOT.md` (dibuat 2026-07-27, di folder yang sama). Panduan itu ditujukan untuk Rafi (user testing) dan Mahendra (dokumentasi akhir), memakai **binary rilis v0.2.1 dari GitHub** sehingga tidak perlu clone repo atau memasang toolchain Rust. Bagian di bawah adalah ringkasan asli SESSION 4; bila keduanya berbeda, ikuti `PANDUAN_SCREENSHOT.md` karena alur `--listen`/`--dial`/`--add` dan daftar tombol TUI di sana sudah diverifikasi langsung terhadap source.
+>
+> Satu koreksi penting dari verifikasi itu: kandidat screenshot "output `cargo test`" **tidak dapat diambil hanya dengan binary rilis** — butuh source dan toolchain Rust. Panduan menggantinya dengan verifikasi CLI vault (deterministik + penolakan passphrase salah) yang setara nilainya untuk BAB V dan cukup memakai binary.
+
 Ambil **2-4 screenshot** dari daftar berikut (per `CLAUDE_PREPARATION_BRIEF.md` TAHAP 12), simpan sebagai PNG di folder ini (`docs/mini-ta/01-claude-preparation/screenshots/`) dengan nama deskriptif (mis. `01-antarmuka-utama.png`):
 
 1. **Antarmuka utama** — jalankan `cargo run --release -- --offline` (mode LAN-only, tidak perlu Tor/internet), tunggu TUI tampil.

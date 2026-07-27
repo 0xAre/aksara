@@ -314,7 +314,14 @@ readiness:
     - id: BI-03
       desc: "Screenshot TUI aktual belum ada (capture gambar, bukan build/fungsi)"
       severity: non_blocking
-      action_required: "Tindakan manual pengguna — instruksi lengkap di screenshots/STATUS.md"
+      action_required: >
+        Tindakan manual anggota kelompok. Panduan langkah-demi-langkah siap
+        pakai: screenshots/PANDUAN_SCREENSHOT.md (2026-07-27) - memakai binary
+        rilis v0.2.1 dari GitHub, tidak perlu clone repo atau toolchain Rust.
+        Target 4 PNG: 01-antarmuka-utama (BAB IV.1), 02-identitas-invite
+        (BAB IV.3), 03-komunikasi-dua-instance (BAB IV.5), 04-verifikasi-vault
+        (BAB V.2). Setelah tersedia, daftarkan ke 11_FIGURE_MANIFEST.md dan
+        sisipkan rujukannya ke subbab terkait di 14_CHAPTER_CONTENT_PACK.md.
     - id: BI-04
       desc: "Nama asli 3 anggota kelompok, study_program, institution belum dikonfirmasi"
       severity: resolved
