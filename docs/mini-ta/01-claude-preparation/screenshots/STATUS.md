@@ -59,7 +59,7 @@ Ini **bukan** kegagalan aplikasi — AKSARA terbukti berjalan benar (§1-2). Ini
 > Dua koreksi penting dari verifikasi terhadap source:
 >
 > 1. Kandidat screenshot "output `cargo test`" **tidak dapat diambil hanya dengan binary rilis** — butuh source dan toolchain Rust. Panduan menggantinya dengan verifikasi CLI vault (deterministik + penolakan passphrase salah), setara nilainya untuk BAB V dan cukup memakai binary.
-> 2. Kandidat "proses komunikasi dua instance" diarahkan **lewat Tor, bukan LAN**. Alasannya: `DiscoveredPeer` tidak pernah sampai ke lapisan TUI, sehingga sesi hasil discovery mDNS dan sesi hasil `--dial` manual tampil **identik** di layar — screenshot tidak dapat membuktikan discovery bekerja. Sebaliknya Tor meninggalkan jejak visual (alamat onion di invite, notifikasi "Tor siap"), dan karena `is_lan_dialable()` menolak loopback, sesi dua instance yang berhasil di satu laptop **mustahil** lewat LAN — jadi screenshot-nya membuktikan dirinya sendiri.
+> 2. Kandidat "proses komunikasi dua instance" diarahkan **lewat Tor pada dua laptop di jaringan berbeda**, bukan LAN. Alasannya: `DiscoveredPeer` tidak pernah sampai ke lapisan TUI, sehingga sesi hasil discovery mDNS dan sesi hasil `--dial` manual tampil **identik** di layar — screenshot tidak dapat membuktikan discovery bekerja. Tor dipilih karena meninggalkan jejak visual (alamat onion di invite, notifikasi "Tor siap"). Syarat **jaringan berbeda** bersifat mutlak: `establish()` selalu mencoba LAN lebih dulu dengan jatah `LAN_AUTO_TIMEOUT` 3 detik, jadi dua laptop di WiFi yang sama akan tersambung lewat LAN dan Tor tidak pernah dipakai.
 >
 > Konsekuensi yang harus ditulis jujur: **mDNS discovery tetap tanpa bukti empiris** dan tidak akan mendapatkannya dari jalur screenshot.
 

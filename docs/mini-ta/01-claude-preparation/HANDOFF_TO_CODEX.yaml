@@ -338,28 +338,36 @@ readiness:
       severity: non_blocking
       action_required: >
         SESI B pada PANDUAN_SCREENSHOT.md akan menaikkannya menjadi bukti
-        VISUAL (onion address tertanam di invite, notifikasi "Tor siap",
-        sesi dua instance yang mustahil lewat LAN karena loopback ditolak).
-        Bukti visual BUKAN eksperimen terukur - sub-skenario Tor pada
+        VISUAL. Bukti visual BUKAN eksperimen terukur - sub-skenario Tor pada
         12_TEST_PLAN EXP-03 tetap NEEDS_EXPERIMENT sampai dijalankan sebagai
         run resmi dengan pencatatan lingkungan lengkap. Bila SESI B gagal
         (jaringan memblokir Tor), status tetap tanpa bukti dan WAJIB ditulis
         apa adanya.
+      cara_mengutip_screenshot_tor: >
+        PENTING. Aplikasi TIDAK menampilkan jalur transport yang sedang
+        dipakai - tidak ada teks "via Tor" atau "via LAN" di layar manapun.
+        Karena itu gambar chat SENDIRIAN tidak membuktikan sesi lewat Tor.
+        Yang membuktikan adalah kombinasi: (a) gambar chat 06a/06b,
+        (b) gambar kondisi jaringan 06c yang menunjukkan kedua laptop di
+        jaringan berbeda, dan (c) fakta bahwa establish() di
+        src/transport/mod.rs hanya punya dua jalur - LAN dulu dengan
+        LAN_AUTO_TIMEOUT 3 detik, lalu fallback Tor - sehingga jalur LAN
+        mustahil antar-jaringan berbeda. Keterangan gambar di laporan WAJIB
+        menyebutkan konfigurasi jaringan yang dipakai. Tanpa itu klaim
+        "lewat Tor" tidak tertopang dan menjadi overclaim.
     - id: BI-03
       desc: "Screenshot TUI aktual belum ada (capture gambar, bukan build/fungsi)"
       severity: non_blocking
       action_required: >
         Tindakan manual anggota kelompok. Panduan langkah-demi-langkah siap
         pakai: screenshots/PANDUAN_SCREENSHOT.md (2026-07-27) - memakai binary
-        rilis v0.2.1 dari GitHub, CUKUP 1 LAPTOP, tidak perlu clone repo atau
-        toolchain Rust. Target 6 PNG wajib + 1 opsional, dibagi 2 sesi:
-        SESI A (offline) - 01-antarmuka-utama (BAB IV.1), 02-identitas-invite
-        (BAB IV.3), 03-verifikasi-vault (BAB V.2).
-        SESI B (butuh internet) - 04-onion-invite, 05-tor-siap (BAB IV.3, IV.6),
-        06-komunikasi-tor (BAB IV.5). SESI B menutup Tor yang saat ini NOL
-        bukti empiris. Dua instance di SATU laptop membuktikan jalur Tor secara
-        otomatis: is_lan_dialable() menolak loopback, jadi sesi yang berhasil
-        di satu mesin mustahil lewat LAN.
+        rilis v0.2.1 dari GitHub, tidak perlu clone repo atau toolchain Rust.
+        Target 6 PNG wajib + 1 opsional, dibagi 2 sesi:
+        SESI A (1 laptop, offline) - 01-antarmuka-utama (BAB IV.1),
+        02-identitas-invite (BAB IV.3), 03-verifikasi-vault (BAB V.2).
+        SESI B (2 laptop, JARINGAN BERBEDA, internet) - 04-onion-invite,
+        05-tor-siap (BAB IV.3, IV.6), 06a/06b-komunikasi-tor (BAB IV.5),
+        06c-bukti-jaringan-berbeda (pendamping wajib).
         Setelah tersedia, daftarkan ke 11_FIGURE_MANIFEST.md dan sisipkan
         rujukannya ke subbab terkait di 14_CHAPTER_CONTENT_PACK.md.
     - id: BI-04

@@ -2,7 +2,7 @@
 
 **Untuk**: Rafi Putra Fadlurrahman (user testing) dan Mahendra Nur Hidayat (dokumentasi akhir).
 **Target**: 6 file PNG wajib + 1 opsional.
-**Cukup 1 laptop.** Tidak perlu install Rust atau clone repo — hanya unduh satu binary dari GitHub.
+**Tidak perlu install Rust atau clone repo** — cukup unduh satu binary dari GitHub.
 
 Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan. Setelah selesai, kabari Andika untuk didaftarkan ke `11_FIGURE_MANIFEST.md`.
 
@@ -11,9 +11,9 @@ Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan. Setelah selesai, ka
 | Sesi | Butuh | Screenshot | Perkiraan waktu |
 |---|---|---|---|
 | **A** — dasar | 1 laptop, **tanpa** internet | 01, 02, 03 | 15 menit |
-| **B** — Tor | 1 laptop, **butuh** internet | 04, 05, 06 | 20-30 menit (bootstrap Tor lambat) |
+| **B** — Tor | **2 laptop**, internet, **jaringan berbeda** | 04, 05, 06 | 30-45 menit |
 
-Keduanya bisa dikerjakan satu orang sendirian, tidak perlu janjian.
+Sesi A dikerjakan sendiri-sendiri kapan saja. Sesi B perlu Rafi dan Mahendra bersamaan.
 
 ---
 
@@ -77,7 +77,9 @@ macOS juga perlu klik kanan → Open → Open, sekali saja.
 
 ---
 
-# SESI A — Dasar (tanpa internet)
+# SESI A — Dasar (1 laptop, tanpa internet)
+
+Bisa dikerjakan Rafi dan Mahendra masing-masing di laptop sendiri.
 
 ## Screenshot 1 — Antarmuka utama
 
@@ -135,46 +137,70 @@ Membuktikan `unseal` deterministik sekaligus penolakan passphrase salah dengan p
 
 ---
 
-# SESI B — Tor (butuh internet)
+# SESI B — Tor (2 laptop, jaringan berbeda)
 
-Ini bagian terpenting. Tor saat ini adalah komponen dengan **bukti paling minim** di seluruh dokumen: `src/transport/tor.rs` tidak punya satu pun unit test. Tiga screenshot berikut yang menutupinya.
+Ini bagian terpenting. Tor saat ini komponen dengan **bukti paling minim** di seluruh dokumen: `src/transport/tor.rs` tidak punya satu pun unit test.
 
-> **Kenapa cukup satu laptop, dan kenapa justru itu kelebihannya**: kode sengaja menolak alamat loopback sebagai target LAN (`is_lan_dialable()` di `src/transport/lan.rs`). Jadi dua instance di satu mesin **tidak mungkin** tersambung lewat jalur LAN — kalau keduanya berhasil ngobrol, satu-satunya jalur yang tersisa adalah Tor. Screenshot ini membuktikan dirinya sendiri tanpa perlu mesin kedua.
+## ⚠ Syarat mutlak: kedua laptop HARUS di jaringan yang BERBEDA
 
-> **Kalau Tor gagal bootstrap**: sebagian jaringan kampus/kantor memblokir Tor. Coba hotspot HP. Kalau tetap gagal, lewati Sesi B dan **beri tahu Andika** — statusnya akan ditulis apa adanya sebagai belum terverifikasi, bukan dikarang.
+Ini bukan saran, tapi keharusan teknis. Aplikasi **selalu mencoba LAN lebih dulu** dan hanya memberi jatah **3 detik** sebelum jatuh ke Tor (`LAN_AUTO_TIMEOUT` di `src/transport/mod.rs`). Kalau kedua laptop berada di WiFi yang sama, LAN akan langsung menang dan **sesi tidak pernah lewat Tor** — screenshot-nya jadi tidak membuktikan apa pun tentang Tor.
+
+**Cara paling mudah memisahkan jaringan:**
+
+- **Laptop 1**: tetap di WiFi rumah/kampus.
+- **Laptop 2**: matikan WiFi, lalu *tethering* ke **data seluler HP** (bukan hotspot dari HP yang tersambung WiFi yang sama).
+
+Dengan begitu tidak ada jalur LAN yang mungkin, sehingga satu-satunya cara keduanya bisa tersambung adalah lewat Tor. Ini sekaligus demo terkuat untuk laporan: dua mesin di jaringan yang sama sekali berbeda, tanpa server perantara, tanpa *port forwarding*, tetap bisa berkomunikasi.
+
+## ⚠ Kesabaran: onion descriptor butuh 1-3 menit
+
+Setelah notifikasi "Tor siap" muncul, alamat onion **belum langsung bisa dihubungi**. Descriptor-nya perlu waktu terpublikasi ke jaringan Tor — biasanya 1 sampai 3 menit. Aplikasi sudah menangani ini dengan mencoba ulang tiap 8 detik selama maksimal 2 menit, tapi **jangan menekan Enter terlalu cepat**. Tunggu dulu beberapa menit setelah "Tor siap" di kedua laptop.
+
+> **Kalau Tor gagal bootstrap**: sebagian jaringan kampus/kantor memblokir Tor. Pakai data seluler di kedua sisi. Kalau tetap gagal, lewati Sesi B dan **beri tahu Andika** — statusnya akan ditulis apa adanya sebagai belum terverifikasi, bukan dikarang.
+
+---
 
 ## Screenshot 4 — Onion address di dalam invite
 
-Sama seperti sebelumnya, **tanpa `--offline`**:
+**Dikerjakan di masing-masing laptop.** Sama seperti Sesi A tapi **tanpa `--offline`**:
+
+Laptop 1:
 
 ```bash
 .\aksara.exe id --vault demo-a.key
 ```
 
+Laptop 2:
+
+```bash
+.\aksara.exe id --vault demo-b.key
+```
+
 1. Muncul `Bootstrap Tor untuk ambil onion address (~30-60 dtk)…`. Tunggu.
 2. Passphrase `demo-mini-ta-2026`.
 3. Invite yang tercetak sekarang **jauh lebih panjang**, berakhiran `@xxxxx.onion`, dan baris `Transport:` ikut berubah.
-4. **Potret** seluruh terminal.
+4. **Potret** salah satu laptop saja (cukup satu gambar).
 
 Simpan: **`04-onion-invite.png`**
 
 Bukti bahwa onion service v3 benar-benar terbentuk dan alamatnya tertanam ke dalam invite.
 
-> Pembanding untuk laporan: invite LAN-only **86 karakter**, invite dengan onion sekitar **149 karakter**. Selisihnya adalah alamat `.onion` yang di-*append*.
+> Pembanding untuk laporan: invite LAN-only **86 karakter**, invite dengan onion sekitar **149 karakter**. Selisihnya adalah alamat `.onion`.
 
-**Salin invite panjang ini** — sebut **INVITE-A**, dibutuhkan di Screenshot 6.
+**Sekarang tukar invite**: kirim invite Laptop 1 (**INVITE-A**) ke Laptop 2, dan invite Laptop 2 (**INVITE-B**) ke Laptop 1, lewat WhatsApp atau chat apa pun. Pastikan tersalin **utuh** — panjangnya sekitar 149 karakter.
 
 ## Screenshot 5 — Notifikasi "Tor siap" di TUI
+
+**Cukup di salah satu laptop.**
 
 ```bash
 .\aksara.exe --vault demo-a.key
 ```
 
 1. Passphrase `demo-mini-ta-2026`.
-2. TUI **langsung tampil** tanpa menunggu Tor — di header muncul indikator `tor·…` yang menandakan bootstrap sedang berjalan di latar belakang. Kalau sempat, potret tahap ini juga sebagai bonus.
+2. TUI **langsung tampil** tanpa menunggu Tor — di header muncul indikator `tor·…` yang menandakan bootstrap berjalan di latar belakang.
 3. **Tunggu 30-60 detik.** Saat siap, muncul notifikasi hijau: **"Tor siap — sekarang online (LAN + Tor)."**
 4. **Potret** saat notifikasi itu tampil.
-5. Setelah notifikasi muncul, tekan **`i`** — invite di dalam TUI kini sudah diperbarui otomatis memuat onion. Potret juga bila ingin.
 
 Simpan: **`05-tor-siap.png`**
 
@@ -182,56 +208,54 @@ Memperlihatkan perilaku yang dijelaskan di BAB IV: TUI tidak diblokir menunggu T
 
 Tekan **`q`** untuk keluar.
 
-## Screenshot 6 — Komunikasi dua instance lewat Tor
+## Screenshot 6 — Komunikasi dua laptop lewat Tor
 
 **BAB IV.5.** Screenshot paling berharga dari seluruh daftar.
 
-Butuh **dua jendela terminal** di laptop yang sama, keduanya di folder kerja yang sama.
+Pastikan syarat jaringan berbeda di atas sudah dipenuhi. Lalu **kedua laptop** menjalankan — perhatikan: **tanpa `--offline`, tanpa `--listen`, tanpa `--dial`**:
 
-**Terminal kiri** — identitas A sudah ada dari Screenshot 4:
-
-```bash
-.\aksara.exe --vault demo-a.key
-```
-
-**Terminal kanan** — buat identitas B, ambil invite-nya dulu:
-
-```bash
-.\aksara.exe id --vault demo-b.key
-```
-
-Tunggu bootstrap, passphrase `demo-mini-ta-2026`, salin invite panjangnya (**INVITE-B**).
-
-Sekarang jalankan keduanya saling mengenal. **Tanpa `--offline`, tanpa `--listen`, tanpa `--dial`** — biarkan aplikasi memilih jalurnya sendiri:
-
-Terminal kiri:
+Laptop 1:
 
 ```bash
 .\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B
 ```
 
-Terminal kanan:
+Laptop 2:
 
 ```bash
 .\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A
 ```
 
 1. Passphrase `demo-mini-ta-2026` di keduanya.
-2. **Tunggu notifikasi "Tor siap"** di kedua jendela sebelum lanjut. Jangan buru-buru.
-3. Di layar kontak, pilih kontak lawan dengan **↑/↓**, tekan **Enter**.
-4. Jalur LAN akan gagal lebih dulu (loopback ditolak), lalu aplikasi jatuh ke Tor. **Sabar** — dial lewat Tor bisa memakan waktu sampai dua menit.
-5. Setelah sesi aktif, kirim 2-3 pesan bolak-balik. Contoh aman: `halo, uji coba lewat tor` dan `diterima, sesi aktif`.
-6. **Potret kedua terminal sekaligus** dalam satu gambar (atur berdampingan).
+2. **Tunggu notifikasi hijau "Tor siap" muncul di KEDUA laptop.**
+3. **Tunggu 2-3 menit lagi** supaya onion descriptor sempat terpublikasi. Ini langkah yang paling sering dilewati dan jadi penyebab utama kegagalan.
+4. Di layar kontak, pilih kontak lawan dengan **↑/↓**, tekan **Enter** di kedua laptop.
+5. LAN akan gagal dalam 3 detik (tidak ada jalur antar-jaringan), lalu aplikasi otomatis beralih ke Tor. **Sabar** — dial lewat Tor mencoba ulang tiap 8 detik hingga total 2 menit.
+6. Setelah sesi aktif, kirim 2-3 pesan bolak-balik. Contoh aman: `halo, uji coba lewat tor` dan `diterima, sesi aktif`.
+7. **Potret layar kedua laptop.** Simpan terpisah:
 
-Simpan: **`06-komunikasi-tor.png`**
+**`06a-komunikasi-tor-laptop1.png`** dan **`06b-komunikasi-tor-laptop2.png`**
+
+### Tambahan yang membuat bukti jauh lebih kuat
+
+Screenshot chat **tidak menampilkan jalur transport yang dipakai** — aplikasi tidak mencetak "via Tor" atau "via LAN" di layar. Jadi yang membuktikan sesi itu lewat Tor adalah **fakta bahwa kedua laptop berada di jaringan berbeda**, dan fakta itu harus terlihat atau tercatat.
+
+Karena itu, potret juga kondisi jaringan masing-masing laptop, misalnya nama WiFi/koneksi aktif di taskbar atau hasil perintah berikut:
+
+```bash
+ipconfig
+```
+
+Simpan sebagai **`06c-bukti-jaringan-berbeda.png`** (boleh gabungan kedua laptop dalam satu gambar). Ini yang akan dirujuk di keterangan gambar laporan untuk menjelaskan mengapa jalur LAN mustahil.
 
 ### Kalau gagal terhubung
 
-1. **Invite tersalin tidak utuh** — penyebab paling sering. Invite dengan onion sekitar 149 karakter, pastikan tidak ada yang terpotong.
-2. **Tor belum selesai bootstrap** di salah satu sisi — tunggu notifikasi hijau di keduanya dulu.
-3. **Timeout** — coba ulang sekali lagi, jaringan Tor kadang lambat.
+1. **Invite tersalin tidak utuh** — penyebab paling sering. Invite ber-onion sekitar 149 karakter, pastikan tidak terpotong saat dikirim lewat chat.
+2. **Terlalu cepat menekan Enter** — descriptor belum terpublikasi. Tunggu 3 menit penuh setelah "Tor siap", lalu coba lagi.
+3. **Salah satu sisi Tor-nya gagal** — cek notifikasi; kalau muncul "Tor gagal", jaringan itu memblokir Tor. Ganti ke data seluler.
+4. Coba ulang **maksimal tiga kali**. Setiap percobaan beri jeda 2 menit.
 
-Kalau setelah tiga kali percobaan tetap gagal, **jangan dipaksakan dan jangan dikarang**. Ambil pengganti berikut lewat jalur manual LAN:
+Kalau tetap gagal, **jangan dipaksakan dan jangan dikarang**. Ambil pengganti lewat jalur LAN loopback di **satu laptop**:
 
 ```bash
 .\aksara.exe --offline --vault demo-a.key --listen 9000
@@ -269,17 +293,21 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-p
    03-verifikasi-vault.png
    04-onion-invite.png
    05-tor-siap.png
-   06-komunikasi-tor.png        (atau 06-komunikasi-loopback.png)
-   07-hasil-pengujian.png       (opsional)
+   06a-komunikasi-tor-laptop1.png      (atau 06-komunikasi-loopback.png)
+   06b-komunikasi-tor-laptop2.png
+   06c-bukti-jaringan-berbeda.png
+   07-hasil-pengujian.png              (opsional)
    ```
 
 2. **Periksa ulang tiap gambar**: tidak ada passphrase terlihat, tidak ada data pribadi dari jendela lain, teks terbaca jelas dan tidak terpotong.
 
-3. **Laporkan yang gagal, jangan diam-diam dilewati.** Catat: nomor berapa, gagal di langkah mana, pesan error apa. Kegagalan yang dicatat jujur tetap berguna; kegagalan yang disembunyikan membuat klaim di BAB IV tidak bisa dipertanggungjawabkan.
+3. **Catat kondisi jaringan** yang dipakai saat Sesi B: laptop mana pakai apa (mis. "Laptop 1: WiFi kos, Laptop 2: tethering data seluler"). Informasi ini masuk ke keterangan gambar di laporan.
 
-4. Kirim ke Andika beserta catatan itu.
+4. **Laporkan yang gagal, jangan diam-diam dilewati.** Catat: nomor berapa, gagal di langkah mana, pesan error apa. Kegagalan yang dicatat jujur tetap berguna; kegagalan yang disembunyikan membuat klaim di BAB IV tidak bisa dipertanggungjawabkan.
 
-5. Bersihkan folder kerja: `demo-a.key`, `demo-b.key`, dan folder state Tor yang terbentuk.
+5. Kirim ke Andika beserta catatan itu.
+
+6. Bersihkan folder kerja: `demo-a.key`, `demo-b.key`, dan folder state Tor yang terbentuk.
 
 ---
 
@@ -292,8 +320,8 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-p
 | 3 | Verifikasi vault | `.\aksara.exe id --vault demo-a.key --offline` (3×, ketiga passphrase salah) |
 | 4 | Onion di invite | `.\aksara.exe id --vault demo-a.key` |
 | 5 | Notifikasi Tor siap | `.\aksara.exe --vault demo-a.key` |
-| 6 | Komunikasi Tor, kiri | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` |
-| 6 | Komunikasi Tor, kanan | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` |
+| 6 | Komunikasi Tor, laptop 1 | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` |
+| 6 | Komunikasi Tor, laptop 2 | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` |
 | 7 | Pengujian (opsional) | `cargo test --release` |
 
 ## Tombol TUI
@@ -314,12 +342,14 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-p
 
 ## Catatan untuk penyusun laporan
 
-**Yang TIDAK dicakup panduan ini**: penemuan peer otomatis lewat mDNS (`advertise()`/`spawn_browse()` di `src/transport/lan.rs`). Rencana pengujian dua laptop sengaja **dibatalkan** karena tidak berguna sebagai bukti — `DiscoveredPeer` tidak pernah sampai ke lapisan TUI, sehingga sesi hasil discovery otomatis dan sesi hasil `--dial` manual tampil **identik** di layar. Screenshot tidak dapat membedakan keduanya, jadi dua laptop hanya menghabiskan waktu tanpa menambah bukti apa pun.
+**Yang TIDAK dicakup panduan ini**: penemuan peer otomatis lewat mDNS (`advertise()`/`spawn_browse()` di `src/transport/lan.rs`). Rencana screenshot dua laptop di WiFi yang sama sengaja **tidak dipakai** karena tidak berguna sebagai bukti — `DiscoveredPeer` tidak pernah sampai ke lapisan TUI, sehingga sesi hasil discovery otomatis dan sesi hasil `--dial` manual tampil **identik** di layar. Screenshot tidak dapat membedakan keduanya.
 
-Konsekuensinya harus ditulis jujur: **mDNS discovery tetap tanpa bukti empiris**, berstatus `IMPLEMENTED` dari pembacaan kode saja. Empat unit test di `src/transport/lan.rs` seluruhnya menguji fungsi murni (`safe_label`, `is_lan_dialable`), bukan alur discovery. Ini sudah sejalan dengan `09_SCOPE_AND_TEAM_PLAN.md` §5 butir 8 yang membatasi mDNS sebagai konteks pendukung, bukan objek evaluasi primer.
+Konsekuensinya harus ditulis jujur: **mDNS discovery tetap tanpa bukti empiris**, berstatus `IMPLEMENTED` dari pembacaan kode saja. Empat unit test di `src/transport/lan.rs` seluruhnya menguji fungsi murni (`safe_label`, `is_lan_dialable`), bukan alur discovery. Ini sejalan dengan `09_SCOPE_AND_TEAM_PLAN.md` §5 butir 8 yang membatasi mDNS sebagai konteks pendukung.
+
+**Cara mengutip Screenshot 6 dengan benar**: aplikasi tidak menampilkan jalur transport yang sedang dipakai, sehingga gambar chat itu sendiri tidak membuktikan sesi berjalan lewat Tor. Yang membuktikannya adalah **kombinasi** gambar chat + gambar kondisi jaringan (`06c`) + fakta bahwa `establish()` hanya punya dua jalur (LAN lalu Tor) dan jalur LAN mustahil antar-jaringan berbeda. Keterangan gambar di laporan **wajib** menyebutkan konfigurasi jaringan yang dipakai — tanpa itu, klaim "lewat Tor" tidak tertopang.
 
 **Status bukti Tor setelah Sesi B**: screenshot adalah **bukti visual**, bukan pengganti eksperimen terukur. Sub-skenario Tor pada `12_TEST_PLAN.md` EXP-03 tetap `NEEDS_EXPERIMENT` sampai dijalankan sebagai run resmi dengan pencatatan lingkungan lengkap.
 
 ---
 
-**Sumber**: rilis `v0.2.1` (2026-07-26). Aturan screenshot mengikuti `CLAUDE_PREPARATION_BRIEF.md` TAHAP 12 butir larangan 3-9. Seluruh alur perintah, perilaku penolakan loopback, teks notifikasi Tor, dan daftar tombol diverifikasi langsung terhadap `src/transport/lan.rs`, `src/transport/mod.rs`, `src/session/mod.rs`, `src/main.rs`, dan `src/tui/mod.rs` — bukan diperkirakan.
+**Sumber**: rilis `v0.2.1` (2026-07-26). Aturan screenshot mengikuti `CLAUDE_PREPARATION_BRIEF.md` TAHAP 12 butir larangan 3-9. Seluruh alur perintah, urutan LAN-lalu-Tor beserta `LAN_AUTO_TIMEOUT` 3 detik, retry dial Tor 8 detik hingga total 120 detik, catatan publikasi descriptor 1-3 menit, teks notifikasi Tor, dan daftar tombol diverifikasi langsung terhadap `src/transport/mod.rs`, `src/transport/lan.rs`, `src/session/mod.rs`, `src/main.rs`, dan `src/tui/mod.rs` — bukan diperkirakan.
