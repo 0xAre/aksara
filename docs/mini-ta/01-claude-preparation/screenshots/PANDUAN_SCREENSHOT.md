@@ -2,41 +2,38 @@
 
 **Untuk**: Rafi Putra Fadlurrahman (user testing) dan Mahendra Nur Hidayat (dokumentasi akhir).
 **Target**: 6 file PNG wajib + 1 opsional.
-**Tidak perlu install Rust atau clone repo** — cukup unduh satu file binary dari GitHub.
+**Cukup 1 laptop.** Tidak perlu install Rust atau clone repo — hanya unduh satu binary dari GitHub.
 
 Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan. Setelah selesai, kabari Andika untuk didaftarkan ke `11_FIGURE_MANIFEST.md`.
 
-## Pembagian kerja
+## Dua sesi
 
-| Bagian | Butuh apa | Siapa |
-|---|---|---|
-| **Sesi A** — Screenshot 1, 2, 3 | 1 laptop, tanpa internet | Bisa dikerjakan sendiri |
-| **Sesi B** — Screenshot 4 | **2 laptop di WiFi yang sama** | Rafi + Mahendra bersamaan |
-| **Sesi C** — Screenshot 5, 6 | 1 laptop, **butuh internet** | Bisa dikerjakan sendiri |
+| Sesi | Butuh | Screenshot | Perkiraan waktu |
+|---|---|---|---|
+| **A** — dasar | 1 laptop, **tanpa** internet | 01, 02, 03 | 15 menit |
+| **B** — Tor | 1 laptop, **butuh** internet | 04, 05, 06 | 20-30 menit (bootstrap Tor lambat) |
 
-Sesi A dan C bisa dikerjakan siapa saja sendirian. Hanya Sesi B yang perlu janjian berdua.
+Keduanya bisa dikerjakan satu orang sendirian, tidak perlu janjian.
 
 ---
 
 ## Aturan yang TIDAK BOLEH dilanggar
 
-Ini bukan formalitas — melanggarnya membuat gambar tidak bisa dipakai sama sekali di laporan:
+Melanggarnya membuat gambar tidak bisa dipakai sama sekali di laporan:
 
 1. **Screenshot layar asli.** Jangan bikin mockup, jangan edit gambar, jangan tempel teks.
 2. **Jangan ubah tampilan aplikasi** demi foto yang lebih bagus.
-3. **Passphrase dummy saja.** Pakai `demo-mini-ta-2026` di seluruh langkah. Jangan pakai passphrase asli milik siapa pun.
-4. **Jangan ada rahasia terlihat** di layar: private key, token, password, isi chat pribadi.
-5. **Nickname dan pesan chat pakai data dummy.** Jangan nama/nomor/alamat asli.
+3. **Passphrase dummy saja.** Pakai `demo-mini-ta-2026` di seluruh langkah.
+4. **Jangan ada rahasia terlihat**: private key, token, password, isi chat pribadi.
+5. **Nickname dan pesan chat pakai data dummy.**
 6. Sebelum memotret, **tutup jendela lain** yang mungkin memuat data pribadi.
-7. **Alamat `.onion` boleh dipotret** — itu alamat layanan publik, bukan kunci rahasia. Tapi jangan dibagikan di luar laporan.
+7. **Alamat `.onion` boleh dipotret** — itu alamat layanan, bukan kunci rahasia. Tapi jangan disebar di luar laporan.
 
 ---
 
 ## Langkah 0 — Unduh binary
 
-Buka halaman rilis: **https://github.com/0xAre/aksara/releases/tag/v0.2.1**
-
-Unduh satu file sesuai sistem operasi:
+Halaman rilis: **https://github.com/0xAre/aksara/releases/tag/v0.2.1**
 
 | OS | File | Ukuran |
 |---|---|---|
@@ -44,267 +41,245 @@ Unduh satu file sesuai sistem operasi:
 | Linux | `aksara-x86_64-unknown-linux-gnu` | 8,4 MB |
 | macOS (Apple Silicon) | `aksara-aarch64-apple-darwin` | 6,1 MB |
 
-Buat folder kerja, misalnya `D:\aksara-demo`, taruh file di situ dan **ganti namanya jadi `aksara.exe`** (Windows) atau `aksara` (Linux/macOS).
+Buat folder kerja `D:\aksara-demo`, taruh file di situ, **ganti nama jadi `aksara.exe`** (Windows) atau `aksara` (Linux/macOS).
 
-### Verifikasi file (disarankan, 10 detik)
-
-Windows PowerShell:
+### Verifikasi file (disarankan)
 
 ```bash
 Get-FileHash aksara.exe -Algorithm SHA256
 ```
 
-Hasilnya harus persis: `C04D8A35D03064E31527C8793ACC03C5EB30975EDF3710042F2E8D4AF1A59066`
+Harus persis: `C04D8A35D03064E31527C8793ACC03C5EB30975EDF3710042F2E8D4AF1A59066`
 
-Linux/macOS:
+Linux/macOS pakai `shasum -a 256 aksara` — Linux `6f4c865c...124ed`, macOS `49c2fd34...5de1d2`.
 
-```bash
-shasum -a 256 aksara
-```
+### Windows: izinkan berjalan
 
-Linux harus `6f4c865c...124ed`, macOS `49c2fd34...5de1d2`.
+Binary tidak ditandatangani digital. Klik kanan `aksara.exe` → **Properties** → centang **Unblock** → OK. Kalau muncul layar biru SmartScreen: **More info** → **Run anyway**.
 
-### Windows: izinkan file berjalan
-
-Binary ini tidak ditandatangani digital, jadi SmartScreen akan menahan. Klik kanan `aksara.exe` → **Properties** → centang **Unblock** → OK. Kalau muncul layar biru "Windows protected your PC", klik **More info** → **Run anyway**.
-
-### Linux/macOS: beri izin eksekusi
+### Linux/macOS
 
 ```bash
 chmod +x aksara
 ```
 
-macOS juga perlu: klik kanan → Open → Open, sekali saja.
+macOS juga perlu klik kanan → Open → Open, sekali saja.
 
 ---
 
-## Persiapan sebelum memotret
+## Persiapan
 
-1. **Perbesar jendela terminal** minimal 100 kolom × 30 baris. TUI akan terlihat sempit dan terpotong kalau terminalnya kecil — ini penyebab paling sering screenshot jadi tidak terpakai.
-2. Semua perintah dijalankan **dari dalam folder kerja** (`D:\aksara-demo`).
-3. Cara memotret: Windows `Win + Shift + S`, macOS `Cmd + Shift + 4`, Linux pakai tool bawaan desktop.
+1. **Perbesar terminal** minimal 100 kolom × 30 baris. Terminal kecil membuat TUI terpotong — penyebab paling sering screenshot tidak terpakai.
+2. Semua perintah dijalankan dari dalam folder kerja.
+3. Memotret: Windows `Win + Shift + S`, macOS `Cmd + Shift + 4`, Linux tool bawaan.
 
-**Tentang opsi `--offline`**: mematikan Tor sehingga aplikasi langsung jalan tanpa menunggu bootstrap. Dipakai di Sesi A dan B. **Tidak dipakai** di Sesi C, karena justru Tor yang mau dibuktikan.
+**Tentang `--offline`**: mematikan Tor supaya aplikasi langsung jalan. Dipakai di Sesi A. **Tidak dipakai di Sesi B**, karena justru Tor yang mau dibuktikan.
 
 ---
 
-# SESI A — Satu laptop, tanpa internet
+# SESI A — Dasar (tanpa internet)
 
 ## Screenshot 1 — Antarmuka utama
 
-**Masuk ke BAB IV.1.** Bukti visual bahwa aplikasinya nyata dan berjalan.
+**BAB IV.1.** Bukti visual aplikasinya nyata dan berjalan.
 
 ```bash
 .\aksara.exe --offline --vault demo-a.key
 ```
 
-1. Vault belum ada, jadi aplikasi meminta membuat identitas baru. Ketik passphrase `demo-mini-ta-2026`, tekan **Enter**.
-2. Ikuti layar inisialisasi sampai selesai (tekan **Enter** bila diminta).
-3. Setelah masuk layar utama (daftar kontak + badge status), **potret sekarang**.
+1. Vault belum ada → aplikasi minta buat identitas baru. Passphrase `demo-mini-ta-2026`, **Enter**.
+2. Ikuti layar inisialisasi sampai selesai.
+3. Setelah masuk layar utama (daftar kontak + header), **potret**.
 
-Simpan sebagai: **`01-antarmuka-utama.png`**
-
-Pastikan terlihat: judul AKSARA, badge status koneksi (`LAN`), dan panel daftar kontak.
+Simpan: **`01-antarmuka-utama.png`**
 
 ## Screenshot 2 — Identitas dan invite code
 
-**Masuk ke BAB IV.3** (pertukaran invite dan fingerprint).
+**BAB IV.3.** Masih di layar yang sama, tekan **`i`** untuk menampilkan invite code dan fingerprint sendiri. **Potret.**
 
-Masih di layar yang sama, tekan tombol **`i`** untuk menampilkan invite code dan fingerprint sendiri. **Potret.**
+Simpan: **`02-identitas-invite.png`**
 
-Simpan sebagai: **`02-identitas-invite.png`**
+> Aman dipotret: invite code hanya berisi **public key**.
 
-> Aman dipotret: invite code hanya berisi **public key**, bukan rahasia.
+Panjang invite di sini harus tepat **86 karakter** (mode offline, tanpa onion). Tekan **`q`** untuk keluar.
 
-Sebelum lanjut, **salin invite code ini** (tekan **`c`**, atau catat manual). Panjangnya harus tepat **86 karakter**. Sebut saja **INVITE-A** — dibutuhkan di Sesi B.
+## Screenshot 3 — Verifikasi vault
 
-Tekan **`q`** untuk keluar.
+**BAB V.2** (hasil EXP-01). BAB V saat ini seluruhnya angka tanpa satu pun gambar.
 
-## Screenshot 3 — Verifikasi vault: deterministik dan menolak passphrase salah
-
-**Masuk ke BAB V.2** (hasil EXP-01). BAB V saat ini seluruhnya angka tanpa satu pun gambar.
-
-Jalankan tiga perintah berurutan **di satu terminal, jangan dibersihkan layarnya**:
+Tiga perintah berurutan **di satu terminal, jangan dibersihkan layarnya**:
 
 ```bash
 .\aksara.exe id --vault demo-a.key --offline
 ```
 
-Passphrase `demo-mini-ta-2026`. Catat invite dan fingerprint yang tercetak.
+Passphrase `demo-mini-ta-2026`. Catat invite dan fingerprint.
 
 ```bash
 .\aksara.exe id --vault demo-a.key --offline
 ```
 
-Passphrase sama lagi. **Hasilnya harus persis identik** dengan perintah pertama.
+Passphrase sama. **Hasilnya harus persis identik.**
 
 ```bash
 .\aksara.exe id --vault demo-a.key --offline
 ```
 
-Kali ini ketik passphrase **salah**, misalnya `passphrase-salah`. Harus muncul `Error: vault could not be opened`.
+Passphrase **salah**, misalnya `passphrase-salah`. Harus muncul `Error: vault could not be opened`.
 
-**Potret** seluruh terminal sehingga ketiga hasil terlihat dalam satu gambar.
+**Potret** seluruh terminal sehingga ketiga hasil terlihat.
 
-Simpan sebagai: **`03-verifikasi-vault.png`**
+Simpan: **`03-verifikasi-vault.png`**
 
-Membuktikan dua hal sekaligus: `unseal` deterministik, dan penolakan passphrase salah memakai pesan generik yang tidak membocorkan penyebab kegagalan.
+Membuktikan `unseal` deterministik sekaligus penolakan passphrase salah dengan pesan generik.
 
 ---
 
-# SESI B — Dua laptop di WiFi yang sama
+# SESI B — Tor (butuh internet)
 
-**Masuk ke BAB IV.3 dan IV.5.** Ini screenshot paling berharga dari seluruh daftar, karena satu-satunya yang membuktikan **penemuan peer otomatis lewat mDNS** benar-benar bekerja.
+Ini bagian terpenting. Tor saat ini adalah komponen dengan **bukti paling minim** di seluruh dokumen: `src/transport/tor.rs` tidak punya satu pun unit test. Tiga screenshot berikut yang menutupinya.
 
-**Kenapa harus dua laptop**: kode sengaja menolak alamat loopback sebagai target discovery (`is_lan_dialable()` di `src/transport/lan.rs` menolak `127.0.0.1`). Jadi penemuan otomatis **secara desain tidak akan pernah jalan di satu mesin**. Ini bukan keterbatasan pengujian, melainkan perilaku yang memang dirancang begitu.
+> **Kenapa cukup satu laptop, dan kenapa justru itu kelebihannya**: kode sengaja menolak alamat loopback sebagai target LAN (`is_lan_dialable()` di `src/transport/lan.rs`). Jadi dua instance di satu mesin **tidak mungkin** tersambung lewat jalur LAN — kalau keduanya berhasil ngobrol, satu-satunya jalur yang tersisa adalah Tor. Screenshot ini membuktikan dirinya sendiri tanpa perlu mesin kedua.
 
-### Persiapan
+> **Kalau Tor gagal bootstrap**: sebagian jaringan kampus/kantor memblokir Tor. Coba hotspot HP. Kalau tetap gagal, lewati Sesi B dan **beri tahu Andika** — statusnya akan ditulis apa adanya sebagai belum terverifikasi, bukan dikarang.
 
-1. Kedua laptop **tersambung ke WiFi yang sama**. Hotspot HP juga bisa.
-2. **Matikan sementara** VPN dan firewall yang memblokir mDNS (UDP port 5353). Di Windows, saat pertama kali dijalankan biasanya muncul dialog Windows Defender Firewall — pilih **Allow access** untuk jaringan Private.
-3. Salin binary `aksara.exe` ke kedua laptop.
+## Screenshot 4 — Onion address di dalam invite
 
-### Langkah
-
-**Laptop 1** — buat identitas dan ambil invite:
-
-```bash
-.\aksara.exe id --vault demo-a.key --offline
-```
-
-Salin invite yang tercetak (**INVITE-A**), kirim ke Laptop 2 lewat chat.
-
-**Laptop 2** — buat identitas dan ambil invite:
-
-```bash
-.\aksara.exe id --vault demo-b.key --offline
-```
-
-Salin invite yang tercetak (**INVITE-B**), kirim balik ke Laptop 1.
-
-Sekarang **kedua laptop** menjalankan perintah berikut — perhatikan: **tidak ada `--listen` maupun `--dial`**. Itu intinya, biar aplikasi mencari sendiri.
-
-Laptop 1:
-
-```bash
-.\aksara.exe --offline --vault demo-a.key --name demo-b --add INVITE-B
-```
-
-Laptop 2:
-
-```bash
-.\aksara.exe --offline --vault demo-b.key --name demo-a --add INVITE-A
-```
-
-1. Masukkan passphrase `demo-mini-ta-2026` di keduanya.
-2. Di layar kontak, pilih kontak lawan dengan **↑/↓**, tekan **Enter**.
-3. Tunggu keduanya saling menemukan lewat mDNS dan sesi menjadi aktif.
-4. Kirim 2-3 pesan bolak-balik. Contoh aman: `halo dari laptop 1`, dibalas `diterima di laptop 2`.
-5. **Potret layar kedua laptop.** Simpan terpisah:
-
-**`04a-lan-discovery-laptop1.png`** dan **`04b-lan-discovery-laptop2.png`**
-
-### Kalau gagal terhubung
-
-Coba berurutan:
-
-1. **Invite tersalin tidak utuh** — penyebab paling sering. Panjangnya harus tepat 86 karakter.
-2. **Firewall memblokir** — pastikan dialog Windows Firewall sudah di-*allow* untuk jaringan Private di kedua laptop.
-3. **WiFi mengisolasi klien** — banyak WiFi kampus dan publik mengaktifkan *AP isolation* yang memblokir komunikasi antarperangkat. Pindah ke hotspot HP salah satu anggota.
-
-**Kalau tetap gagal setelah tiga langkah di atas**, jangan dipaksakan dan jangan dikarang. Jatuhkan ke mode manual di **satu laptop** sebagai pengganti:
-
-```bash
-.\aksara.exe --offline --vault demo-a.key --listen 9000
-```
-
-```bash
-.\aksara.exe --offline --vault demo-b.key --name demo-a --dial 127.0.0.1:9000 --add INVITE-A
-```
-
-Simpan sebagai **`04-komunikasi-loopback.png`** dan **beri tahu Andika bahwa yang berhasil hanya mode manual** — statusnya di laporan akan berbeda, dan itu harus ditulis apa adanya.
-
----
-
-# SESI C — Satu laptop, butuh internet
-
-Membuktikan lapisan Tor benar-benar hidup. Saat ini Tor adalah bagian yang **paling minim bukti** di seluruh dokumen — `src/transport/tor.rs` tidak punya satu pun unit test, jadi dua screenshot ini yang menutupinya.
-
-> **Catatan**: bootstrap Tor butuh 30-60 detik dan koneksi internet. Sebagian jaringan kampus/kantor memblokir Tor — kalau gagal, pakai hotspot HP. Kalau tetap gagal, lewati Sesi C dan beri tahu Andika; statusnya akan tetap ditulis sebagai belum terverifikasi.
-
-## Screenshot 5 — Onion address di dalam invite
-
-Perintahnya sama seperti sebelumnya **tanpa `--offline`**:
+Sama seperti sebelumnya, **tanpa `--offline`**:
 
 ```bash
 .\aksara.exe id --vault demo-a.key
 ```
 
-1. Muncul pesan `Bootstrap Tor untuk ambil onion address (~30-60 dtk)…`. Tunggu.
+1. Muncul `Bootstrap Tor untuk ambil onion address (~30-60 dtk)…`. Tunggu.
 2. Passphrase `demo-mini-ta-2026`.
-3. Invite yang tercetak sekarang **jauh lebih panjang** dan berakhiran `@xxxxx.onion`, serta baris `Transport:` berubah dari `LAN` menjadi menyertakan Tor.
+3. Invite yang tercetak sekarang **jauh lebih panjang**, berakhiran `@xxxxx.onion`, dan baris `Transport:` ikut berubah.
 4. **Potret** seluruh terminal.
 
-Simpan sebagai: **`05-onion-invite.png`**
+Simpan: **`04-onion-invite.png`**
 
-Ini bukti bahwa onion service versi 3 benar-benar terbentuk dan alamatnya tertanam ke dalam invite — bukan sekadar ada di kode.
+Bukti bahwa onion service v3 benar-benar terbentuk dan alamatnya tertanam ke dalam invite.
 
-> Pembanding untuk laporan: invite LAN-only 86 karakter, invite dengan onion sekitar 149 karakter. Selisihnya adalah alamat `.onion` yang di-*append*.
+> Pembanding untuk laporan: invite LAN-only **86 karakter**, invite dengan onion sekitar **149 karakter**. Selisihnya adalah alamat `.onion` yang di-*append*.
 
-## Screenshot 6 — Badge TOR aktif di TUI
+**Salin invite panjang ini** — sebut **INVITE-A**, dibutuhkan di Screenshot 6.
+
+## Screenshot 5 — Notifikasi "Tor siap" di TUI
 
 ```bash
 .\aksara.exe --vault demo-a.key
 ```
 
 1. Passphrase `demo-mini-ta-2026`.
-2. TUI langsung tampil dengan badge `LAN` — Tor masih bootstrap di latar belakang.
-3. **Tunggu 30-60 detik** sampai badge berubah menyertakan `TOR`.
-4. **Potret** saat badge sudah menampilkan status Tor aktif.
+2. TUI **langsung tampil** tanpa menunggu Tor — di header muncul indikator `tor·…` yang menandakan bootstrap sedang berjalan di latar belakang. Kalau sempat, potret tahap ini juga sebagai bonus.
+3. **Tunggu 30-60 detik.** Saat siap, muncul notifikasi hijau: **"Tor siap — sekarang online (LAN + Tor)."**
+4. **Potret** saat notifikasi itu tampil.
+5. Setelah notifikasi muncul, tekan **`i`** — invite di dalam TUI kini sudah diperbarui otomatis memuat onion. Potret juga bila ingin.
 
-Simpan sebagai: **`06-badge-tor-aktif.png`**
+Simpan: **`05-tor-siap.png`**
 
-Ini memperlihatkan perilaku yang dijelaskan di BAB IV: TUI tidak diblokir menunggu Tor, melainkan tetap responsif sementara bootstrap berjalan di latar belakang.
+Memperlihatkan perilaku yang dijelaskan di BAB IV: TUI tidak diblokir menunggu Tor, melainkan tetap responsif sementara bootstrap berjalan di latar belakang, lalu invite diperbarui sendiri begitu onion tersedia.
+
+Tekan **`q`** untuk keluar.
+
+## Screenshot 6 — Komunikasi dua instance lewat Tor
+
+**BAB IV.5.** Screenshot paling berharga dari seluruh daftar.
+
+Butuh **dua jendela terminal** di laptop yang sama, keduanya di folder kerja yang sama.
+
+**Terminal kiri** — identitas A sudah ada dari Screenshot 4:
+
+```bash
+.\aksara.exe --vault demo-a.key
+```
+
+**Terminal kanan** — buat identitas B, ambil invite-nya dulu:
+
+```bash
+.\aksara.exe id --vault demo-b.key
+```
+
+Tunggu bootstrap, passphrase `demo-mini-ta-2026`, salin invite panjangnya (**INVITE-B**).
+
+Sekarang jalankan keduanya saling mengenal. **Tanpa `--offline`, tanpa `--listen`, tanpa `--dial`** — biarkan aplikasi memilih jalurnya sendiri:
+
+Terminal kiri:
+
+```bash
+.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B
+```
+
+Terminal kanan:
+
+```bash
+.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A
+```
+
+1. Passphrase `demo-mini-ta-2026` di keduanya.
+2. **Tunggu notifikasi "Tor siap"** di kedua jendela sebelum lanjut. Jangan buru-buru.
+3. Di layar kontak, pilih kontak lawan dengan **↑/↓**, tekan **Enter**.
+4. Jalur LAN akan gagal lebih dulu (loopback ditolak), lalu aplikasi jatuh ke Tor. **Sabar** — dial lewat Tor bisa memakan waktu sampai dua menit.
+5. Setelah sesi aktif, kirim 2-3 pesan bolak-balik. Contoh aman: `halo, uji coba lewat tor` dan `diterima, sesi aktif`.
+6. **Potret kedua terminal sekaligus** dalam satu gambar (atur berdampingan).
+
+Simpan: **`06-komunikasi-tor.png`**
+
+### Kalau gagal terhubung
+
+1. **Invite tersalin tidak utuh** — penyebab paling sering. Invite dengan onion sekitar 149 karakter, pastikan tidak ada yang terpotong.
+2. **Tor belum selesai bootstrap** di salah satu sisi — tunggu notifikasi hijau di keduanya dulu.
+3. **Timeout** — coba ulang sekali lagi, jaringan Tor kadang lambat.
+
+Kalau setelah tiga kali percobaan tetap gagal, **jangan dipaksakan dan jangan dikarang**. Ambil pengganti berikut lewat jalur manual LAN:
+
+```bash
+.\aksara.exe --offline --vault demo-a.key --listen 9000
+```
+
+```bash
+.\aksara.exe --offline --vault demo-b.key --name demo-a --dial 127.0.0.1:9000 --add INVITE-A-OFFLINE
+```
+
+(`INVITE-A-OFFLINE` = invite 86 karakter dari Screenshot 2, bukan yang ber-onion.)
+
+Simpan sebagai **`06-komunikasi-loopback.png`** dan **beri tahu Andika bahwa yang berhasil hanya jalur LAN loopback** — status di laporan akan berbeda dan itu harus ditulis apa adanya.
 
 ---
 
 # Opsional — Screenshot 7: hasil `cargo test`
 
-Hanya bisa diambil oleh yang punya source code dan toolchain Rust (**Andika**). Dari root repositori:
+Hanya untuk yang punya source dan toolchain Rust (**Andika**). Dari root repositori:
 
 ```bash
 cargo test --release
 ```
 
-Potret bagian akhir yang menampilkan `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-pengujian.png`.
+Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-pengujian.png`.
 
 ---
 
 ## Setelah selesai
 
-1. Kumpulkan file PNG:
+1. Kumpulkan file:
 
    ```
    01-antarmuka-utama.png
    02-identitas-invite.png
    03-verifikasi-vault.png
-   04a-lan-discovery-laptop1.png     (atau 04-komunikasi-loopback.png)
-   04b-lan-discovery-laptop2.png
-   05-onion-invite.png
-   06-badge-tor-aktif.png
-   07-hasil-pengujian.png            (opsional)
+   04-onion-invite.png
+   05-tor-siap.png
+   06-komunikasi-tor.png        (atau 06-komunikasi-loopback.png)
+   07-hasil-pengujian.png       (opsional)
    ```
 
-2. **Periksa ulang setiap gambar** sebelum dikirim:
-   - Tidak ada passphrase terketik yang terlihat.
-   - Tidak ada data pribadi di jendela lain yang ikut terpotret.
-   - Teks terbaca jelas, tidak buram, tidak terpotong.
+2. **Periksa ulang tiap gambar**: tidak ada passphrase terlihat, tidak ada data pribadi dari jendela lain, teks terbaca jelas dan tidak terpotong.
 
-3. **Laporkan apa yang gagal**, jangan diam-diam dilewati. Untuk setiap screenshot yang tidak berhasil diambil, catat: nomor berapa, gagal di langkah mana, pesan error apa yang muncul. Kegagalan yang dicatat jujur tetap berguna untuk laporan; kegagalan yang disembunyikan membuat klaim di BAB IV tidak bisa dipertanggungjawabkan.
+3. **Laporkan yang gagal, jangan diam-diam dilewati.** Catat: nomor berapa, gagal di langkah mana, pesan error apa. Kegagalan yang dicatat jujur tetap berguna; kegagalan yang disembunyikan membuat klaim di BAB IV tidak bisa dipertanggungjawabkan.
 
-4. Kirim ke Andika beserta catatan tersebut.
+4. Kirim ke Andika beserta catatan itu.
 
-5. Hapus file demo di folder kerja: `demo-a.key`, `demo-b.key`, dan folder state Tor bila ada.
+5. Bersihkan folder kerja: `demo-a.key`, `demo-b.key`, dan folder state Tor yang terbentuk.
 
 ---
 
@@ -315,10 +290,10 @@ Potret bagian akhir yang menampilkan `test result: ok. 46 passed; 0 failed`. Sim
 | 1 | Antarmuka utama | `.\aksara.exe --offline --vault demo-a.key` |
 | 2 | Identitas/invite | (lanjutan #1, tekan `i`) |
 | 3 | Verifikasi vault | `.\aksara.exe id --vault demo-a.key --offline` (3×, ketiga passphrase salah) |
-| 4 | LAN discovery, laptop 1 | `.\aksara.exe --offline --vault demo-a.key --name demo-b --add INVITE-B` |
-| 4 | LAN discovery, laptop 2 | `.\aksara.exe --offline --vault demo-b.key --name demo-a --add INVITE-A` |
-| 5 | Onion di invite | `.\aksara.exe id --vault demo-a.key` |
-| 6 | Badge TOR | `.\aksara.exe --vault demo-a.key` |
+| 4 | Onion di invite | `.\aksara.exe id --vault demo-a.key` |
+| 5 | Notifikasi Tor siap | `.\aksara.exe --vault demo-a.key` |
+| 6 | Komunikasi Tor, kiri | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` |
+| 6 | Komunikasi Tor, kanan | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` |
 | 7 | Pengujian (opsional) | `cargo test --release` |
 
 ## Tombol TUI
@@ -337,6 +312,14 @@ Potret bagian akhir yang menampilkan `test result: ok. 46 passed; 0 failed`. Sim
 
 ---
 
-**Sumber**: rilis `v0.2.1` (2026-07-26). Daftar dan aturan screenshot mengikuti `CLAUDE_PREPARATION_BRIEF.md` TAHAP 12 butir larangan 3-9. Alur `--listen`/`--dial`/`--add`, perilaku penolakan loopback pada discovery, dan daftar tombol diverifikasi langsung terhadap `src/transport/lan.rs`, `src/transport/mod.rs`, `src/session/mod.rs`, dan `src/tui/mod.rs` — bukan diperkirakan.
+## Catatan untuk penyusun laporan
 
-**Status bukti yang sedang ditutup oleh Sesi B dan C**: `src/transport/tor.rs` tidak memiliki unit test sama sekali, dan empat test di `src/transport/lan.rs` seluruhnya menguji fungsi murni (`safe_label`, `is_lan_dialable`) tanpa pernah menjalankan `advertise()`/`spawn_browse()`. Screenshot dari kedua sesi ini adalah **bukti visual**, bukan pengganti eksperimen terukur — sub-skenario Tor dan LAN fisik pada `12_TEST_PLAN.md` EXP-03 tetap berstatus `NEEDS_EXPERIMENT` sampai dijalankan sebagai run eksperimen dengan pencatatan lingkungan lengkap.
+**Yang TIDAK dicakup panduan ini**: penemuan peer otomatis lewat mDNS (`advertise()`/`spawn_browse()` di `src/transport/lan.rs`). Rencana pengujian dua laptop sengaja **dibatalkan** karena tidak berguna sebagai bukti — `DiscoveredPeer` tidak pernah sampai ke lapisan TUI, sehingga sesi hasil discovery otomatis dan sesi hasil `--dial` manual tampil **identik** di layar. Screenshot tidak dapat membedakan keduanya, jadi dua laptop hanya menghabiskan waktu tanpa menambah bukti apa pun.
+
+Konsekuensinya harus ditulis jujur: **mDNS discovery tetap tanpa bukti empiris**, berstatus `IMPLEMENTED` dari pembacaan kode saja. Empat unit test di `src/transport/lan.rs` seluruhnya menguji fungsi murni (`safe_label`, `is_lan_dialable`), bukan alur discovery. Ini sudah sejalan dengan `09_SCOPE_AND_TEAM_PLAN.md` §5 butir 8 yang membatasi mDNS sebagai konteks pendukung, bukan objek evaluasi primer.
+
+**Status bukti Tor setelah Sesi B**: screenshot adalah **bukti visual**, bukan pengganti eksperimen terukur. Sub-skenario Tor pada `12_TEST_PLAN.md` EXP-03 tetap `NEEDS_EXPERIMENT` sampai dijalankan sebagai run resmi dengan pencatatan lingkungan lengkap.
+
+---
+
+**Sumber**: rilis `v0.2.1` (2026-07-26). Aturan screenshot mengikuti `CLAUDE_PREPARATION_BRIEF.md` TAHAP 12 butir larangan 3-9. Seluruh alur perintah, perilaku penolakan loopback, teks notifikasi Tor, dan daftar tombol diverifikasi langsung terhadap `src/transport/lan.rs`, `src/transport/mod.rs`, `src/session/mod.rs`, `src/main.rs`, dan `src/tui/mod.rs` — bukan diperkirakan.

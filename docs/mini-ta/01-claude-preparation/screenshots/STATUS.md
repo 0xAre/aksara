@@ -56,7 +56,12 @@ Ini **bukan** kegagalan aplikasi — AKSARA terbukti berjalan benar (§1-2). Ini
 
 > **Panduan langkah-demi-langkah tersedia**: `PANDUAN_SCREENSHOT.md` (dibuat 2026-07-27, di folder yang sama). Panduan itu ditujukan untuk Rafi (user testing) dan Mahendra (dokumentasi akhir), memakai **binary rilis v0.2.1 dari GitHub** sehingga tidak perlu clone repo atau memasang toolchain Rust. Bagian di bawah adalah ringkasan asli SESSION 4; bila keduanya berbeda, ikuti `PANDUAN_SCREENSHOT.md` karena alur `--listen`/`--dial`/`--add` dan daftar tombol TUI di sana sudah diverifikasi langsung terhadap source.
 >
-> Satu koreksi penting dari verifikasi itu: kandidat screenshot "output `cargo test`" **tidak dapat diambil hanya dengan binary rilis** — butuh source dan toolchain Rust. Panduan menggantinya dengan verifikasi CLI vault (deterministik + penolakan passphrase salah) yang setara nilainya untuk BAB V dan cukup memakai binary.
+> Dua koreksi penting dari verifikasi terhadap source:
+>
+> 1. Kandidat screenshot "output `cargo test`" **tidak dapat diambil hanya dengan binary rilis** — butuh source dan toolchain Rust. Panduan menggantinya dengan verifikasi CLI vault (deterministik + penolakan passphrase salah), setara nilainya untuk BAB V dan cukup memakai binary.
+> 2. Kandidat "proses komunikasi dua instance" diarahkan **lewat Tor, bukan LAN**. Alasannya: `DiscoveredPeer` tidak pernah sampai ke lapisan TUI, sehingga sesi hasil discovery mDNS dan sesi hasil `--dial` manual tampil **identik** di layar — screenshot tidak dapat membuktikan discovery bekerja. Sebaliknya Tor meninggalkan jejak visual (alamat onion di invite, notifikasi "Tor siap"), dan karena `is_lan_dialable()` menolak loopback, sesi dua instance yang berhasil di satu laptop **mustahil** lewat LAN — jadi screenshot-nya membuktikan dirinya sendiri.
+>
+> Konsekuensi yang harus ditulis jujur: **mDNS discovery tetap tanpa bukti empiris** dan tidak akan mendapatkannya dari jalur screenshot.
 
 Ambil **2-4 screenshot** dari daftar berikut (per `CLAUDE_PREPARATION_BRIEF.md` TAHAP 12), simpan sebagai PNG di folder ini (`docs/mini-ta/01-claude-preparation/screenshots/`) dengan nama deskriptif (mis. `01-antarmuka-utama.png`):
 
