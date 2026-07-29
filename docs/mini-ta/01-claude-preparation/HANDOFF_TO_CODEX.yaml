@@ -44,9 +44,8 @@ project:
     CARAKA (2).docx, ditunjuk langsung oleh pengguna - dokumen proposal untuk
     mata kuliah dan kelompok yang sama. HANYA identitas anggota yang diambil
     dari file itu; seluruh fakta teknis CARAKA (mesh, Ascon, protokol CLAMP)
-    DILARANG masuk ke dokumen AKSARA per AGENTS.md. Yang masih terbuka hanya
-    pemetaan nama ke peran Anggota 1/2/3 di 09_SCOPE_AND_TEAM_PLAN.md §8 -
-    urutan saat ini mengikuti urutan pada proposal dan boleh ditukar.
+    DILARANG masuk ke dokumen AKSARA per AGENTS.md. Peran ketiganya juga sudah
+    CONFIRMED - lihat team.roles.
 
 scope:
   main_problem: >
@@ -311,6 +310,24 @@ readiness:
       desc: "Tiga metrik tetap tidak/belum terukur presisi: latensi handshake (batas atas saja), overhead ciphertext instance Noise transport, memory usage puncak (CM-154)"
       severity: non_blocking
       action_required: "Pertahankan hedge saat menulis prosa. Pengukuran presisi butuh instrumentasi src/ (benches/criterion) yang memerlukan permintaan eksplisit pengguna per AGENTS.md"
+    - id: BI-07
+      desc: >
+        Transport LAN fisik (mDNS discovery) dan Tor onion service TIDAK punya
+        bukti empiris. src/transport/tor.rs = 0 unit test. 4 test di
+        src/transport/lan.rs seluruhnya fungsi murni (safe_label,
+        is_lan_dialable) - advertise()/spawn_browse() tidak pernah dijalankan.
+        EXP-03 hanya memakai TCP loopback via --listen/--dial, yang MELEWATI
+        jalur LanMode::Auto tempat mDNS hidup.
+      severity: non_blocking
+      status_dokumen: "Sudah jujur - 09_SCOPE §5 butir 8 membatasi Tor/mDNS sebagai konteks pendukung, 12_TEST_PLAN EXP-03 butir 7 menandainya NEEDS_EXPERIMENT"
+      action_required: >
+        JANGAN menulis prosa yang menyiratkan discovery mDNS atau transport Tor
+        sudah diverifikasi. Boleh ditulis sebagai IMPLEMENTED dari evidence
+        source-level, TIDAK boleh sebagai terverifikasi empiris. Screenshot
+        SESI B dan C (PANDUAN_SCREENSHOT.md) akan menaikkannya jadi bukti
+        visual, tapi tetap BUKAN eksperimen terukur - status NEEDS_EXPERIMENT
+        di CSV baru berubah bila dijalankan sebagai run dengan pencatatan
+        lingkungan lengkap.
     - id: BI-03
       desc: "Screenshot TUI aktual belum ada (capture gambar, bukan build/fungsi)"
       severity: non_blocking
@@ -318,10 +335,16 @@ readiness:
         Tindakan manual anggota kelompok. Panduan langkah-demi-langkah siap
         pakai: screenshots/PANDUAN_SCREENSHOT.md (2026-07-27) - memakai binary
         rilis v0.2.1 dari GitHub, tidak perlu clone repo atau toolchain Rust.
-        Target 4 PNG: 01-antarmuka-utama (BAB IV.1), 02-identitas-invite
-        (BAB IV.3), 03-komunikasi-dua-instance (BAB IV.5), 04-verifikasi-vault
-        (BAB V.2). Setelah tersedia, daftarkan ke 11_FIGURE_MANIFEST.md dan
-        sisipkan rujukannya ke subbab terkait di 14_CHAPTER_CONTENT_PACK.md.
+        Target 6 PNG wajib + 1 opsional, dibagi 3 sesi:
+        SESI A (1 laptop, tanpa internet) - 01-antarmuka-utama (BAB IV.1),
+        02-identitas-invite (BAB IV.3), 03-verifikasi-vault (BAB V.2).
+        SESI B (2 laptop, WiFi sama) - 04a/04b-lan-discovery (BAB IV.3, IV.5):
+        SATU-SATUNYA bukti mDNS discovery bekerja. Wajib 2 mesin karena
+        is_lan_dialable() menolak loopback secara desain.
+        SESI C (1 laptop, butuh internet) - 05-onion-invite, 06-badge-tor-aktif
+        (BAB IV.3, IV.6): menutup Tor yang saat ini NOL bukti empiris.
+        Setelah tersedia, daftarkan ke 11_FIGURE_MANIFEST.md dan sisipkan
+        rujukannya ke subbab terkait di 14_CHAPTER_CONTENT_PACK.md.
     - id: BI-04
       desc: "Nama asli 3 anggota kelompok, study_program, institution belum dikonfirmasi"
       severity: resolved
