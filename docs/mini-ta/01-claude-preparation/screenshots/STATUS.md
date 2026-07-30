@@ -1,6 +1,6 @@
 # TAHAP 12 — Status Screenshot Aplikasi AKSARA
 
-Status: **PARTIAL** — verifikasi fungsi build+run **selesai**; screenshot **SESI A SELESAI** (5 berkas masuk repo 2026-07-29), **SESI B (Tor, 2 laptop) BELUM**. Status ini **tidak menghalangi** `ready_for_codex` (screenshot bukan bagian dari 17 syarat quality gate `CLAUDE_PREPARATION_BRIEF.md`).
+Status: **DONE** — verifikasi fungsi build+run **selesai**; screenshot **SESI A SELESAI** (5 berkas masuk repo 2026-07-29), **SESI B (Tor, 2 laptop) SELESAI** (6/6 berkas masuk repo 2026-07-30 — lihat §3a; riwayat penolakan/penggantian satu berkas di §3b). Status ini **tidak menghalangi** `ready_for_codex` (screenshot bukan bagian dari 17 syarat quality gate `CLAUDE_PREPARATION_BRIEF.md`).
 
 ---
 
@@ -43,7 +43,7 @@ Tidak ada output di atas yang memuat passphrase asli pengguna, private key menta
 
 ---
 
-## 3. Screenshot TUI Aktual — SESI A SELESAI, SESI B BELUM
+## 3. Screenshot TUI Aktual — SESI A DAN SESI B SELESAI
 
 **Update 2026-07-29**: lima berkas screenshot sudah diterima dari anggota kelompok dan tersimpan di folder ini. Diambil dari **binary rilis v0.2.1** pada Windows 11 dengan terminal PowerShell — bukan build lokal.
 
@@ -61,7 +61,36 @@ Tiga catatan dari pemeriksaan berkas:
 2. **Jalur transport pada `03-*` adalah TCP loopback**, bukan LAN fisik maupun Tor. Aplikasi tidak mencetak jalur transport di layar, jadi keterangan gambar di laporan **wajib** menyebut topologi loopback secara eksplisit.
 3. **`04-verifikasi-vault.png` menampilkan passphrase terbaca** (`demo-mini-ta-2026`, `12345678`). Keduanya dummy sehingga bukan kebocoran, dan justru memperkuat demonstrasi. Sekaligus menjadi **bukti visual atas keterbatasan yang sudah terdokumentasi** di §4.6 threat model: input passphrase stdin masih ter-echo ke layar, berstatus `PLANNED` untuk M4.
 
-**Yang masih kurang — SESI B**: `05-onion-invite`, `06-tor-online`, `07a/07b/07c-komunikasi-tor`. Butuh 2 laptop di **jaringan berbeda** plus internet. Prosedur lengkap di `PANDUAN_SCREENSHOT.md`.
+**SESI B lengkap** — 6/6 berkas diterima (bertahap, 2026-07-30). Prosedur lengkap di `PANDUAN_SCREENSHOT.md`.
+
+### 3a. Screenshot Sesi B — Tor (6/6 diterima, diterima bertahap 2026-07-30)
+
+Diterima dari **sisi laptop 2 (demo-b, user `rafip`)**:
+
+| Berkas | Isi | Bab |
+|---|---|---|
+| `05-onion-invite.png` | Invite ber-onion (`Transport: LAN + Tor`), fingerprint `4f88ab37...9b0dfc8f` | BAB IV.3 |
+| `07b-komunikasi-tor-laptop2.png` | TUI badge `◉ ONLINE`, sesi aktif dengan kontak `demo-a`, 4 pesan dummy bertukar (`hallo`/`haii`/`berhasil`/`hore`) | BAB IV.5 |
+| `07c-bukti-jaringan-berbeda-laptop2.png` | Output `ipconfig` laptop 2 — Wi-Fi aktif `192.168.93.113/22`, gateway `192.168.92.1` | BAB IV.5 (keterangan gambar) |
+
+Diterima dari **sisi laptop 1 (demo-a, user `aspire 5`)**:
+
+| Berkas | Isi | Bab |
+|---|---|---|
+| `06-tor-online.png` | TUI badge `◉ ONLINE`, status `idle`, belum ada kontak ditambahkan | BAB IV.5 |
+| `07a-komunikasi-tor-laptop1.png` | Sesi aktif dengan kontak `demo b`, 2 pesan dummy (`hallo`/`haii`) — konsisten dengan sisi lawan di `07b` | BAB IV.5 |
+| `07c-bukti-jaringan-berbeda-laptop1.png` | Output `ipconfig` laptop 1 (versi final, pengganti) — Wi-Fi aktif `192.168.102.128/24`, gateway `192.168.102.1` (berbeda subnet dari Wi-Fi laptop 2 `192.168.93.113/22`) | BAB IV.5 (keterangan gambar) |
+
+Catatan pemeriksaan:
+
+1. Invite laptop 2 panjang ~149 karakter dengan akhiran `.onion` — cocok prediksi panduan (dibanding invite LAN-only 86 karakter Sesi A). Laptop 1 juga mengirim `05-onion-invite.png` versinya sendiri (fingerprint `56556348...9766e19f`) — **tidak disimpan** karena panduan hanya perlu satu gambar untuk poin ini dan versi laptop 2 sudah cukup.
+2. `06-tor-online.png` menunjukkan badge `◉ ONLINE` tapi **tidak** memuat notifikasi hijau "Tor siap — sekarang online" yang disebut panduan — kemungkinan notifikasi sudah hilang saat gambar diambil. Badge tetap jadi bukti utama status online; catat keterbatasan ini di keterangan gambar laporan.
+3. `07a`/`07b` berasal dari sesi chat yang sama (kontak `demo-a` ↔ `demo-b`) diambil pada waktu berbeda (07a lebih awal, 2 pesan; 07b lebih lambat, 4 pesan) — konsisten, bukan sesi berbeda.
+4. `07c-bukti-jaringan-berbeda-laptop1.png` (`192.168.102.128/24`) dan `07c-...-laptop2.png` (`192.168.93.113/22`) menunjukkan subnet Wi-Fi yang berbeda — mendukung klaim "jaringan berbeda" untuk kedua sisi.
+
+### 3b. Riwayat: `07c` sisi laptop 1 sempat ditolak, sudah diganti
+
+Versi pertama yang dikirim 2026-07-30 (tidak pernah masuk repo) punya dua masalah: (1) jendela WhatsApp Desktop ikut terekam di belakang Command Prompt, menampilkan nama kontak asli dan cuplikan pesan pribadi — melanggar aturan panduan §"Aturan yang TIDAK BOLEH dilanggar" poin 4 dan 6; (2) `ipconfig` yang terekam terpotong sebelum adapter Wi-Fi aktif tampil, hanya menunjukkan adapter virtual (`192.168.56.1`, pola khas VirtualBox Host-Only). Pengguna mengirim ulang versi crop dengan aplikasi lain tertutup dan output `ipconfig` lengkap — versi itulah yang tersimpan sebagai final di §3a. Tidak ada tindak lanjut lagi diperlukan.
 
 ### Catatan asli SESSION 4 (alasan agent tidak dapat mengambil sendiri)
 

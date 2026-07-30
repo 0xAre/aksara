@@ -51,7 +51,7 @@ sessions:
     name: Scope, Related Work, and Figures
     stages: [8, 10, 11, 12]
     status: DONE
-    note: TAHAP 12 partial (build+fungsi verified, screenshot capture masih manual) - tidak menghalangi ready_for_codex
+    note: TAHAP 12 selesai penuh sejak 2026-07-30 (build+fungsi verified, screenshot Sesi A dan Sesi B/Tor lengkap 11 berkas - lihat blockers.screenshot_capture)
     expected_outputs:
       - docs/mini-ta/01-claude-preparation/09_SCOPE_AND_TEAM_PLAN.md
       - docs/mini-ta/01-claude-preparation/10_RELATED_WORK_AND_GAP.md
@@ -104,7 +104,12 @@ sessions:
 
 blockers:
   screenshot_capture:
-    status: MANUAL_USER_ACTION_REQUIRED
+    status: RESOLVED
+    resolved_on: "2026-07-30"
+    note: >
+      Sesi A (5 berkas, 2026-07-29) dan Sesi B/Tor (6 berkas, 2026-07-30)
+      seluruhnya masuk repo docs/mini-ta/01-claude-preparation/screenshots/.
+      Detail di screenshots/STATUS.md dan 11_FIGURE_MANIFEST.md.
     blocks_ready_for_codex: false
 
   member_names:

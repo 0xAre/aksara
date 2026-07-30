@@ -36,7 +36,7 @@ Total: **7 diagram** — dalam rentang 5-8 yang disyaratkan brief.
 
 ## Daftar Screenshot Aplikasi
 
-Ditambahkan 2026-07-29. Dihitung **terpisah** dari 7 diagram di atas: rentang 5-8 pada brief berlaku untuk diagram, sedangkan screenshot diatur terpisah di TAHAP 12 (2-4 screenshot). Seluruh berkas berada di `screenshots/`, diambil dari **binary rilis v0.2.1** (bukan build lokal) pada Windows 11, terminal PowerShell.
+Ditambahkan 2026-07-29, dilengkapi 2026-07-30. Dihitung **terpisah** dari 7 diagram di atas: rentang 5-8 pada brief berlaku untuk diagram, sedangkan screenshot diatur terpisah di TAHAP 12 (2-4 screenshot). Seluruh berkas berada di `screenshots/`, diambil dari **binary rilis v0.2.1** (bukan build lokal) pada Windows 11, terminal PowerShell.
 
 | ID | File | Judul | Apa yang dibuktikan | Bab | Status |
 |----|------|-------|---------------------|-----|--------|
@@ -45,11 +45,14 @@ Ditambahkan 2026-07-29. Dihitung **terpisah** dari 7 diagram di atas: rentang 5-
 | SS-03a | `03-komunikasi-loopback-a.png` | Sesi Terenkripsi — Sisi Inisiator | Sesi aktif dengan peer `peer-4f88ab37`, notifikasi "Sesi aman terbuka", tiga pesan bertukar dengan cap waktu | BAB IV.5 | ✅ ADA |
 | SS-03b | `03-komunikasi-loopback-b.png` | Sesi Terenkripsi — Sisi Responder | Sisi lawan dari sesi yang sama, memperlihatkan pesan diterima utuh | BAB IV.5 | ✅ ADA |
 | SS-04 | `04-verifikasi-vault.png` | Verifikasi Vault: Determinisme dan Penolakan | Dua `unseal` dengan passphrase benar menghasilkan invite/fingerprint **identik**; passphrase salah menghasilkan `Error: vault could not be opened` | BAB V.2 (EXP-01) | ✅ ADA |
-| SS-05 | `05-onion-invite.png` | Invite dengan Onion Address | Onion service v3 terbentuk dan alamatnya tertanam ke invite (~149 karakter) | BAB IV.3 | ⬜ MENUNGGU SESI B |
-| SS-06 | `06-tor-online.png` | Badge Transport `◉ ONLINE` | Badge berubah `⌂ LOCAL` → `LINKING` → `◉ ONLINE`, plus notifikasi "Tor siap" | BAB IV.6 | ⬜ MENUNGGU SESI B |
-| SS-07a/b/c | `07*-komunikasi-tor*.png` | Sesi Terenkripsi Lintas Jaringan via Tor | Dua laptop di jaringan berbeda tersambung tanpa server; disertai bukti kondisi jaringan | BAB IV.5 | ⬜ MENUNGGU SESI B |
+| SS-05 | `05-onion-invite.png` | Invite dengan Onion Address | Onion service v3 terbentuk dan alamatnya tertanam ke invite (~149 karakter, `Transport: LAN + Tor`), sisi laptop 2/demo-b | BAB IV.3 | ✅ ADA |
+| SS-06 | `06-tor-online.png` | Badge Transport `◉ ONLINE` | Badge berubah menjadi `◉ ONLINE` (sisi laptop 1), status `idle` sebelum kontak ditambahkan. **Catatan**: notifikasi hijau "Tor siap" yang disebut panduan tidak terekam di gambar ini (sudah hilang saat capture) — badge tetap jadi bukti utama | BAB IV.6 | ✅ ADA (parsial, lihat catatan) |
+| SS-07a | `07a-komunikasi-tor-laptop1.png` | Sesi Terenkripsi Lintas Jaringan via Tor — Sisi Laptop 1 | Sesi aktif dengan kontak `demo b`, 2 pesan dummy bertukar (`hallo`/`haii`) | BAB IV.5 | ✅ ADA |
+| SS-07b | `07b-komunikasi-tor-laptop2.png` | Sesi Terenkripsi Lintas Jaringan via Tor — Sisi Laptop 2 | Sisi lawan dari sesi yang sama, 4 pesan dummy bertukar (`hallo`/`haii`/`berhasil`/`hore`) | BAB IV.5 | ✅ ADA |
+| SS-07c-1 | `07c-bukti-jaringan-berbeda-laptop1.png` | Bukti Jaringan Berbeda — Laptop 1 | Output `ipconfig`: Wi-Fi aktif `192.168.102.128/24`, gateway `192.168.102.1` | BAB IV.5 (keterangan gambar) | ✅ ADA |
+| SS-07c-2 | `07c-bukti-jaringan-berbeda-laptop2.png` | Bukti Jaringan Berbeda — Laptop 2 | Output `ipconfig`: Wi-Fi aktif `192.168.93.113/22`, gateway `192.168.92.1` — subnet berbeda dari laptop 1, mendukung klaim jaringan berbeda | BAB IV.5 (keterangan gambar) | ✅ ADA |
 
-**Total tersedia: 5 berkas** (SS-01 s.d. SS-04). Empat lagi menunggu Sesi B pada `screenshots/PANDUAN_SCREENSHOT.md`.
+**Total tersedia: 11 berkas** (SS-01 s.d. SS-07c-2). Seluruh Sesi A dan Sesi B selesai, tidak ada lagi item screenshot tertunda.
 
 ### Catatan penting untuk penyusun laporan
 
@@ -62,6 +65,10 @@ Ditambahkan 2026-07-29. Dihitung **terpisah** dari 7 diagram di atas: rentang 5-
 3. **Kondisi gambar**: SS-01, SS-02, dan SS-04 beresolusi 1920×1140 dengan area kosong cukup besar di bawah; SS-03a/b beresolusi 1482×762. Untuk cetak, pemangkasan (*crop*) area kosong disarankan agar teks tidak mengecil berlebihan — pemangkasan area kosong **bukan** pengeditan yang dilarang, sepanjang isi layar tidak diubah.
 
 4. **Fingerprint `64809f54…` dan invite pada gambar berasal dari identitas dummy** yang dibuat khusus untuk pengambilan gambar, bukan identitas produksi siapa pun.
+
+5. **Cara mengutip SS-07 (Tor) — WAJIB dibaca sebelum menulis prosa BAB IV.5**: aplikasi TIDAK menampilkan jalur transport yang sedang dipakai di layar manapun — tidak ada teks "via Tor"/"via LAN". Gambar chat (SS-07a/b) **sendirian tidak membuktikan** sesi berjalan lewat Tor. Yang membuktikannya adalah kombinasi tiga hal: (a) SS-07a/b (sesi chat aktif), (b) SS-07c-1/2 (kedua laptop di subnet Wi-Fi berbeda: `192.168.102.x` vs `192.168.93.x`), dan (c) fakta arsitektural bahwa `establish()` di `src/transport/mod.rs` hanya punya dua jalur — LAN dulu dengan `LAN_AUTO_TIMEOUT` 3 detik, baru fallback Tor — sehingga jalur LAN mustahil dipakai antar-jaringan yang berbeda. Keterangan gambar di laporan **wajib** menyebutkan konfigurasi jaringan kedua laptop; tanpa itu klaim "lewat Tor" menjadi overclaim. Rujuk juga `HANDOFF_TO_CODEX.yaml` blocking_issues BI-08.
+
+6. **SS-06 tidak menampilkan notifikasi hijau "Tor siap"** yang disebut `PANDUAN_SCREENSHOT.md` Screenshot 6 — kemungkinan sudah hilang sebelum gambar diambil. Cukup kutip badge `◉ ONLINE` sebagai bukti; jangan menulis seolah notifikasi itu terlihat di gambar.
 
 ---
 

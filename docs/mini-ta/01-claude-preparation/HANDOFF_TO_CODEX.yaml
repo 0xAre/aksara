@@ -153,13 +153,14 @@ figures:
   screenshots:
     directory: docs/mini-ta/01-claude-preparation/screenshots/
     guide: docs/mini-ta/01-claude-preparation/screenshots/PANDUAN_SCREENSHOT.md
-    manifest_section: "11_FIGURE_MANIFEST.md - Daftar Screenshot Aplikasi (SS-01..SS-07)"
-    available_count: 5
-    pending_count: 4
+    manifest_section: "11_FIGURE_MANIFEST.md - Daftar Screenshot Aplikasi (SS-01..SS-07c-2)"
+    available_count: 11
+    pending_count: 0
     note: >
       Dihitung TERPISAH dari 7 diagram. Rentang 5-8 pada brief berlaku untuk
-      diagram; screenshot diatur di TAHAP 12. Total gambar dokumen akhir akan
-      12 (7 diagram + 5 screenshot), bertambah bila SESI B selesai.
+      diagram; screenshot diatur di TAHAP 12. Total gambar dokumen akhir: 18
+      (7 diagram + 11 screenshot). SESI A (5 berkas) dan SESI B/Tor (6 berkas,
+      selesai 2026-07-30) SELESAI PENUH - tidak ada lagi screenshot tertunda.
       Diambil dari binary rilis v0.2.1 pada Windows 11 PowerShell.
   visually_verified_note: "FIG-03, 05, 06, 07 diverifikasi visual penuh; FIG-01, 02, 04 hanya dicek dimensi piksel — cukup untuk dipakai, verifikasi visual tambahan opsional"
   topology_diagram_note: "Diagram topologi pengujian (opsi ke-8) sengaja tidak dibuat — rentang 5-8 sudah terpenuhi dengan 7 diagram existing, tidak wajib"
@@ -267,7 +268,6 @@ restrictions:
     - "AKSARA selalu memverifikasi identitas peer tanpa kualifikasi (hanya berlaku untuk kontak yang sudah dikenal — trust-on-first-use pada kontak baru)"
     - "Angka hasil eksperimen apa pun di BAB V/VI sebelum EXP-01..05 benar-benar dijalankan"
   unresolved_information:
-    - "Screenshot TUI aktual (build+fungsi terverifikasi SESSION 4, capture gambar tetap MANUAL_USER_ACTION_REQUIRED)"
     - "Apakah footer institusi dan Abstrak dua bahasa tetap diminta untuk tugas mata kuliah (kosmetik, lihat 16_DOCUMENT_FORMAT_SPEC.md §9)"
   claim_map: docs/mini-ta/01-claude-preparation/15_CLAIM_EVIDENCE_CITATION_MAP.md
   claim_map_critical_section: "§Klaim Kritis Anti-Overclaim (5 item prioritas tertinggi)"
@@ -348,12 +348,12 @@ readiness:
         dial, dan retry seluruhnya IMPLEMENTED dari pembacaan kode saja.
       severity: non_blocking
       action_required: >
-        SESI B pada PANDUAN_SCREENSHOT.md akan menaikkannya menjadi bukti
-        VISUAL. Bukti visual BUKAN eksperimen terukur - sub-skenario Tor pada
-        12_TEST_PLAN EXP-03 tetap NEEDS_EXPERIMENT sampai dijalankan sebagai
-        run resmi dengan pencatatan lingkungan lengkap. Bila SESI B gagal
-        (jaringan memblokir Tor), status tetap tanpa bukti dan WAJIB ditulis
-        apa adanya.
+        SESI B selesai 2026-07-30 (screenshots/SS-05/06/07*), menaikkan status
+        ini menjadi bukti VISUAL. Bukti visual BUKAN eksperimen terukur -
+        sub-skenario Tor pada 12_TEST_PLAN EXP-03 TETAP NEEDS_EXPERIMENT
+        sampai dijalankan sebagai run resmi dengan pencatatan lingkungan
+        lengkap. JANGAN menulis prosa yang menyiratkan EXP-03 sub-skenario Tor
+        sudah terukur hanya karena screenshot sudah ada.
       cara_mengutip_screenshot_tor: >
         PENTING. Aplikasi TIDAK menampilkan jalur transport yang sedang
         dipakai - tidak ada teks "via Tor" atau "via LAN" di layar manapun.
@@ -367,15 +367,21 @@ readiness:
         menyebutkan konfigurasi jaringan yang dipakai. Tanpa itu klaim
         "lewat Tor" tidak tertopang dan menjadi overclaim.
     - id: BI-03
-      desc: "Screenshot TUI aktual - SESI A SELESAI (5 berkas, 2026-07-29), SESI B (Tor, 2 laptop) BELUM"
-      severity: partially_resolved
+      desc: "Screenshot TUI aktual - SESI A SELESAI (5 berkas, 2026-07-29), SESI B (Tor, 2 laptop) SELESAI (6 berkas, 2026-07-30)"
+      severity: resolved
+      resolved_on: "2026-07-30"
       tersedia:
         - {file: "screenshots/01-antarmuka-utama.png", bab: "BAB IV.1"}
         - {file: "screenshots/02-identitas-invite.png", bab: "BAB IV.3"}
         - {file: "screenshots/03-komunikasi-loopback-a.png", bab: "BAB IV.5"}
         - {file: "screenshots/03-komunikasi-loopback-b.png", bab: "BAB IV.5"}
         - {file: "screenshots/04-verifikasi-vault.png", bab: "BAB V.2"}
-      belum_tersedia: ["05-onion-invite", "06-tor-online", "07a/07b/07c-komunikasi-tor"]
+        - {file: "screenshots/05-onion-invite.png", bab: "BAB IV.3"}
+        - {file: "screenshots/06-tor-online.png", bab: "BAB IV.6"}
+        - {file: "screenshots/07a-komunikasi-tor-laptop1.png", bab: "BAB IV.5"}
+        - {file: "screenshots/07b-komunikasi-tor-laptop2.png", bab: "BAB IV.5"}
+        - {file: "screenshots/07c-bukti-jaringan-berbeda-laptop1.png", bab: "BAB IV.5 (keterangan gambar)"}
+        - {file: "screenshots/07c-bukti-jaringan-berbeda-laptop2.png", bab: "BAB IV.5 (keterangan gambar)"}
       wajib_diperhatikan_codex: >
         (1) Jalur transport pada 03-* adalah TCP LOOPBACK, bukan LAN fisik atau
         Tor. Aplikasi tidak mencetak jalur transport di layar, jadi keterangan
@@ -385,19 +391,14 @@ readiness:
         itu sekaligus bukti visual atas keterbatasan terdokumentasi bahwa input
         passphrase stdin masih ter-echo (08_THREAT_MODEL.md 4.6, PLANNED M4) -
         manfaatkan, jangan sembunyikan. (3) Pemangkasan area kosong gambar
-        diizinkan; mengubah isi layar tidak.
-      action_required: >
-        Tindakan manual anggota kelompok. Panduan langkah-demi-langkah siap
-        pakai: screenshots/PANDUAN_SCREENSHOT.md (2026-07-27) - memakai binary
-        rilis v0.2.1 dari GitHub, tidak perlu clone repo atau toolchain Rust.
-        Target 6 PNG wajib + 1 opsional, dibagi 2 sesi:
-        SESI A (1 laptop, offline) - 01-antarmuka-utama (BAB IV.1),
-        02-identitas-invite (BAB IV.3), 03-verifikasi-vault (BAB V.2).
-        SESI B (2 laptop, JARINGAN BERBEDA, internet) - 04-onion-invite,
-        05-tor-siap (BAB IV.3, IV.6), 06a/06b-komunikasi-tor (BAB IV.5),
-        06c-bukti-jaringan-berbeda (pendamping wajib).
-        Setelah tersedia, daftarkan ke 11_FIGURE_MANIFEST.md dan sisipkan
-        rujukannya ke subbab terkait di 14_CHAPTER_CONTENT_PACK.md.
+        diizinkan; mengubah isi layar tidak. (4) 06-tor-online.png TIDAK memuat
+        notifikasi hijau "Tor siap" (sudah hilang saat capture) - kutip hanya
+        badge ONLINE, jangan mengarang notifikasi yang tidak terlihat.
+        (5) SS-07 (Tor) WAJIB dikutip sebagai kombinasi chat + bukti jaringan
+        berbeda (07c-*-laptop1/2, subnet berbeda) + argumen LAN_AUTO_TIMEOUT -
+        lihat 11_FIGURE_MANIFEST.md catatan §5 dan BI-08 di bawah untuk detail
+        lengkap. Chat sendirian TIDAK membuktikan jalur Tor.
+      action_required: "Tidak ada - seluruh 11 screenshot sudah terdaftar di 11_FIGURE_MANIFEST.md (SS-01..SS-07c-2)."
     - id: BI-04
       desc: "Nama asli 3 anggota kelompok, study_program, institution belum dikonfirmasi"
       severity: resolved

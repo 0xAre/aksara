@@ -5,14 +5,14 @@
 
 Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan.
 
-## Status per 2026-07-29
+## Status per 2026-07-30
 
 | Sesi | Butuh | Screenshot | Status |
 |---|---|---|---|
 | **A** — dasar | 1 laptop, **tanpa** internet | 01, 02, 03, 04 | ✅ **SELESAI** — 5 berkas sudah masuk repo |
-| **B** — Tor | **2 laptop**, internet, **jaringan berbeda** | 05, 06, 07 | ⬜ **BELUM** — perlu Rafi dan Mahendra bersamaan, 30-45 menit |
+| **B** — Tor | **2 laptop**, internet, **jaringan berbeda** | 05, 06, 07 | ✅ **SELESAI** — 6/6 berkas sudah masuk repo |
 
-**Sesi A tidak perlu diulang.** Berkas yang sudah tersimpan di folder ini:
+**Sesi A dan Sesi B tidak perlu diulang.** Seluruh berkas sudah tersimpan di folder ini:
 
 ```
 01-antarmuka-utama.png
@@ -20,9 +20,15 @@ Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan.
 03-komunikasi-loopback-a.png
 03-komunikasi-loopback-b.png
 04-verifikasi-vault.png
+05-onion-invite.png                      — invite ber-onion (sisi laptop 2/demo-b), Transport: LAN + Tor
+06-tor-online.png                        — badge ◉ ONLINE (sisi laptop 1), diambil sebelum kontak ditambahkan
+07a-komunikasi-tor-laptop1.png           — sesi chat aktif sisi laptop 1
+07b-komunikasi-tor-laptop2.png           — sesi chat aktif sisi laptop 2
+07c-bukti-jaringan-berbeda-laptop1.png   — ipconfig laptop 1 (Wi-Fi aktif 192.168.102.128)
+07c-bukti-jaringan-berbeda-laptop2.png   — ipconfig laptop 2 (Wi-Fi aktif 192.168.93.113)
 ```
 
-Yang tersisa hanya **Sesi B**. Lompat langsung ke bagian itu; Langkah 0 dan Persiapan tetap perlu dibaca karena Sesi B dijalankan di dua laptop yang mungkin belum punya binary-nya.
+Catatan riwayat: versi pertama `07c-...-laptop1.png` (dikirim 2026-07-30) ditolak karena jendela WhatsApp Desktop ikut terekam di latar belakang (bocor nama kontak + cuplikan pesan) dan `ipconfig`-nya terpotong sebelum adapter Wi-Fi aktif tampil. Versi pengganti (crop ulang, aplikasi lain tertutup, output lengkap sampai adapter Wi-Fi) sudah diterima dan dipakai sebagai final.
 
 ---
 
@@ -311,12 +317,13 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `08-hasil-p
    03-komunikasi-loopback-a.png        ✅ sudah ada
    03-komunikasi-loopback-b.png        ✅ sudah ada
    04-verifikasi-vault.png             ✅ sudah ada
-   05-onion-invite.png                 ⬜ Sesi B
-   06-tor-online.png                   ⬜ Sesi B
-   07a-komunikasi-tor-laptop1.png      ⬜ Sesi B
-   07b-komunikasi-tor-laptop2.png      ⬜ Sesi B
-   07c-bukti-jaringan-berbeda.png      ⬜ Sesi B
-   08-hasil-pengujian.png              ⬜ opsional (Andika)
+   05-onion-invite.png                        ✅ sudah ada (sisi laptop 2)
+   06-tor-online.png                          ✅ sudah ada (sisi laptop 1)
+   07a-komunikasi-tor-laptop1.png             ✅ sudah ada
+   07b-komunikasi-tor-laptop2.png             ✅ sudah ada
+   07c-bukti-jaringan-berbeda-laptop1.png     ✅ sudah ada
+   07c-bukti-jaringan-berbeda-laptop2.png     ✅ sudah ada
+   08-hasil-pengujian.png                     ⬜ opsional (Andika)
    ```
 
 2. **Periksa ulang tiap gambar**: tidak ada passphrase terlihat, tidak ada data pribadi dari jendela lain, teks terbaca jelas dan tidak terpotong.
@@ -339,10 +346,10 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `08-hasil-p
 | 2 | Identitas/invite | (lanjutan #1, tekan `i`) | ✅ |
 | 3 | Komunikasi loopback | `--listen 9000` di satu terminal, `--dial 127.0.0.1:9000 --add INVITE-A` di terminal lain | ✅ |
 | 4 | Verifikasi vault | `.\aksara.exe id --vault demo-a.key --offline` (3×, ketiga passphrase salah) | ✅ |
-| 5 | Onion di invite | `.\aksara.exe id --vault demo-a.key` | ⬜ |
-| 6 | Badge `◉ ONLINE` | `.\aksara.exe --vault demo-a.key` | ⬜ |
-| 7 | Komunikasi Tor, laptop 1 | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` | ⬜ |
-| 7 | Komunikasi Tor, laptop 2 | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` | ⬜ |
+| 5 | Onion di invite | `.\aksara.exe id --vault demo-a.key` | ✅ |
+| 6 | Badge `◉ ONLINE` | `.\aksara.exe --vault demo-a.key` | ✅ |
+| 7 | Komunikasi Tor, laptop 1 | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` | ✅ |
+| 7 | Komunikasi Tor, laptop 2 | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` | ✅ |
 | 8 | Pengujian (opsional) | `cargo test --release` | ⬜ |
 
 ## Tombol TUI
