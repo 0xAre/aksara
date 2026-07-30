@@ -1,19 +1,28 @@
 # Panduan Pengambilan Screenshot AKSARA
 
 **Untuk**: Rafi Putra Fadlurrahman (user testing) dan Mahendra Nur Hidayat (dokumentasi akhir).
-**Target**: 6 file PNG wajib + 1 opsional.
 **Tidak perlu install Rust atau clone repo** — cukup unduh satu binary dari GitHub.
 
-Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan. Setelah selesai, kabari Andika untuk didaftarkan ke `11_FIGURE_MANIFEST.md`.
+Hasilnya dipakai sebagai Gambar di BAB IV dan BAB V laporan.
 
-## Dua sesi
+## Status per 2026-07-29
 
-| Sesi | Butuh | Screenshot | Perkiraan waktu |
+| Sesi | Butuh | Screenshot | Status |
 |---|---|---|---|
-| **A** — dasar | 1 laptop, **tanpa** internet | 01, 02, 03 | 15 menit |
-| **B** — Tor | **2 laptop**, internet, **jaringan berbeda** | 04, 05, 06 | 30-45 menit |
+| **A** — dasar | 1 laptop, **tanpa** internet | 01, 02, 03, 04 | ✅ **SELESAI** — 5 berkas sudah masuk repo |
+| **B** — Tor | **2 laptop**, internet, **jaringan berbeda** | 05, 06, 07 | ⬜ **BELUM** — perlu Rafi dan Mahendra bersamaan, 30-45 menit |
 
-Sesi A dikerjakan sendiri-sendiri kapan saja. Sesi B perlu Rafi dan Mahendra bersamaan.
+**Sesi A tidak perlu diulang.** Berkas yang sudah tersimpan di folder ini:
+
+```
+01-antarmuka-utama.png
+02-identitas-invite.png
+03-komunikasi-loopback-a.png
+03-komunikasi-loopback-b.png
+04-verifikasi-vault.png
+```
+
+Yang tersisa hanya **Sesi B**. Lompat langsung ke bagian itu; Langkah 0 dan Persiapan tetap perlu dibaca karena Sesi B dijalankan di dua laptop yang mungkin belum punya binary-nya.
 
 ---
 
@@ -77,9 +86,9 @@ macOS juga perlu klik kanan → Open → Open, sekali saja.
 
 ---
 
-# SESI A — Dasar (1 laptop, tanpa internet)
+# SESI A — Dasar (1 laptop, tanpa internet) — ✅ SELESAI
 
-Bisa dikerjakan Rafi dan Mahendra masing-masing di laptop sendiri.
+> **Sudah dikerjakan dan berkasnya sudah masuk repo.** Bagian ini disimpan sebagai catatan cara pengambilannya, berguna bila suatu saat perlu diulang atau diperbaiki. **Tidak perlu dikerjakan lagi.**
 
 ## Screenshot 1 — Antarmuka utama
 
@@ -95,6 +104,8 @@ Bisa dikerjakan Rafi dan Mahendra masing-masing di laptop sendiri.
 
 Simpan: **`01-antarmuka-utama.png`**
 
+Badge transport di header akan menampilkan **`⌂ LOCAL`** (abu-abu) karena Tor dimatikan.
+
 ## Screenshot 2 — Identitas dan invite code
 
 **BAB IV.3.** Masih di layar yang sama, tekan **`i`** untuk menampilkan invite code dan fingerprint sendiri. **Potret.**
@@ -105,7 +116,25 @@ Simpan: **`02-identitas-invite.png`**
 
 Panjang invite di sini harus tepat **86 karakter** (mode offline, tanpa onion). Tekan **`q`** untuk keluar.
 
-## Screenshot 3 — Verifikasi vault
+## Screenshot 3 — Sesi terenkripsi di satu laptop (loopback)
+
+**BAB IV.5.** Dua instance di satu laptop, tersambung lewat TCP loopback.
+
+```bash
+.\aksara.exe --offline --vault demo-a.key --listen 9000
+```
+
+```bash
+.\aksara.exe --offline --vault demo-b.key --dial 127.0.0.1:9000 --add INVITE-A
+```
+
+`INVITE-A` = invite 86 karakter dari Screenshot 2. Setelah sesi aktif, kirim beberapa pesan dummy, lalu potret kedua terminal.
+
+Simpan: **`03-komunikasi-loopback-a.png`** dan **`03-komunikasi-loopback-b.png`**
+
+> **Penting saat mengutip di laporan**: jalur yang dipakai adalah **loopback lokal**, bukan LAN fisik maupun Tor. Aplikasi tidak mencetak jalur transport di layar, jadi keterangan gambar wajib menyebut topologi loopback secara eksplisit.
+
+## Screenshot 4 — Verifikasi vault
 
 **BAB V.2** (hasil EXP-01). BAB V saat ini seluruhnya angka tanpa satu pun gambar.
 
@@ -131,7 +160,7 @@ Passphrase **salah**, misalnya `passphrase-salah`. Harus muncul `Error: vault co
 
 **Potret** seluruh terminal sehingga ketiga hasil terlihat.
 
-Simpan: **`03-verifikasi-vault.png`**
+Simpan: **`04-verifikasi-vault.png`**
 
 Membuktikan `unseal` deterministik sekaligus penolakan passphrase salah dengan pesan generik.
 
@@ -160,7 +189,7 @@ Setelah notifikasi "Tor siap" muncul, alamat onion **belum langsung bisa dihubun
 
 ---
 
-## Screenshot 4 — Onion address di dalam invite
+## Screenshot 5 — Onion address di dalam invite
 
 **Dikerjakan di masing-masing laptop.** Sama seperti Sesi A tapi **tanpa `--offline`**:
 
@@ -181,7 +210,7 @@ Laptop 2:
 3. Invite yang tercetak sekarang **jauh lebih panjang**, berakhiran `@xxxxx.onion`, dan baris `Transport:` ikut berubah.
 4. **Potret** salah satu laptop saja (cukup satu gambar).
 
-Simpan: **`04-onion-invite.png`**
+Simpan: **`05-onion-invite.png`**
 
 Bukti bahwa onion service v3 benar-benar terbentuk dan alamatnya tertanam ke dalam invite.
 
@@ -189,7 +218,7 @@ Bukti bahwa onion service v3 benar-benar terbentuk dan alamatnya tertanam ke dal
 
 **Sekarang tukar invite**: kirim invite Laptop 1 (**INVITE-A**) ke Laptop 2, dan invite Laptop 2 (**INVITE-B**) ke Laptop 1, lewat WhatsApp atau chat apa pun. Pastikan tersalin **utuh** — panjangnya sekitar 149 karakter.
 
-## Screenshot 5 — Notifikasi "Tor siap" di TUI
+## Screenshot 6 — Badge `◉ ONLINE` dan notifikasi Tor siap
 
 **Cukup di salah satu laptop.**
 
@@ -198,17 +227,18 @@ Bukti bahwa onion service v3 benar-benar terbentuk dan alamatnya tertanam ke dal
 ```
 
 1. Passphrase `demo-mini-ta-2026`.
-2. TUI **langsung tampil** tanpa menunggu Tor — di header muncul indikator `tor·…` yang menandakan bootstrap berjalan di latar belakang.
-3. **Tunggu 30-60 detik.** Saat siap, muncul notifikasi hijau: **"Tor siap — sekarang online (LAN + Tor)."**
-4. **Potret** saat notifikasi itu tampil.
+2. TUI **langsung tampil** tanpa menunggu Tor. Badge transport di header berubah dari `⌂ LOCAL` menjadi **`LINKING`** dengan animasi spinner — menandakan bootstrap berjalan di latar belakang. Kalau sempat, potret tahap ini juga sebagai bonus.
+3. **Tunggu 30-60 detik.** Saat Tor siap terjadi dua hal sekaligus: badge berubah menjadi **`◉ ONLINE`** (warna aksen), dan muncul notifikasi hijau **"Tor siap — sekarang online (LAN + Tor)."**
+4. **Potret** saat badge sudah `◉ ONLINE`. Usahakan notifikasi hijaunya masih terlihat di gambar yang sama.
+5. Setelah itu tekan **`i`** — invite di dalam TUI sudah diperbarui otomatis memuat onion. Potret juga bila ingin.
 
-Simpan: **`05-tor-siap.png`**
+Simpan: **`06-tor-online.png`**
 
-Memperlihatkan perilaku yang dijelaskan di BAB IV: TUI tidak diblokir menunggu Tor, melainkan tetap responsif sementara bootstrap berjalan di latar belakang, lalu invite diperbarui sendiri begitu onion tersedia.
+Memperlihatkan tiga hal sekaligus: TUI tidak diblokir menunggu Tor, badge transport benar-benar berpindah status, dan invite diperbarui sendiri begitu onion tersedia.
 
 Tekan **`q`** untuk keluar.
 
-## Screenshot 6 — Komunikasi dua laptop lewat Tor
+## Screenshot 7 — Komunikasi dua laptop lewat Tor
 
 **BAB IV.5.** Screenshot paling berharga dari seluruh daftar.
 
@@ -234,7 +264,7 @@ Laptop 2:
 6. Setelah sesi aktif, kirim 2-3 pesan bolak-balik. Contoh aman: `halo, uji coba lewat tor` dan `diterima, sesi aktif`.
 7. **Potret layar kedua laptop.** Simpan terpisah:
 
-**`06a-komunikasi-tor-laptop1.png`** dan **`06b-komunikasi-tor-laptop2.png`**
+**`07a-komunikasi-tor-laptop1.png`** dan **`07b-komunikasi-tor-laptop2.png`**
 
 ### Tambahan yang membuat bukti jauh lebih kuat
 
@@ -246,7 +276,7 @@ Karena itu, potret juga kondisi jaringan masing-masing laptop, misalnya nama WiF
 ipconfig
 ```
 
-Simpan sebagai **`06c-bukti-jaringan-berbeda.png`** (boleh gabungan kedua laptop dalam satu gambar). Ini yang akan dirujuk di keterangan gambar laporan untuk menjelaskan mengapa jalur LAN mustahil.
+Simpan sebagai **`07c-bukti-jaringan-berbeda.png`** (boleh gabungan kedua laptop dalam satu gambar). Ini yang akan dirujuk di keterangan gambar laporan untuk menjelaskan mengapa jalur LAN mustahil.
 
 ### Kalau gagal terhubung
 
@@ -255,23 +285,11 @@ Simpan sebagai **`06c-bukti-jaringan-berbeda.png`** (boleh gabungan kedua laptop
 3. **Salah satu sisi Tor-nya gagal** — cek notifikasi; kalau muncul "Tor gagal", jaringan itu memblokir Tor. Ganti ke data seluler.
 4. Coba ulang **maksimal tiga kali**. Setiap percobaan beri jeda 2 menit.
 
-Kalau tetap gagal, **jangan dipaksakan dan jangan dikarang**. Ambil pengganti lewat jalur LAN loopback di **satu laptop**:
-
-```bash
-.\aksara.exe --offline --vault demo-a.key --listen 9000
-```
-
-```bash
-.\aksara.exe --offline --vault demo-b.key --name demo-a --dial 127.0.0.1:9000 --add INVITE-A-OFFLINE
-```
-
-(`INVITE-A-OFFLINE` = invite 86 karakter dari Screenshot 2, bukan yang ber-onion.)
-
-Simpan sebagai **`06-komunikasi-loopback.png`** dan **beri tahu Andika bahwa yang berhasil hanya jalur LAN loopback** — status di laporan akan berbeda dan itu harus ditulis apa adanya.
+Kalau tetap gagal, **jangan dipaksakan dan jangan dikarang**. Tidak perlu mengambil pengganti apa pun — bukti sesi terenkripsi lewat jalur loopback **sudah tersedia** dari Sesi A (`03-komunikasi-loopback-a/b.png`). Cukup **beri tahu Andika bahwa Sesi B gagal**, sebutkan gagal di langkah mana dan pesan errornya apa. Status Tor di laporan akan ditulis apa adanya sebagai belum terverifikasi secara empiris, dan itu tetap jujur serta dapat dipertanggungjawabkan.
 
 ---
 
-# Opsional — Screenshot 7: hasil `cargo test`
+# Opsional — Screenshot 8: hasil `cargo test`
 
 Hanya untuk yang punya source dan toolchain Rust (**Andika**). Dari root repositori:
 
@@ -279,7 +297,7 @@ Hanya untuk yang punya source dan toolchain Rust (**Andika**). Dari root reposit
 cargo test --release
 ```
 
-Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-pengujian.png`.
+Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `08-hasil-pengujian.png`.
 
 ---
 
@@ -288,15 +306,17 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-p
 1. Kumpulkan file:
 
    ```
-   01-antarmuka-utama.png
-   02-identitas-invite.png
-   03-verifikasi-vault.png
-   04-onion-invite.png
-   05-tor-siap.png
-   06a-komunikasi-tor-laptop1.png      (atau 06-komunikasi-loopback.png)
-   06b-komunikasi-tor-laptop2.png
-   06c-bukti-jaringan-berbeda.png
-   07-hasil-pengujian.png              (opsional)
+   01-antarmuka-utama.png              ✅ sudah ada
+   02-identitas-invite.png             ✅ sudah ada
+   03-komunikasi-loopback-a.png        ✅ sudah ada
+   03-komunikasi-loopback-b.png        ✅ sudah ada
+   04-verifikasi-vault.png             ✅ sudah ada
+   05-onion-invite.png                 ⬜ Sesi B
+   06-tor-online.png                   ⬜ Sesi B
+   07a-komunikasi-tor-laptop1.png      ⬜ Sesi B
+   07b-komunikasi-tor-laptop2.png      ⬜ Sesi B
+   07c-bukti-jaringan-berbeda.png      ⬜ Sesi B
+   08-hasil-pengujian.png              ⬜ opsional (Andika)
    ```
 
 2. **Periksa ulang tiap gambar**: tidak ada passphrase terlihat, tidak ada data pribadi dari jendela lain, teks terbaca jelas dan tidak terpotong.
@@ -313,18 +333,21 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-p
 
 ## Ringkasan perintah
 
-| # | Screenshot | Perintah |
-|---|---|---|
-| 1 | Antarmuka utama | `.\aksara.exe --offline --vault demo-a.key` |
-| 2 | Identitas/invite | (lanjutan #1, tekan `i`) |
-| 3 | Verifikasi vault | `.\aksara.exe id --vault demo-a.key --offline` (3×, ketiga passphrase salah) |
-| 4 | Onion di invite | `.\aksara.exe id --vault demo-a.key` |
-| 5 | Notifikasi Tor siap | `.\aksara.exe --vault demo-a.key` |
-| 6 | Komunikasi Tor, laptop 1 | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` |
-| 6 | Komunikasi Tor, laptop 2 | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` |
-| 7 | Pengujian (opsional) | `cargo test --release` |
+| # | Screenshot | Perintah | Status |
+|---|---|---|---|
+| 1 | Antarmuka utama | `.\aksara.exe --offline --vault demo-a.key` | ✅ |
+| 2 | Identitas/invite | (lanjutan #1, tekan `i`) | ✅ |
+| 3 | Komunikasi loopback | `--listen 9000` di satu terminal, `--dial 127.0.0.1:9000 --add INVITE-A` di terminal lain | ✅ |
+| 4 | Verifikasi vault | `.\aksara.exe id --vault demo-a.key --offline` (3×, ketiga passphrase salah) | ✅ |
+| 5 | Onion di invite | `.\aksara.exe id --vault demo-a.key` | ⬜ |
+| 6 | Badge `◉ ONLINE` | `.\aksara.exe --vault demo-a.key` | ⬜ |
+| 7 | Komunikasi Tor, laptop 1 | `.\aksara.exe --vault demo-a.key --name demo-b --add INVITE-B` | ⬜ |
+| 7 | Komunikasi Tor, laptop 2 | `.\aksara.exe --vault demo-b.key --name demo-a --add INVITE-A` | ⬜ |
+| 8 | Pengujian (opsional) | `cargo test --release` | ⬜ |
 
 ## Tombol TUI
+
+Dikonfirmasi dari bilah bantuan aplikasi pada screenshot yang sudah diambil, dicocokkan dengan `src/tui/mod.rs`.
 
 | Tombol | Fungsi |
 |---|---|
@@ -335,7 +358,9 @@ Potret bagian `test result: ok. 46 passed; 0 failed`. Simpan sebagai `07-hasil-p
 | `Enter` | Mulai koneksi (layar kontak) / kirim pesan (chat) |
 | `Esc` | Keluar dari ruang chat |
 | `q` | Keluar aplikasi |
-| `Ctrl+B` | Sembunyikan isi chat (blur) |
+| `Ctrl+B` | **Mode Light** — blur pesan lama (label di aplikasi: "mode light") |
+| `Ctrl+S` | Cari dalam riwayat chat |
+| `Ctrl+R` | Balas pesan |
 | `Ctrl+C` | Keluar paksa |
 
 ---

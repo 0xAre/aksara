@@ -150,6 +150,17 @@ figures:
   minimum_required: 5
   maximum_allowed: 8
   visually_verified_count: 4
+  screenshots:
+    directory: docs/mini-ta/01-claude-preparation/screenshots/
+    guide: docs/mini-ta/01-claude-preparation/screenshots/PANDUAN_SCREENSHOT.md
+    manifest_section: "11_FIGURE_MANIFEST.md - Daftar Screenshot Aplikasi (SS-01..SS-07)"
+    available_count: 5
+    pending_count: 4
+    note: >
+      Dihitung TERPISAH dari 7 diagram. Rentang 5-8 pada brief berlaku untuk
+      diagram; screenshot diatur di TAHAP 12. Total gambar dokumen akhir akan
+      12 (7 diagram + 5 screenshot), bertambah bila SESI B selesai.
+      Diambil dari binary rilis v0.2.1 pada Windows 11 PowerShell.
   visually_verified_note: "FIG-03, 05, 06, 07 diverifikasi visual penuh; FIG-01, 02, 04 hanya dicek dimensi piksel — cukup untuk dipakai, verifikasi visual tambahan opsional"
   topology_diagram_note: "Diagram topologi pengujian (opsi ke-8) sengaja tidak dibuat — rentang 5-8 sudah terpenuhi dengan 7 diagram existing, tidak wajib"
 
@@ -356,8 +367,25 @@ readiness:
         menyebutkan konfigurasi jaringan yang dipakai. Tanpa itu klaim
         "lewat Tor" tidak tertopang dan menjadi overclaim.
     - id: BI-03
-      desc: "Screenshot TUI aktual belum ada (capture gambar, bukan build/fungsi)"
-      severity: non_blocking
+      desc: "Screenshot TUI aktual - SESI A SELESAI (5 berkas, 2026-07-29), SESI B (Tor, 2 laptop) BELUM"
+      severity: partially_resolved
+      tersedia:
+        - {file: "screenshots/01-antarmuka-utama.png", bab: "BAB IV.1"}
+        - {file: "screenshots/02-identitas-invite.png", bab: "BAB IV.3"}
+        - {file: "screenshots/03-komunikasi-loopback-a.png", bab: "BAB IV.5"}
+        - {file: "screenshots/03-komunikasi-loopback-b.png", bab: "BAB IV.5"}
+        - {file: "screenshots/04-verifikasi-vault.png", bab: "BAB V.2"}
+      belum_tersedia: ["05-onion-invite", "06-tor-online", "07a/07b/07c-komunikasi-tor"]
+      wajib_diperhatikan_codex: >
+        (1) Jalur transport pada 03-* adalah TCP LOOPBACK, bukan LAN fisik atau
+        Tor. Aplikasi tidak mencetak jalur transport di layar, jadi keterangan
+        gambar WAJIB menyebut topologi loopback - jangan ditulis seolah
+        komunikasi lintas jaringan. (2) 04-verifikasi-vault.png menampilkan
+        passphrase terbaca; keduanya DUMMY sehingga bukan kebocoran, dan gambar
+        itu sekaligus bukti visual atas keterbatasan terdokumentasi bahwa input
+        passphrase stdin masih ter-echo (08_THREAT_MODEL.md 4.6, PLANNED M4) -
+        manfaatkan, jangan sembunyikan. (3) Pemangkasan area kosong gambar
+        diizinkan; mengubah isi layar tidak.
       action_required: >
         Tindakan manual anggota kelompok. Panduan langkah-demi-langkah siap
         pakai: screenshots/PANDUAN_SCREENSHOT.md (2026-07-27) - memakai binary

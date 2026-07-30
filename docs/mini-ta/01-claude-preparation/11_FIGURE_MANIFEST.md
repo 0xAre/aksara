@@ -34,6 +34,37 @@ Total: **7 diagram** — dalam rentang 5-8 yang disyaratkan brief.
 
 ---
 
+## Daftar Screenshot Aplikasi
+
+Ditambahkan 2026-07-29. Dihitung **terpisah** dari 7 diagram di atas: rentang 5-8 pada brief berlaku untuk diagram, sedangkan screenshot diatur terpisah di TAHAP 12 (2-4 screenshot). Seluruh berkas berada di `screenshots/`, diambil dari **binary rilis v0.2.1** (bukan build lokal) pada Windows 11, terminal PowerShell.
+
+| ID | File | Judul | Apa yang dibuktikan | Bab | Status |
+|----|------|-------|---------------------|-----|--------|
+| SS-01 | `01-antarmuka-utama.png` | Antarmuka Utama AKSARA | TUI berjalan nyata: header dengan badge transport `⌂ LOCAL`, fingerprint pendek `64809f`, panel kontak kosong, dan bilah bantuan tombol | BAB IV.1 | ✅ ADA |
+| SS-02 | `02-identitas-invite.png` | Panel Identitas dan Invite Code | Invite code **86 karakter** dan fingerprint **64 hex** dikelompokkan 8×8, plus keterangan aplikasi sendiri bahwa tanpa `--offline` invite menyertakan onion | BAB IV.3 | ✅ ADA |
+| SS-03a | `03-komunikasi-loopback-a.png` | Sesi Terenkripsi — Sisi Inisiator | Sesi aktif dengan peer `peer-4f88ab37`, notifikasi "Sesi aman terbuka", tiga pesan bertukar dengan cap waktu | BAB IV.5 | ✅ ADA |
+| SS-03b | `03-komunikasi-loopback-b.png` | Sesi Terenkripsi — Sisi Responder | Sisi lawan dari sesi yang sama, memperlihatkan pesan diterima utuh | BAB IV.5 | ✅ ADA |
+| SS-04 | `04-verifikasi-vault.png` | Verifikasi Vault: Determinisme dan Penolakan | Dua `unseal` dengan passphrase benar menghasilkan invite/fingerprint **identik**; passphrase salah menghasilkan `Error: vault could not be opened` | BAB V.2 (EXP-01) | ✅ ADA |
+| SS-05 | `05-onion-invite.png` | Invite dengan Onion Address | Onion service v3 terbentuk dan alamatnya tertanam ke invite (~149 karakter) | BAB IV.3 | ⬜ MENUNGGU SESI B |
+| SS-06 | `06-tor-online.png` | Badge Transport `◉ ONLINE` | Badge berubah `⌂ LOCAL` → `LINKING` → `◉ ONLINE`, plus notifikasi "Tor siap" | BAB IV.6 | ⬜ MENUNGGU SESI B |
+| SS-07a/b/c | `07*-komunikasi-tor*.png` | Sesi Terenkripsi Lintas Jaringan via Tor | Dua laptop di jaringan berbeda tersambung tanpa server; disertai bukti kondisi jaringan | BAB IV.5 | ⬜ MENUNGGU SESI B |
+
+**Total tersedia: 5 berkas** (SS-01 s.d. SS-04). Empat lagi menunggu Sesi B pada `screenshots/PANDUAN_SCREENSHOT.md`.
+
+### Catatan penting untuk penyusun laporan
+
+1. **Jalur transport pada SS-03 adalah TCP loopback**, bukan LAN fisik maupun Tor. Aplikasi tidak mencetak jalur transport yang dipakai di layar, sehingga keterangan gambar **wajib** menyebut "topologi loopback lokal" secara eksplisit. Jangan menuliskannya seolah komunikasi lintas jaringan.
+
+2. **SS-04 menampilkan passphrase dalam bentuk terbaca** (`demo-mini-ta-2026` dan `12345678`). Ini **bukan kebocoran**: keduanya passphrase dummy, dan yang terlihat justru **memperkuat** demonstrasi karena pembaca dapat memastikan percobaan kedua memakai passphrase yang sama sedangkan yang ketiga berbeda.
+
+   Lebih dari itu, gambar ini menjadi **bukti visual atas keterbatasan yang sudah terdokumentasi**: input passphrase dari stdin masih ter-echo ke layar (`08_THREAT_MODEL.md` §4.6, `07_KEY_LIFECYCLE.md` baris `main.rs`, status `PLANNED` untuk M4). Sebelumnya keterbatasan itu hanya dibaca dari komentar kode; kini terlihat langsung. **Manfaatkan** di BAB IV atau BAB VI.2 sebagai contoh konkret, jangan disembunyikan.
+
+3. **Kondisi gambar**: SS-01, SS-02, dan SS-04 beresolusi 1920×1140 dengan area kosong cukup besar di bawah; SS-03a/b beresolusi 1482×762. Untuk cetak, pemangkasan (*crop*) area kosong disarankan agar teks tidak mengecil berlebihan — pemangkasan area kosong **bukan** pengeditan yang dilarang, sepanjang isi layar tidak diubah.
+
+4. **Fingerprint `64809f54…` dan invite pada gambar berasal dari identitas dummy** yang dibuat khusus untuk pengambilan gambar, bukan identitas produksi siapa pun.
+
+---
+
 ## Diagram yang Dipertimbangkan tapi Tidak Dibuat
 
 **Diagram topologi pengujian** (kategori ke-8 di brief) **sengaja tidak dibuat** sesi ini: TAHAP 13 (rencana pengujian, `12_TEST_PLAN.md`) belum disusun (dijadwalkan SESSION 5) sehingga topologi pengujian konkret (jumlah node, environment, kombinasi LAN/Tor per skenario) belum ditentukan. Membuat diagram ini sekarang berisiko mendahului keputusan TAHAP 13 tanpa evidence rencana pengujian yang sudah final — melanggar aturan "setiap elemen diagram memiliki evidence". FIG-01 (diagram konteks) sudah mencakup topologi jaringan dasar (2 proses, LAN/Tor) yang relevan sebagai referensi sementara. Diagram topologi pengujian spesifik dapat ditambahkan sebagai figure baru pada SESSION 5 setelah `12_TEST_PLAN.md` tersedia.

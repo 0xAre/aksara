@@ -129,7 +129,7 @@ Next action di atas **sudah dikerjakan seluruhnya**. Rincian di `SESSION_6_HANDO
 
 Yang masih terbuka, seluruhnya butuh keputusan/tindakan pengguna:
 
-1. Capture screenshot TUI aktual (BI-03).
+1. Capture screenshot TUI **SESI B** (BI-03 kini `partially_resolved`) — Sesi A selesai 2026-07-29 dengan 5 berkas; Sesi B butuh 2 laptop di jaringan berbeda untuk membuktikan Tor.
 2. Dua pertanyaan kosmetik: apakah footer institusi dan Abstrak dua bahasa tetap diminta untuk tugas mata kuliah (`16_DOCUMENT_FORMAT_SPEC.md` §9).
 
 **Ditutup 2026-07-27 setelah pengguna menyediakan pedoman resmi dan peran anggota:**

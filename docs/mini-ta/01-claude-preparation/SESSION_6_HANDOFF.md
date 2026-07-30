@@ -133,6 +133,33 @@ Pembagian **berbasis peran fungsional, bukan kepemilikan modul kode**. Pembagian
 
 **Alasan pembagian tidak dipecah per modul**: AKSARA sudah terimplementasi utuh oleh satu core developer sebelum penelitian dimulai. Mengarang pembagian kepemilikan kode menjadi tiga agar terlihat seimbang akan menjadi klaim yang tidak benar — melanggar `AGENTS.md` sekaligus Pasal 5 huruf a Perdir Pedoman TA tentang kejujuran akademik. Keseimbangan tetap terjaga lewat luaran yang sebanding: artefak, dokumen, dan data.
 
+## B5. Screenshot Sesi A Diterima
+
+**2026-07-29**: pengguna mengirim `ss-aksara.zip` berisi 5 berkas PNG hasil pengambilan anggota kelompok. Seluruhnya sudah diperiksa satu per satu sebagai gambar, bukan hanya dicek nama berkasnya, lalu disimpan ke `screenshots/`.
+
+| Berkas | Isi | Bab |
+|---|---|---|
+| `01-antarmuka-utama.png` | TUI berjalan, badge `⌂ LOCAL`, fingerprint `64809f`, kontak kosong | BAB IV.1 |
+| `02-identitas-invite.png` | Invite 86 karakter, fingerprint 64 hex (8×8) | BAB IV.3 |
+| `03-komunikasi-loopback-a.png` | Sesi aktif sisi inisiator, 3 pesan | BAB IV.5 |
+| `03-komunikasi-loopback-b.png` | Sisi responder sesi yang sama | BAB IV.5 |
+| `04-verifikasi-vault.png` | Dua `unseal` identik + tolak passphrase salah | BAB V.2 |
+
+Dua berkas komunikasi diberi akhiran `-loopback` agar jalur transportnya tidak ambigu.
+
+**Temuan dari pemeriksaan gambar:**
+
+1. **Panjang invite terkonfirmasi 86 karakter secara visual.** Ini bukti ketiga yang saling menguatkan setelah pengukuran CLI dan perhitungan aritmetika — memperkuat koreksi 87→86 di §B2.
+2. **`04-verifikasi-vault.png` menampilkan passphrase terbaca** (`demo-mini-ta-2026`, `12345678`). Bukan kebocoran karena keduanya dummy, dan justru memperkuat demonstrasi. Lebih penting: gambar itu menjadi **bukti visual atas keterbatasan yang sudah terdokumentasi** — input passphrase stdin masih ter-echo ke layar (`08_THREAT_MODEL.md` §4.6, `07_KEY_LIFECYCLE.md`, status `PLANNED` M4). Sebelumnya keterbatasan itu hanya dibaca dari komentar kode.
+3. **Jalur transport pada `03-*` adalah TCP loopback**, bukan LAN fisik atau Tor. Aplikasi tidak mencetak jalur transport di layar, jadi keterangan gambar wajib menyebutnya eksplisit.
+
+**Dua koreksi pada panduan** yang ditemukan saat mencocokkan gambar dengan source:
+
+- **Badge transport bukan `LAN`/`TOR`.** Sesuai `src/tui/ui.rs:311-317`, nilainya `⌂ LOCAL` (abu-abu) bila Tor mati, `LINKING` dengan spinner saat bootstrap, dan `◉ ONLINE` (aksen) saat Tor aktif. Revisi sebelumnya sempat menyatakan "tidak ada badge yang berubah" — itu juga keliru: badge memang berpindah status, hanya saja tanpa tulisan "TOR". Instruksi Screenshot 6 diperbaiki agar mereka memotret badge `◉ ONLINE`.
+- **`Ctrl+B` bernama "Mode Light"** di aplikasi (blur pesan lama), bukan sekadar "blur". Ditambahkan juga `Ctrl+S` (cari) dan `Ctrl+R` (balas) yang terlihat di bilah bantuan tapi belum tercatat.
+
+**Status akhir**: Sesi A ✅ selesai, Sesi B ⬜ belum (butuh 2 laptop jaringan berbeda). BI-03 turun dari `non_blocking` menjadi `partially_resolved`. Panduan direnumerasi: Sesi B kini Screenshot 5, 6, 7a/b/c, dan opsional 8.
+
 ## C. Dokumen yang Diperbarui
 
 - `14_CHAPTER_CONTENT_PACK.md` — **BAB V terisi penuh** (5.1 lingkungan, 5.2 hasil, 5.3 analisis; format 13 field per subbab sama seperti BAB I-IV) dan **BAB VI §6.1 terisi**. §6.2/§6.3 **tidak diubah** (tetap `READY_FOR_DRAFTING`), hanya ditambahi daftar bahan dari hasil BAB V. Tabel ringkasan status per BAB diperbarui.

@@ -1,6 +1,6 @@
 # TAHAP 12 — Status Screenshot Aplikasi AKSARA
 
-Status: **PARTIAL** — verifikasi fungsi build+run **selesai** dan **berhasil**; pengambilan screenshot TUI aktual **BLOCKED** (perlu tindakan manual pengguna). Status ini **tidak menghalangi** `ready_for_codex` (screenshot bukan bagian dari 17 syarat quality gate `CLAUDE_PREPARATION_BRIEF.md`).
+Status: **PARTIAL** — verifikasi fungsi build+run **selesai**; screenshot **SESI A SELESAI** (5 berkas masuk repo 2026-07-29), **SESI B (Tor, 2 laptop) BELUM**. Status ini **tidak menghalangi** `ready_for_codex` (screenshot bukan bagian dari 17 syarat quality gate `CLAUDE_PREPARATION_BRIEF.md`).
 
 ---
 
@@ -43,7 +43,27 @@ Tidak ada output di atas yang memuat passphrase asli pengguna, private key menta
 
 ---
 
-## 3. Screenshot TUI Aktual — BLOCKED (Perlu Tindakan Manual Pengguna)
+## 3. Screenshot TUI Aktual — SESI A SELESAI, SESI B BELUM
+
+**Update 2026-07-29**: lima berkas screenshot sudah diterima dari anggota kelompok dan tersimpan di folder ini. Diambil dari **binary rilis v0.2.1** pada Windows 11 dengan terminal PowerShell — bukan build lokal.
+
+| Berkas | Isi | Bab |
+|---|---|---|
+| `01-antarmuka-utama.png` | TUI berjalan, badge `⌂ LOCAL`, fingerprint pendek `64809f`, panel kontak kosong | BAB IV.1 |
+| `02-identitas-invite.png` | Invite **86 karakter** dan fingerprint **64 hex** (8×8) | BAB IV.3 |
+| `03-komunikasi-loopback-a.png` | Sesi aktif sisi inisiator, 3 pesan bertukar | BAB IV.5 |
+| `03-komunikasi-loopback-b.png` | Sisi responder dari sesi yang sama | BAB IV.5 |
+| `04-verifikasi-vault.png` | Dua `unseal` identik + penolakan passphrase salah | BAB V.2 |
+
+Tiga catatan dari pemeriksaan berkas:
+
+1. **Panjang invite terkonfirmasi ulang secara visual = 86 karakter**, cocok dengan hasil EXP-04 dan aritmetika ⌈64×4÷3⌉. Ini bukti ketiga yang saling menguatkan setelah pengukuran CLI dan perhitungan.
+2. **Jalur transport pada `03-*` adalah TCP loopback**, bukan LAN fisik maupun Tor. Aplikasi tidak mencetak jalur transport di layar, jadi keterangan gambar di laporan **wajib** menyebut topologi loopback secara eksplisit.
+3. **`04-verifikasi-vault.png` menampilkan passphrase terbaca** (`demo-mini-ta-2026`, `12345678`). Keduanya dummy sehingga bukan kebocoran, dan justru memperkuat demonstrasi. Sekaligus menjadi **bukti visual atas keterbatasan yang sudah terdokumentasi** di §4.6 threat model: input passphrase stdin masih ter-echo ke layar, berstatus `PLANNED` untuk M4.
+
+**Yang masih kurang — SESI B**: `05-onion-invite`, `06-tor-online`, `07a/07b/07c-komunikasi-tor`. Butuh 2 laptop di **jaringan berbeda** plus internet. Prosedur lengkap di `PANDUAN_SCREENSHOT.md`.
+
+### Catatan asli SESSION 4 (alasan agent tidak dapat mengambil sendiri)
 
 **Alasan blocking**: AKSARA adalah aplikasi TUI penuh (`ratatui`+`crossterm`) yang memerlukan terminal interaktif dengan rendering karakter/warna real-time. Lingkungan eksekusi sesi ini hanya menyediakan:
 - Bash non-interaktif (tanpa PTY/terminal emulator yang dapat merender TUI ratatui).
