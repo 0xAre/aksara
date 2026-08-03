@@ -23,8 +23,8 @@ Dokumen ini mendaftar 13 kategori tabel wajib (`CLAUDE_PREPARATION_BRIEF.md` TAH
 - **TBL-01 s.d. TBL-04, TBL-07, TBL-08, TBL-09** bersumber dari klaim yang sudah berstatus `IMPLEMENTED`/`CONFIRMED`/`DOCUMENTED_ONLY` sesuai audit TAHAP 1-7 — tidak memerlukan verifikasi tambahan pada TAHAP 14.
 - **TBL-05, TBL-06** bersumber langsung dari `04`/`05` (TAHAP 4) — kompresi 15 poin/10 kriteria penuh, dokumen sumber tetap menjadi rujukan detail.
 - **TBL-10** bersumber dari `10_RELATED_WORK_AND_GAP.md` (TAHAP 10) — 7 entry, 40 referensi total tetap konsisten.
-- **TBL-11, TBL-12** bersumber dari `12_TEST_PLAN.md` (TAHAP 13, SESSION 5A) — seluruh nilai metrik berstatus `WAITING_FOR_EXPERIMENT`, BUKAN hasil terukur. Jangan mengutip nilai dari tabel ini sebagai data eksperimen final di BAB V sebelum eksperimen benar-benar dijalankan.
-- **TBL-13** bersumber dari `09_SCOPE_AND_TEAM_PLAN.md` §8 (TAHAP 8) — nama anggota tetap placeholder `NEEDS_CONFIRMATION`.
+- **TBL-11, TBL-12** bersumber dari `12_TEST_PLAN.md` (TAHAP 13, SESSION 5A) — **diperbarui 2026-07-27 (SESSION 6)**: seluruh nilai metrik kini berstatus `EXECUTED`/`MEASURED` dengan hasil aktual (lihat kolom "Hasil Aktual"/"Hasil Terukur" di masing-masing file), kecuali memory usage puncak (RSS) yang tetap `WAITING_FOR_EXPERIMENT`. Nilai-nilai ini SUDAH dikutip sebagai data final di BAB V §5.2.
+- **TBL-13** bersumber dari `09_SCOPE_AND_TEAM_PLAN.md` §8 (TAHAP 8) — **diperbarui 2026-07-27**: nama anggota CONFIRMED (Andika Aryansyach Fauzan, Mahendra Nur Hidayat, Rafi Putra Fadlurrahman), bukan lagi placeholder.
 
 ## Validasi Silang
 

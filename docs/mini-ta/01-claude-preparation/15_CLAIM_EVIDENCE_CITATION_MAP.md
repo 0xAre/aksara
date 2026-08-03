@@ -4,7 +4,7 @@ Peta traceability (TAHAP 16) yang menghubungkan setiap klaim substansial di `14_
 
 **Aturan yang diikuti** (`CLAUDE_PREPARATION_BRIEF.md` TAHAP 16): klaim implementasi didukung source code; klaim teori didukung referensi; klaim keamanan didukung model+referensi; klaim performa didukung eksperimen; klaim hasil didukung data; klaim kontribusi didukung perbandingan.
 
-**Skop**: peta ini beroperasi pada level "claim family" (proposisi yang benar-benar dituliskan di content pack), bukan mendaftar ulang seluruh 36 entry `CR-xxx`/152 entry `CB-xxx` mentah satu-per-satu (itu sudah tersedia utuh di `02_CRYPTO_IMPLEMENTATION_AUDIT.md`/`evidence/CODE_EVIDENCE_MATRIX.md`) — kolom "Evidence Code" merujuk ID mentah yang relevan per klaim.
+**Skop**: peta ini beroperasi pada level "claim family" (proposisi yang benar-benar dituliskan di content pack), bukan mendaftar ulang seluruh 36 entry `CR-xxx`/259 entry `CB-xxx` mentah satu-per-satu (itu sudah tersedia utuh di `02_CRYPTO_IMPLEMENTATION_AUDIT.md`/`evidence/CODE_EVIDENCE_MATRIX.md`) — kolom "Evidence Code" merujuk ID mentah yang relevan per klaim.
 
 Prefix ID baru pada peta ini: `CM-xxx` (Claim Map).
 

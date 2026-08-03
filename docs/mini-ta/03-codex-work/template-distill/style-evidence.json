@@ -1,0 +1,173 @@
+{
+  "input": "E:\\Project APP\\AKSARA\\docs\\mini-ta\\00-template\\Cetak TA_rev3.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 11779,
+    "Courier New": 463,
+    "Cambria Math": 2,
+    "Consolas": 1
+  },
+  "direct_run_formatting_runs": 1129,
+  "direct_paragraph_formatting_paragraphs": 238,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 4,
+      "text": "TUGAS AKHIR",
+      "style": "Normal"
+    },
+    {
+      "para_index": 18,
+      "text": "Naval Indra Waskita",
+      "style": "Normal"
+    },
+    {
+      "para_index": 19,
+      "text": "2120101734",
+      "style": "Normal"
+    },
+    {
+      "para_index": 25,
+      "text": "Rekayasa Perangkat Keras Kriptografi",
+      "style": "Normal"
+    },
+    {
+      "para_index": 26,
+      "text": "Politeknik Siber dan Sandi Negara",
+      "style": "Normal"
+    },
+    {
+      "para_index": 27,
+      "text": "2025",
+      "style": "Normal"
+    },
+    {
+      "para_index": 32,
+      "text": "TUGAS AKHIR",
+      "style": "Normal"
+    },
+    {
+      "para_index": 46,
+      "text": "Naval Indra Waskita",
+      "style": "Normal"
+    },
+    {
+      "para_index": 47,
+      "text": "2120101734",
+      "style": "Normal"
+    },
+    {
+      "para_index": 53,
+      "text": "Rekayasa Perangkat Keras Kriptografi",
+      "style": "Normal"
+    },
+    {
+      "para_index": 54,
+      "text": "Politeknik Siber dan Sandi Negara",
+      "style": "Normal"
+    },
+    {
+      "para_index": 55,
+      "text": "2025",
+      "style": "Normal"
+    },
+    {
+      "para_index": 60,
+      "text": "LEMBAR PERNYATAAN ORISINALITAS",
+      "style": "Normal"
+    },
+    {
+      "para_index": 98,
+      "text": "LEMBAR PERSETUJUAN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 134,
+      "text": "LEMBAR PENGESAHAN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 169,
+      "text": "LEMBAR PERNYATAAN PERSETUJUAN PUBLIKASI ",
+      "style": "Head1"
+    },
+    {
+      "para_index": 170,
+      "text": "TUGAS AKHIR UNTUK KEPENTINGAN AKADEMIS",
+      "style": "Normal"
+    },
+    {
+      "para_index": 199,
+      "text": "ABSTRAK",
+      "style": "Normal"
+    },
+    {
+      "para_index": 204,
+      "text": "oleh",
+      "style": "Normal"
+    },
+    {
+      "para_index": 206,
+      "text": "Naval Indra Waskita",
+      "style": "Normal"
+    }
+  ],
+  "examples": {
+    "direct_run_formatting": [
+      {
+        "para_index": 4,
+        "run_text": "TUGAS AKHIR",
+        "style": "Normal"
+      },
+      {
+        "para_index": 14,
+        "run_text": "Implementasi Simulasi ",
+        "style": "Normal"
+      },
+      {
+        "para_index": 14,
+        "run_text": "Quantum Random Number Generator",
+        "style": "Normal"
+      },
+      {
+        "para_index": 14,
+        "run_text": " dan A",
+        "style": "Normal"
+      },
+      {
+        "para_index": 14,
+        "run_text": "l",
+        "style": "Normal"
+      }
+    ],
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 31,
+        "text": "LEMBAR JUDUL",
+        "style": "Head1"
+      },
+      {
+        "para_index": 72,
+        "text": "Tugas Akhir ini adalah hasil karya saya sendiri,",
+        "style": "Normal"
+      },
+      {
+        "para_index": 73,
+        "text": "dan semua sumber baik yang dikutip maupun dirujuk telah saya nyatakan dengan benar.",
+        "style": "Normal"
+      },
+      {
+        "para_index": 81,
+        "text": "Nama\t: Naval Indra Waskita",
+        "style": "Normal"
+      },
+      {
+        "para_index": 82,
+        "text": "NPM\t: 2120101734",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

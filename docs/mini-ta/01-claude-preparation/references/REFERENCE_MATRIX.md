@@ -1,6 +1,6 @@
 # Reference Matrix — AKSARA Mini-TA
 
-Kolom "Bab" adalah proyeksi provisional untuk TAHAP 15 (content pack per BAB) yang BELUM dikerjakan sesi ini — bukan penempatan final. Kolom "Algoritma" merujuk ke komponen inti `CORE-1`..`CORE-7` dari `03_CRYPTO_INVENTORY_NORMALIZED.md`. Kolom "Klaim yang Didukung" merujuk ke ID `CR-xxx` (audit kripto, `02_CRYPTO_IMPLEMENTATION_AUDIT.md`) yang relevan.
+Kolom "Bab" mencerminkan penempatan final — TAHAP 15 (content pack per BAB) sudah selesai penuh (BAB I-VI, `14_CHAPTER_CONTENT_PACK.md`) dan pemetaan referensi di kolom ini sudah konsisten dengan penempatan aktualnya di sana. Kolom "Algoritma" merujuk ke komponen inti `CORE-1`..`CORE-7` dari `03_CRYPTO_INVENTORY_NORMALIZED.md`. Kolom "Klaim yang Didukung" merujuk ke ID `CR-xxx` (audit kripto, `02_CRYPTO_IMPLEMENTATION_AUDIT.md`) yang relevan.
 
 | Citekey | Referensi | Jenis | Klaim yang Didukung | Algoritma | Bab | Kualitas |
 |---------|-----------|-------|----------------------|-----------|-----|----------|

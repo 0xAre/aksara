@@ -167,5 +167,42 @@ Yang masih terbuka, seluruhnya butuh keputusan/tindakan pengguna:
 - Subcommand `aksara id --vault <path> --offline` (binary `target/release/aksara.exe`, build SESSION 4 commit `450d484`, bila belum dibersihkan) dapat dipakai untuk EXP-01/EXP-05.
 - Jika dibutuhkan referensi eksternal baru, tambahkan ke `references/REFERENCES.bib` yang sudah ada (40 entry).
 - `semantic-scholar` dan `tavily` bermasalah sejak sesi-sesi sebelumnya — `ydc-server` (you-search) adalah fallback terbukti bekerja.
-- Nama asli 3 anggota kelompok, `study_program`, dan `institution` tetap `NEEDS_CONFIRMATION` di `HANDOFF_TO_CODEX.yaml` — perlu diisi kelompok sebelum cetak final.
+- ~~Nama asli 3 anggota kelompok, `study_program`, dan `institution` tetap `NEEDS_CONFIRMATION`~~ — **sudah CONFIRMED sejak 2026-07-27** (lihat catatan di atas §"Lanjutan sesi yang sama (identitas + format dokumen)"); baris ini sempat tertinggal stale, sudah dikoreksi 2026-07-30.
+
+## Update 2026-07-30 — Sesi B Screenshot Selesai + Verifikasi Konsistensi Dokumen
+
+**Sesi B (Tor) selesai penuh** — 6/6 berkas masuk repo (`05-onion-invite`, `06-tor-online`, `07a/b-komunikasi-tor-laptop1/2`, `07c-bukti-jaringan-berbeda-laptop1/2`). Satu versi awal `07c` laptop 1 ditolak (bocor jendela WhatsApp di latar belakang + `ipconfig` belum sampai adapter Wi-Fi aktif), diganti versi bersih. Detail: `screenshots/STATUS.md` §3a-3b, `11_FIGURE_MANIFEST.md`. TAHAP 12 kini `DONE` penuh — bukan lagi `PARTIAL`.
+
+**Verifikasi konsistensi SESSION 5 (TAHAP 13-17)** dilakukan atas permintaan pengguna (bukan audit ulang substansi — tidak ada kontradiksi kripto ditemukan, `ready_for_codex: YES` tetap valid). 6 titik status-sync yang tertinggal ditemukan dan diperbaiki:
+
+1. `14_CHAPTER_CONTENT_PACK.md` §3.4 dan tabel ringkasan BAB III — masih `PARTIAL`/`WAITING_FOR_EXPERIMENT` padahal `HANDOFF_TO_CODEX.yaml` sudah `READY` sejak SESSION 6 (data ada di BAB V §5.1). Dikoreksi jadi `READY`.
+2. `13_TABLE_MANIFEST.md` catatan TBL-11/12 — masih bilang `WAITING_FOR_EXPERIMENT` padahal `tables/11_test_scenarios.md`/`12_evaluation_parameters.md` sudah berisi hasil aktual sejak SESSION 6. Dikoreksi.
+3. `13_TABLE_MANIFEST.md` catatan TBL-13 — masih bilang nama anggota placeholder padahal `tables/13_team_assignment.md` sudah CONFIRMED sejak 2026-07-27. Dikoreksi.
+4. `15_CLAIM_EVIDENCE_CITATION_MAP.md` intro — salah sebut "152 entry CB-xxx", seharusnya 259 (cocok `PROJECT_MEMORY.md`). Dikoreksi.
+5. `WORKFLOW_STATE.yaml` `workflow.current_session` — stale di "5b" padahal `latest_handoff` sudah menunjuk SESSION 6. Dikoreksi jadi "6".
+6. `references/REFERENCE_MATRIX.md` header note — masih bilang kolom "Bab" provisional/TAHAP 15 belum dikerjakan, padahal TAHAP 15 sudah selesai penuh. Dikoreksi.
+
+Pola yang berulang di seluruh 6 temuan: sesi lanjutan (SESSION 6, koreksi identitas anggota) mengubah data aktual tapi tidak selalu memperbarui catatan status di dokumen lain yang merujuknya. Tidak ada tindakan lanjutan diperlukan — seluruhnya sudah dikoreksi sesi ini.
 - Update file ini setiap TAHAP/langkah besar selesai — jangan tunggu sampai akhir sesi.
+
+## Update 2026-07-30 — Dokumen Akhir Mini-TA Selesai
+
+Jalur B selesai. Dokumen akhir tersedia di
+`docs/mini-ta/04-output/AKSARA_LAPORAN_FINAL.docx`.
+
+- Microsoft Word melaporkan **71 halaman** dan **8.788 kata**.
+- Isi mencakup sampul, Abstrak Indonesia, daftar isi, daftar gambar, daftar
+  tabel, BAB I–VI, dan daftar pustaka.
+- Terdapat **18 gambar isi** (BAB IV: 17; BAB V: 1), ditambah 1 logo sampul.
+- Terdapat **13 tabel** (BAB I: 1; BAB II: 4; BAB III: 1; BAB IV: 5; BAB V: 2).
+- Seluruh **40 referensi** tercantum dan disitasi.
+- Tidak ada marker `[PERLU KONFIRMASI]`.
+- Audit struktur, semantik, field, section, heading, dan gambar selesai.
+- QA render seluruh halaman selesai secara diferensial. Masalah restart nomor
+  halaman, penomoran perincian, fragmen Tabel 4.1, dan satu halaman kosong
+  telah diperbaiki.
+- Detail generasi dan QA dicatat di
+  `docs/mini-ta/04-output/GENERATION_LOG.md`.
+
+**Next action**: `SELESAI`. Jika dokumen diedit kembali, jalankan `Ctrl+A`
+kemudian `F9` di Microsoft Word dan ulangi pemeriksaan pagination.

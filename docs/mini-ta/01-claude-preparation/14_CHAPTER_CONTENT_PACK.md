@@ -335,10 +335,10 @@ Brief mewajibkan BAB II menekankan teori: confidentiality, integrity, authentici
 7. **Claim ID**: Tidak berlaku.
 8. **Diagram**: Tidak berlaku.
 9. **Tabel**: TBL-03 (stack teknologi).
-10. **Eksperimen**: Lingkungan eksekusi EXP-01..05 (CPU/RAM/OS) **WAJIB dicatat ulang saat eksperimen dijalankan** — belum final di sesi ini (lihat `12_TEST_PLAN.md` poin 7 tiap eksperimen).
-11. **Klaim yang boleh ditulis**: Toolchain dan versi yang sudah diverifikasi TAHAP 1/12 (Rust 1.89+, `mmdc`, build commit `450d484`).
-12. **Klaim yang dilarang**: Mencantumkan spesifikasi hardware eksekusi pengujian sebelum benar-benar diukur (lihat keterbatasan EXP-05).
-13. **Status kesiapan**: PARTIAL — bagian toolchain READY, bagian lingkungan eksekusi pengujian `WAITING_FOR_EXPERIMENT`.
+10. **Eksperimen**: Lingkungan eksekusi EXP-01..05 (CPU/RAM/OS) sudah dicatat lengkap saat eksperimen benar-benar dijalankan — lihat BAB V §5.1.
+11. **Klaim yang boleh ditulis**: Toolchain dan versi yang sudah diverifikasi TAHAP 1/12 (Rust 1.89+, `mmdc`, build commit `450d484`); spesifikasi hardware eksekusi pengujian persis seperti BAB V §5.1.
+12. **Klaim yang dilarang**: Mencantumkan spesifikasi hardware eksekusi pengujian yang berbeda dari yang tercatat di BAB V §5.1.
+13. **Status kesiapan**: READY — bagian lingkungan eksekusi pengujian kini tersedia penuh di BAB V §5.1 (diperbarui 2026-07-27, SESSION 6; lihat `HANDOFF_TO_CODEX.yaml` `chapters.bab_3.status_note`).
 
 ### 3.5 Rencana Pengujian (Ringkasan)
 
@@ -614,7 +614,7 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 |---|---|---|---|
 | I — Pendahuluan | 6 | READY | Seluruh subbab selesai penuh |
 | II — Kajian Pustaka | 10 | READY | Seluruh subbab selesai penuh; bagian kuantitatif (timing Argon2id) tetap `WAITING_FOR_EXPERIMENT` |
-| III — Metodologi | 5 | READY (4) / PARTIAL (1) | 3.4 sebagian `WAITING_FOR_EXPERIMENT` (lingkungan eksekusi belum final) |
+| III — Metodologi | 5 | READY | Seluruh subbab selesai penuh — 3.4 dinaikkan dari `PARTIAL` sejak 2026-07-27 (lingkungan eksekusi kini tersedia di BAB V §5.1) |
 | IV — Perancangan dan Implementasi | 7 | READY | Seluruh subbab selesai penuh — BAB inti, paling rinci |
 | V — Pengujian dan Analisis | 3 | READY | Diisi 2026-07-27 dari data terukur; EXP-02/EXP-03 parsial pada metrik kuantitatif, ditandai eksplisit |
 | VI — Penutup | 3 | READY | Seluruh 3 subbab diisi 2026-07-27 dengan format 13 field penuh |

@@ -5,13 +5,13 @@ project:
   member_count: 3
 
 workflow:
-  active_sprint: mini_ta_preparation
-  sprint_status: PREPARATION_COMPLETE
+  active_sprint: mini_ta_final_document
+  sprint_status: FINAL_DOCUMENT_COMPLETE
   total_sessions_remaining: 0
-  current_session: 5b
+  current_session: 6
   latest_completed_stage: 17
   latest_handoff: docs/mini-ta/01-claude-preparation/SESSION_6_HANDOFF.md
-  next_action: codex_menyusun_docx_bab_1_sampai_6
+  next_action: selesai
   experiments_result: >
     SELESAI. 2026-07-26 commit 3d22494: cargo test --release = 46/46 PASS
     (correctness+rejection EXP-01..04). 2026-07-27 commit 75d17fd: EXP-05
@@ -23,18 +23,23 @@ workflow:
     - ketiganya butuh instrumentasi src/. Data:
     docs/mini-ta/02-experiment-data/EXPERIMENT_RESULTS_2026-07-27.csv
   ready_for_codex: YES
+  final_document:
+    status: COMPLETE
+    completed_on: "2026-07-30"
+    base_commit: "861a022"
+    path: docs/mini-ta/04-output/AKSARA_LAPORAN_FINAL.docx
+    generation_log: docs/mini-ta/04-output/GENERATION_LOG.md
+    page_count: 71
+    word_count: 8788
+    figures_content: 18
+    tables: 13
+    references: 40
+    confirmations_required: 0
   note: >
-    Sprint persiapan mini-TA (TAHAP 1-17) SELESAI. SESSION 5A dan 5B
-    dijalankan dalam satu rangkaian percakapan (user memilih lanjut hati-hati
-    alih-alih menunggu sesi baru penuh setelah SESSION 5A checkpoint). TAHAP
-    15 berstatus PARTIAL by design: BAB I-IV selesai penuh (Quality Gate #15
-    brief), BAB V dan BAB VI (6.1) sengaja distub menunggu eksekusi
-    12_TEST_PLAN.md (diizinkan eksplisit brief). TAHAP 16 (peta klaim, 81
-    Claim ID) dan TAHAP 17 (HANDOFF_TO_CODEX.yaml, ready_for_codex:
-    YES_PARTIAL) SELESAI. Langkah berikutnya BUKAN TAHAP baru dalam skema
-    17-tahap ini, melainkan: (a) menjalankan eksperimen untuk melengkapi
-    BAB V/VI, atau (b) Codex mulai menyusun DOCX dari BAB I-IV yang sudah
-    siap. Lihat SESSION_5B_HANDOFF.md untuk detail dua jalur ini.
+    Sprint persiapan mini-TA (TAHAP 1-17), eksperimen, content pack BAB I-VI,
+    dan Jalur B penyusunan DOCX telah selesai. Dokumen akhir, log generasi,
+    pembaruan field, audit struktur/semantik, serta QA render diselesaikan
+    pada 2026-07-30. Tidak ada marker konfirmasi atau tindak lanjut wajib.
 
 sessions:
   session_3:
