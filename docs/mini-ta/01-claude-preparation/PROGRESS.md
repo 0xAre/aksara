@@ -206,3 +206,76 @@ Jalur B selesai. Dokumen akhir tersedia di
 
 **Next action**: `SELESAI`. Jika dokumen diedit kembali, jalankan `Ctrl+A`
 kemudian `F9` di Microsoft Word dan ulangi pemeriksaan pagination.
+
+## Update 2026-08-06 — Audit Konsistensi Penuh docs/mini-ta (53 file)
+
+Atas permintaan pengguna, seluruh 53 file `.md`/`.yaml` di `docs/mini-ta/`
+(di luar `00-template/`, `_quarantine/`, dan `04-output/*.docx`) diperiksa
+untuk status stale, angka yang berbeda antar file, cross-reference nomor file
+yang salah, field session/workflow yang tertinggal, frasa terlarang, dan
+konsistensi nama/peran anggota — pola yang sama seperti audit 6-titik
+2026-07-30 di atas.
+
+**`WORKFLOW_STATE.yaml` dan `HANDOFF_TO_CODEX.yaml` bagian utama TERNYATA
+sudah konsisten** (`sprint_status: FINAL_DOCUMENT_COMPLETE`, `ready_for_codex:
+YES` penuh, blok `final_document` lengkap) — dugaan awal bahwa keduanya belum
+mencerminkan Jalur B selesai TIDAK terbukti.
+
+**7 perbaikan diterapkan** (status/angka, bukan prosa BAB):
+
+1. `14_CHAPTER_CONTENT_PACK.md` §1.5 (poin 10, Eksperimen) — rujukan "status
+   `WAITING_FOR_EXPERIMENT` seluruh `12_TEST_PLAN.md`" diperbarui jadi
+   `EXECUTED`/`PARTIAL` (SESSION 6, 2026-07-27), hanya RSS yang tetap
+   `WAITING_FOR_EXPERIMENT`.
+2. `14_CHAPTER_CONTENT_PACK.md` §2.5 (poin 13, Status kesiapan) — "bagian
+   kuantitatif timing tetap `WAITING_FOR_EXPERIMENT`" diperbarui jadi
+   `EXECUTED` (EXP-05, neto mean 47,99 ms).
+3. `14_CHAPTER_CONTENT_PACK.md` §3.3 (poin 12, Klaim yang dilarang) — larangan
+   "mengklaim tahap ke-5 sudah selesai" dibalik: tahap ke-5 SUDAH selesai
+   sejak SESSION 6, larangan diarahkan ke overclaim 3 metrik yang masih hedged.
+4. `14_CHAPTER_CONTENT_PACK.md` §3.5 (poin 2, Outline paragraf) — "status
+   `WAITING_FOR_EXPERIMENT` seragam" diperbarui jadi status eksekusi aktual
+   per kelompok.
+5. `14_CHAPTER_CONTENT_PACK.md` §4.2 Key Lifecycle (poin 13) — sama seperti
+   poin 2 di atas, bagian timing kini `EXECUTED`.
+6. `14_CHAPTER_CONTENT_PACK.md` §4.3 Protocol Spec (poin 13) — "verifikasi
+   empiris EXP-02 tetap `WAITING_FOR_EXPERIMENT`" diperbarui: korektnes EXP-02
+   `EXECUTED` (commit `3d22494`), hanya metrik latensi yang `PARTIAL`.
+7. `14_CHAPTER_CONTENT_PACK.md` — baris ringkasan tabel BAB II ("Ringkasan
+   Status Kesiapan per BAB") diperbarui senada dengan poin 2.
+8. `HANDOFF_TO_CODEX.yaml` `quality_gate_17_items` id 2 — `source` yang masih
+   menyebut "placeholder Anggota 1/2/3" diganti rujukan ke `team.members`
+   CONFIRMED 2026-07-27.
+9. `HANDOFF_TO_CODEX.yaml` `session_provenance.sessions_completed` — SESSION 6
+   ditambahkan (sebelumnya daftar berhenti di "5B" padahal isi file sudah
+   direvisi pasca-SESSION 6); catatan provenance ditambah menjelaskan riwayat
+   revisi in-place.
+
+**Pola akar penyebab** (sama seperti 2026-07-30): field ringkasan/status di
+`14_CHAPTER_CONTENT_PACK.md` diisi per-subbab pada waktu penulisan awal
+(SESSION 5B, sebelum eksperimen dijalankan); ketika SESSION 6 mengeksekusi
+eksperimen dan memperbarui BAB V/VI serta §3.4, sejumlah field serupa di
+subbab lain (§1.5, §2.5, §3.3, §3.5, §4.2, §4.3, ringkasan BAB II) yang
+merujuk status eksperimen yang sama tidak ikut diperbarui.
+
+**Diperiksa dan TIDAK ditemukan masalah**: frasa terlarang ("Tanpa
+Jejak"/"Anti-Sadap"/"Terbukti Aman"/"Sepenuhnya Anonim") — seluruh kemunculan
+hanya di daftar larangan, bukan dipakai sebagai klaim; versi crate
+(`ed25519-dalek 2.2.0`, `x25519-dalek 2.0.1`, dst.) — konsisten di semua file
+yang mengutipnya; nama/peran anggota — konsisten di semua file status aktif
+(placeholder `Anggota 1/2/3` hanya tersisa di `CLAUDE_PREPARATION_BRIEF.md`
+sebagai teks brief asli dan di handoff sesi lama sebagai catatan historis —
+keduanya sah, tidak diubah); panjang invite 86 karakter dan sitasi
+`13_TABLE_MANIFEST.md` — sudah benar di semua tempat (perbaikan 2026-07-30
+bertahan, tidak ada regresi).
+
+**Tidak diperbaiki, perlu keputusan pengguna**: tidak ada. `AKSARA_LAPORAN_FINAL.docx`
+digenerate dari commit `861a022` (2026-07-30), setelah SESSION 6 (commit
+`75d17fd`, 2026-07-27) — dokumen akhir sudah memakai angka Argon2id yang
+terkoreksi (47,99 ms), bukan versi lama. Field yang diperbaiki sesi ini
+murni metadata perencanaan di `14_CHAPTER_CONTENT_PACK.md`/`HANDOFF_TO_CODEX.yaml`
+yang tidak memengaruhi isi DOCX yang sudah jadi — regenerasi DOCX TIDAK
+diperlukan.
+
+File yang diubah: `14_CHAPTER_CONTENT_PACK.md`, `HANDOFF_TO_CODEX.yaml`,
+`PROGRESS.md` (entri ini).

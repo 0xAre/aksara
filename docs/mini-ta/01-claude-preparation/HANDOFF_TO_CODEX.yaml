@@ -290,7 +290,7 @@ readiness:
     15_CLAIM_EVIDENCE_CITATION_MAP.md §15.
   quality_gate_17_items:
     - {id: 1, desc: "Scope kelompok jelas", met: true, source: "09_SCOPE_AND_TEAM_PLAN.md"}
-    - {id: 2, desc: "3 anggota teridentifikasi/placeholder", met: true, source: "placeholder Anggota 1/2/3"}
+    - {id: 2, desc: "3 anggota teridentifikasi/placeholder", met: true, source: "team.members CONFIRMED 2026-07-27 (Andika Aryansyach Fauzan, Mahendra Nur Hidayat, Rafi Putra Fadlurrahman) — placeholder Anggota 1/2/3 sudah pensiun"}
     - {id: 3, desc: "Pembagian kontribusi tersedia", met: true, source: "tables/13_team_assignment.md"}
     - {id: 4, desc: "Seluruh primitif kriptografi diinventarisasi", met: true, source: "02_CRYPTO_IMPLEMENTATION_AUDIT.md (36 entry)"}
     - {id: 5, desc: "Justifikasi setiap primitif tersedia", met: true, source: "04_CRYPTOGRAPHIC_JUSTIFICATION.md (7 CORE)"}
@@ -411,7 +411,7 @@ readiness:
 
 session_provenance:
   sprint: mini_ta_preparation
-  sessions_completed: [1, 2, 3, "4", "5A", "5B"]
+  sessions_completed: [1, 2, 3, "4", "5A", "5B", 6]
   workflow_state_file: docs/mini-ta/WORKFLOW_STATE.yaml
   progress_file: docs/mini-ta/01-claude-preparation/PROGRESS.md
   project_memory_file: docs/mini-ta/PROJECT_MEMORY.md
@@ -419,4 +419,7 @@ session_provenance:
     SESSION 5B dijalankan menyambung SESSION 5A dalam percakapan yang sama atas
     keputusan pengguna (bukan sesi baru terpisah) — TAHAP 15 (BAB I-IV), 16, dan
     17 seluruhnya selesai dalam satu rangkaian sesi lanjutan setelah checkpoint
-    aman TAHAP 13-14.
+    aman TAHAP 13-14. File ini awalnya dihasilkan akhir TAHAP 17 (SESSION 5B,
+    ready_for_codex: YES_PARTIAL) lalu diperbarui in-place pasca-SESSION 6
+    (2026-07-27, commit 75d17fd): experiments dieksekusi penuh, chapters.bab_5/
+    bab_6 naik ke READY, readiness.ready_for_codex naik ke YES penuh.

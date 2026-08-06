@@ -85,7 +85,7 @@ Dokumen ini menyiapkan bahan substansi per BAB (TAHAP 15) untuk dipakai Codex me
 7. **Claim ID**: Tidak berlaku.
 8. **Diagram**: Tidak berlaku.
 9. **Tabel**: Tidak berlaku.
-10. **Eksperimen**: Batasan poin 9 (`09_SCOPE_AND_TEAM_PLAN.md` §5) langsung terkait status `WAITING_FOR_EXPERIMENT` seluruh `12_TEST_PLAN.md`.
+10. **Eksperimen**: Batasan poin 9 (`09_SCOPE_AND_TEAM_PLAN.md` §5) langsung terkait status eksekusi `12_TEST_PLAN.md` — seluruh 5 kelompok kini `EXECUTED`/`PARTIAL` (SESSION 6, 2026-07-27); hanya memory usage puncak (RSS) yang tetap `WAITING_FOR_EXPERIMENT`.
 11. **Klaim yang boleh ditulis**: 9 batasan persis seperti `09_SCOPE_AND_TEAM_PLAN.md` §5.
 12. **Klaim yang dilarang**: Mengurangi/menghapus batasan manapun tanpa alasan terdokumentasi — batasan ini adalah kontrol anti-overclaim, bukan formalitas.
 13. **Status kesiapan**: READY.
@@ -190,7 +190,7 @@ Brief mewajibkan BAB II menekankan teori: confidentiality, integrity, authentici
 10. **Eksperimen**: EXP-01 (KDF consistency Argon2id), EXP-04 (KDF consistency BLAKE2s), EXP-05 (benchmark timing Argon2id).
 11. **Klaim yang boleh ditulis**: Argon2id dipakai untuk passphrase (memory-hard, 19 MiB); BLAKE2s dipakai KDF ad hoc untuk secret berentropi tinggi (bukan HKDF standar, dinilai dapat diterima untuk kasus tunggal ini).
 12. **Klaim yang dilarang**: Mengutip klaim timing "~100ms" Argon2id sebagai fakta terukur sebelum EXP-05 benar-benar dijalankan (`DOCUMENTED_ONLY`, CB-087).
-13. **Status kesiapan**: READY (naratif teori) — bagian kuantitatif timing tetap `WAITING_FOR_EXPERIMENT`.
+13. **Status kesiapan**: READY — bagian kuantitatif timing kini `EXECUTED` (EXP-05, lihat BAB V §5.2: neto mean 47,99 ms, mengoreksi klaim komentar kode "~100 ms").
 
 ### 2.6 Identitas Digital dan Digital Signature
 
@@ -321,7 +321,7 @@ Brief mewajibkan BAB II menekankan teori: confidentiality, integrity, authentici
 9. **Tabel**: Tidak berlaku.
 10. **Eksperimen**: Tahapan ke-5 mencakup seluruh `12_TEST_PLAN.md`.
 11. **Klaim yang boleh ditulis**: Deskripsi 5 tahapan metodologi sesuai urutan TAHAP 1-17 brief yang benar-benar dijalankan.
-12. **Klaim yang dilarang**: Mengklaim tahap ke-5 (eksekusi pengujian) sudah selesai — status tetap `WAITING_FOR_EXPERIMENT` per `12_TEST_PLAN.md`.
+12. **Klaim yang dilarang**: Mengklaim seluruh metrik EXP-01..05 terukur presisi tanpa hedge — tahap ke-5 (eksekusi pengujian) SUDAH selesai (SESSION 6, 2026-07-27) per `12_TEST_PLAN.md`, tetapi 3 metrik (latensi handshake, overhead ciphertext transport, RSS) tetap `PARTIAL`/`WAITING_FOR_EXPERIMENT` dan hedge-nya wajib dipertahankan.
 13. **Status kesiapan**: READY.
 
 ### 3.4 Lingkungan dan Alat
@@ -343,7 +343,7 @@ Brief mewajibkan BAB II menekankan teori: confidentiality, integrity, authentici
 ### 3.5 Rencana Pengujian (Ringkasan)
 
 1. **Tujuan**: Menyajikan ringkasan 5 kelompok eksperimen sebagai bagian metodologi (detail penuh di BAB V setelah eksekusi).
-2. **Outline paragraf**: Ringkas 5 kelompok (EXP-01 s.d. EXP-05), metrik utama, dan status `WAITING_FOR_EXPERIMENT` seragam.
+2. **Outline paragraf**: Ringkas 5 kelompok (EXP-01 s.d. EXP-05), metrik utama, dan status eksekusi aktual per kelompok (`EXECUTED`/`PARTIAL`, lihat `12_TEST_PLAN.md` §Status Eksekusi dan BAB V §5.2) — bukan lagi seragam `WAITING_FOR_EXPERIMENT`.
 3. **Kalimat topik**: "Rencana pengujian dirancang dalam lima kelompok eksperimen yang mencakup correctness, rejection, consistency, dan benchmark performa terhadap primitif kriptografi inti AKSARA."
 4. **Fakta codebase**: Seluruh isi `12_TEST_PLAN.md`.
 5. **Evidence**: Rujuk nama test existing per kelompok (lihat `12_TEST_PLAN.md` §EXP-01..05 poin 3).
@@ -392,7 +392,7 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 10. **Eksperimen**: EXP-01 (correctness/rejection vault), EXP-05 (benchmark Argon2id).
 11. **Klaim yang boleh ditulis**: Seluruh klaim `07_KEY_LIFECYCLE.md` sesuai status confidence masing-masing (HIGH/PARTIAL/DOCUMENTED_ONLY) — WAJIB mempertahankan pembedaan status ini, tidak diratakan jadi "terverifikasi" semua.
 12. **Klaim yang dilarang**: Mengutip "~100ms" Argon2id sebagai fakta terukur; menyatakan zeroization "lengkap" di seluruh codebase (faktanya PARTIAL, lemah di 5 boundary yang terdaftar `07_KEY_LIFECYCLE.md` §7.2).
-13. **Status kesiapan**: READY (naratif) — bagian timing tetap `WAITING_FOR_EXPERIMENT`.
+13. **Status kesiapan**: READY (naratif) — bagian timing kini `EXECUTED` (EXP-05, lihat BAB V §5.2: neto mean 47,99 ms, mengoreksi "~100ms").
 
 ### 4.3 Spesifikasi Protokol: Invite, Discovery, dan Pembentukan Koneksi
 
@@ -424,7 +424,7 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 10. **Eksperimen**: EXP-02 (correctness, key agreement consistency, wrong-key/unknown-peer rejection).
 11. **Klaim yang boleh ditulis**: Alur 2 pesan terverifikasi HIGH confidence (test+kode); fail-closed untuk kontak dikenal HIGH confidence; **ketiadaan** pengecekan identitas kontak baru HIGH confidence (untuk fakta ketiadaannya) — interpretasi "trust-on-first-use disengaja" tetap `NEEDS_CONFIRMATION`.
 12. **Klaim yang dilarang**: Mengklaim forward secrecy/identity-hiding/mutual-authentication "terverifikasi penuh" — ketiganya `DOCUMENTED_ONLY`/MEDIUM, properti umum Noise_IK yang diwarisi, bukan diverifikasi test AKSARA sendiri (mandat berulang `SESSION_2_HANDOFF.md`).
-13. **Status kesiapan**: READY (naratif) — verifikasi empiris tambahan lewat EXP-02 tetap `WAITING_FOR_EXPERIMENT`.
+13. **Status kesiapan**: READY (naratif) — verifikasi empiris korektnes lewat EXP-02 kini `EXECUTED` (commit `3d22494`); hanya metrik latensi yang tetap `PARTIAL` (batas atas < 0,86 ms, lihat BAB V §5.2).
 
 ### 4.5 Transport Sesi Terenkripsi
 
@@ -613,7 +613,7 @@ Brief menandai BAB IV sebagai **bagian inti** — dijelaskan paling rinci dari s
 | BAB | Jumlah Subbab | Status Dominan | Catatan |
 |---|---|---|---|
 | I — Pendahuluan | 6 | READY | Seluruh subbab selesai penuh |
-| II — Kajian Pustaka | 10 | READY | Seluruh subbab selesai penuh; bagian kuantitatif (timing Argon2id) tetap `WAITING_FOR_EXPERIMENT` |
+| II — Kajian Pustaka | 10 | READY | Seluruh subbab selesai penuh; bagian kuantitatif (timing Argon2id) kini `EXECUTED` sejak 2026-07-27 (EXP-05, lihat BAB V §5.2) |
 | III — Metodologi | 5 | READY | Seluruh subbab selesai penuh — 3.4 dinaikkan dari `PARTIAL` sejak 2026-07-27 (lingkungan eksekusi kini tersedia di BAB V §5.1) |
 | IV — Perancangan dan Implementasi | 7 | READY | Seluruh subbab selesai penuh — BAB inti, paling rinci |
 | V — Pengujian dan Analisis | 3 | READY | Diisi 2026-07-27 dari data terukur; EXP-02/EXP-03 parsial pada metrik kuantitatif, ditandai eksplisit |
